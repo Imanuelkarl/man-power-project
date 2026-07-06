@@ -8,7 +8,7 @@ const pool = new Pool({
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'password',
   ssl: {
-    rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED, // Set to true in production for security
+    rejectUnauthorized: process.env.DB_SSL, // Set to true in production for security
   },
 });
 

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/auth.controller.js';
+import { verifyToken } from '../middlewares/auth.middleware.js';
 
 const authRouter = Router();
 
@@ -15,5 +16,7 @@ authRouter.post('/reset-password', AuthController.resetPassword);
 
 //Test endpoint to check if the user is authenticated
 authRouter.get('/test', AuthController.test);
+
+authRouter.get('/verify-token', verifyToken, AuthController.verifyToken);
 
 export default authRouter;

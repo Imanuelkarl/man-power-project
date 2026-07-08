@@ -1,11 +1,13 @@
 import api from "../utils/api";
 
 type AuthResponse = {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-    name?: string;
+  data: {
+    token: string;
+    user: {
+      id: string;
+      email: string;
+      name?: string;
+    };
   };
 };
 
@@ -25,24 +27,38 @@ type ResetPasswordPayload = {
 };
 
 export const login = async ({ email, password }: LoginPayload) => {
-  const response = await api.post<AuthResponse>("/auth/login", {
-    email,
-    password,
-  });
-  const data = response.data;
-  localStorage.setItem("token", data.token);
-  return data;
+  try {
+    const response = await api.post<AuthResponse>("/auth/login", {
+      email,
+      password,
+    });
+    const data = response.data.data;
+    localStorage.setItem("token", data.token);
+    console.log("Login response data:", data);
+    return data;
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
+  }
 };
 
 export const signup = async ({ email, password, name }: SignupPayload) => {
-  const response = await api.post<AuthResponse>("/auth/signup", {
-    email,
-    password,
-    name,
-  });
-  const data = response.data;
-  localStorage.setItem("token", data.token);
-  return data;
+  console.log("Signup payload:", { email, password, name });
+  try {
+    const response = await api.post<AuthResponse>("/auth/signup", {
+      email,
+      password,
+      name,
+    });
+    const data = response.data.data;
+    console.log("Signup response data:", data);
+    localStorage.setItem("token", data.token);
+    
+    return data;
+  } catch (error) {
+    console.error("Signup error:", error);
+    throw error;
+  }
 };
 
 export const requestPasswordReset = async (email: string) => {

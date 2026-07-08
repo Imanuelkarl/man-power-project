@@ -9,12 +9,10 @@ import { toast } from "sonner";
 import { useHydrated } from "../../hooks/use-hydrated";
 import { Navigate, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../context/ThemeContext";
 import { ThemeToggle } from "../../components/ThemeToggle";
 
 const LoginPage : React.FC = () => {
   const { user, login, signup} = useAuth();
-  const { resolvedTheme } = useTheme();
   const navigate = useNavigate();
   const hydrated = useHydrated();
 
@@ -37,7 +35,7 @@ const LoginPage : React.FC = () => {
     e.preventDefault();
     try {
       await signup(name, email, password);
-      navigate("/dashboard");
+      
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Registration failed");
     }

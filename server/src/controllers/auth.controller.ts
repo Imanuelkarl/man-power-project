@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { AuthService } from '../services/auth.services.js';
+import { Request, Response } from "express";
+import { AuthService } from "../services/auth.services.js";
 
 export class AuthController {
   /**
@@ -13,7 +13,7 @@ export class AuthController {
       if (!email || !password) {
         res.status(400).json({
           success: false,
-          message: 'Email and password are required',
+          message: "Email and password are required",
         });
         return;
       }
@@ -23,7 +23,7 @@ export class AuthController {
 
       res.status(200).json({
         success: true,
-        message: 'Login successful',
+        message: "Login successful",
         data: {
           token,
           user,
@@ -32,7 +32,7 @@ export class AuthController {
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Login failed',
+        message: "Login failed",
         error,
       });
     }
@@ -49,13 +49,13 @@ export class AuthController {
       if (!name || !email || !password || !role) {
         res.status(400).json({
           success: false,
-          message: 'name, email, password, and role are required',
+          message: "name, email, password, and role are required",
         });
         return;
       }
 
       // Validate role
-      if (!['manufacturer', 'investor','admin'].includes(role)) {
+      if (!["manufacturer", "investor", "admin"].includes(role)) {
         res.status(400).json({
           success: false,
           message: 'Role must be either "manufacturer" or "investor"',
@@ -64,21 +64,26 @@ export class AuthController {
       }
 
       // TODO: Implement signup logic
-        const { token, user } = await AuthService.signup({username: name, password, role});
+      const { token, user } = await AuthService.signup({
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+      });
 
       res.status(201).json({
         success: true,
-        message: 'Sign up successful',
+        message: "Sign up successful",
         data: {
           token,
           user,
         },
       });
     } catch (error) {
-        console.error('Error during signup:', error);
+      console.error("Error during signup:", error);
       res.status(500).json({
         success: false,
-        message: 'Sign up failed',
+        message: "Sign up failed",
         error,
       });
     }
@@ -95,7 +100,7 @@ export class AuthController {
       if (!token || !newPassword) {
         res.status(400).json({
           success: false,
-          message: 'Token and new password are required',
+          message: "Token and new password are required",
         });
         return;
       }
@@ -110,29 +115,43 @@ export class AuthController {
 
       res.status(200).json({
         success: true,
-        message: 'Password reset successful',
+        message: "Password reset successful",
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Password reset failed',
+        message: "Password reset failed",
         error,
       });
     }
   }
   static async test(req: Request, res: Response): Promise<void> {
     try {
-        res.status(200).json({
-            success: true,
-            message: 'User is authenticated',
-        });
+      res.status(200).json({
+        success: true,
+        message: "User is authenticated",
+      });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Test endpoint failed',
-            error,
-        });
+      res.status(500).json({
+        success: false,
+        message: "Test endpoint failed",
+        error,
+      });
     }
-}
-
+  }
+  static async verifyToken(req: Request, res: Response): Promise<void> {
+    try {
+      res.status(200).json({
+        success: true,
+        message: "Token is valid",
+        data: { "message": "Token is valid" },
+      });
+    } catch (error) {
+      res.status(401).json({
+        success: false,
+        message: "Invalid token",
+        error,
+      });
+    }
+  }
 }

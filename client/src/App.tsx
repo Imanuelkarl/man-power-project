@@ -3,6 +3,8 @@ import "./App.css";
 import LoginPage from "./pages/auth/LoginPage";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
   return (
@@ -11,6 +13,7 @@ function App() {
       <ThemeProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/login" element={<LoginPage />} />
         </Routes>
       </BrowserRouter>

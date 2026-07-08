@@ -1,6 +1,6 @@
 
 import  { createContext, useContext, useState, type ReactNode } from 'react'
-import { login as loginService, signup as signupService, resetPassword as resetPasswordService } from '../services/authService'
+import { login as loginService, signup as signupService, requestPasswordReset as resetPasswordService } from '../services/authService'
 
 type User = {
   id: string
@@ -25,29 +25,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null)
 
   const login = async (email: string, password: string) => {
-    // implement actual login logic here
-    loginService({ email, password }).then((data) => {
-      setUser(data.user)
-    });
-
-    setUser({ id: '1', email, name: 'User' })
+    const data = await loginService({ email, password })
+    setUser(data.user)
   }
 
   const signup = async (email: string, password: string, name?: string) => {
-    // implement actual signup logic here
-    signupService({ email, password, name }).then((data) => {
-      setUser(data.user)
-    });
-    setUser({ id: '2', email, name })
+    const data = await signupService({ email, password, name })
+    setUser(data.user)
   }
 
   const resetPassword = async (email: string) => {
-    // implement actual reset password logic here
-    const token = 'dummy-token'; // In a real application, you would get this token from the server
-    resetPasswordService(token, email).then(() => {
-      console.log('Password reset request sent')
-    });
-    return
+    await resetPasswordService(email)
+    console.log('Password reset request sent')
   }
 
   return (

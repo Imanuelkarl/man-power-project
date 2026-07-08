@@ -22,7 +22,7 @@ type LoginPayload = {
   password: string;
 };
 
-type ResetPasswordPayload = {
+export type ResetPasswordPayload = {
   password: string;
 };
 

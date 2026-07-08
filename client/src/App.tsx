@@ -5,7 +5,6 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
-import WelcomePage from "./pages/WelcomePage";
 
 function App() {
   return (
@@ -14,8 +13,7 @@ function App() {
       <ThemeProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<WelcomePage />} />
-          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/login" element={<LoginPage />} />
         </Routes>
       </BrowserRouter>

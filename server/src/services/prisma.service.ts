@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client.js';
+import { PrismaClient } from '../generated/prisma/client.js';
 // Import the Postgres adapter for Prisma client initialization
 import {PrismaPg} from '@prisma/adapter-pg';
 import { withAccelerate } from '@prisma/extension-accelerate';

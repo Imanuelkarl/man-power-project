@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import { UserModel } from "../models/user.model.js";
-import { Role, User } from "@prisma/client.js";
+import { Role, User } from "../generated/prisma/client.js";
 import { UserResponse } from "../types/user.types.js";
 
 const JWT_SECRET: Secret = process.env.JWT_SECRET ?? "default_jwt_secret";

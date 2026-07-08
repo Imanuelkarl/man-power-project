@@ -11,7 +11,7 @@ type User = {
 type AuthContextType = {
   user: User | null
   login: (email: string, password: string) => Promise<void>
-  signup: (email: string, password: string, name?: string) => Promise<void>
+  signup: (name: string, email: string, password: string, role?: "manufacturer" | "investor") => Promise<void>
   resetPassword: (email: string) => Promise<void>
 }
 
@@ -29,8 +29,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUser(data.user)
   }
 
-  const signup = async (email: string, password: string, name?: string) => {
-    const data = await signupService({ email, password, name })
+  const signup = async (name: string, email: string, password: string, role?: "manufacturer" | "investor") => {
+    const data = await signupService({ name, email, password, role })
     setUser(data.user)
   }
 

@@ -3,11 +3,18 @@ import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import { UserModel } from "../models/user.model.js";
 import { Role, User } from "../generated/prisma/client.js";
 import { UserResponse } from "../types/user.types.js";
+import EmailSender from "../utils/emailSender.js";
+
 
 const JWT_SECRET: Secret = process.env.JWT_SECRET ?? "default_jwt_secret";
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN ?? "1h") as NonNullable<
   SignOptions["expiresIn"]
 >;
+const emailSender = new EmailSender(
+  process.env.SMTP_URL,
+  process.env.EMAIL_FROM || "no-reply@example.com"
+);
+
 const RESET_TOKEN_EXPIRES_IN = (process.env.RESET_TOKEN_EXPIRES_IN ??
   "15m") as NonNullable<SignOptions["expiresIn"]>;
 
@@ -101,7 +108,12 @@ export class AuthService {
     if (!validPassword) {
       throw new Error("Invalid credentials");
     }
-
+    // emailSender.sendMail({
+    //   to: user.email,
+    //   subject: "NEW SIGN IN",
+    //   text:`Hi ${user.name.split(" ")[0]}There was a new sign in into your account if this was not you please login and change your password`
+    // })
+    console.log("User logged in:", user);
     return {
       user: this.sanitizeUser(user),
       token: this.generateToken(user),

@@ -39,8 +39,9 @@ export default class EmailSender {
       text: opts.text,
       html: opts.html,
     };
-
+    console.log("Sending email:", mail);
     const info = await this.transporter.sendMail(mail);
+    console.log("Mail sent", info);
     return info;
   }
 

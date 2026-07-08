@@ -55,10 +55,17 @@ export class AuthController {
       }
 
       // Validate role
-      if (!["manufacturer", "investor", "admin"].includes(role)) {
+      if (!["manufacturer", "investor","admin"].includes(role)) {
         res.status(400).json({
           success: false,
           message: 'Role must be either "manufacturer" or "investor"',
+        });
+        return;
+      }
+      if (role ==="admin") {
+        res.status(403).json({
+          success: false,
+          message: 'You cannot sign up as an admin.',
         });
         return;
       }

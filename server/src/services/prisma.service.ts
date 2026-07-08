@@ -15,7 +15,7 @@ const pool = new Pool({
 const adapter = new PrismaPg(pool);
 
 // Simple Prisma client export for a non-Nest (plain Node.js) project
-const prisma = new PrismaClient({ log:['query','error','info'],adapter }).$extends(withAccelerate())
+const prisma = new PrismaClient({ log:['error','info'],adapter }).$extends(withAccelerate())
 
 // Optional: ensure graceful shutdown
 process.on('SIGINT', async () => {

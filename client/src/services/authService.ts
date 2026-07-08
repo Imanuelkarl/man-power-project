@@ -12,9 +12,11 @@ type AuthResponse = {
 };
 
 type SignupPayload = {
+  name?: string;
   email: string;
   password: string;
-  name?: string;
+  role?: "manufacturer" | "investor"; // Optional role for signup
+  
 };
 
 type LoginPayload = {
@@ -42,13 +44,14 @@ export const login = async ({ email, password }: LoginPayload) => {
   }
 };
 
-export const signup = async ({ email, password, name }: SignupPayload) => {
-  console.log("Signup payload:", { email, password, name });
+export const signup = async ({ name, email, password, role = "manufacturer" }: SignupPayload) => {
+  console.log("Signup payload:", {name, email, password, role });
   try {
     const response = await api.post<AuthResponse>("/auth/signup", {
+      name,
       email,
       password,
-      name,
+      role, // Default role for signup
     });
     const data = response.data.data;
     console.log("Signup response data:", data);

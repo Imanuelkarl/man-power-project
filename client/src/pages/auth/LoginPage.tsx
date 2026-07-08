@@ -9,9 +9,12 @@ import { toast } from "sonner";
 import { useHydrated } from "../../hooks/use-hydrated";
 import { Navigate, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
+import { ThemeToggle } from "../../components/ThemeToggle";
 
 const LoginPage : React.FC = () => {
   const { user, login, signup} = useAuth();
+  const { resolvedTheme } = useTheme();
   const navigate = useNavigate();
   const hydrated = useHydrated();
 
@@ -43,6 +46,9 @@ const LoginPage : React.FC = () => {
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
       <div className="hidden lg:flex flex-col justify-between p-12 bg-sidebar border-r border-sidebar-border relative overflow-hidden">
+         <div className="absolute top-4 right-4 z-10">
+          <ThemeToggle />
+        </div>
         <div className="absolute inset-0 opacity-[0.04] bg-[linear-gradient(to_right,var(--foreground)_1px,transparent_1px),linear-gradient(to_bottom,var(--foreground)_1px,transparent_1px)] bg-[size:40px_40px]" />
         <div className="relative flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary grid place-items-center text-primary-foreground">

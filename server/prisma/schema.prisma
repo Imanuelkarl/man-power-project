@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  
+}
+
+model User {
+  id              Int                  @id @default(autoincrement())
+  userId          String               @unique 
+  email           String               @unique
+  name            String
+  password_hash   String
+  role            Role                 @default(manufacturer)
+  is_active       Boolean              @default(true)
+  created_at      DateTime             @default(now())
+  updated_at      DateTime             @updatedAt
+  
+}
+
+model Manufacturer {
+  id               Int                  @id @default(autoincrement())
+  name             String
+  contact_person   String?
+  email            String?
+  phone            String?
+  sectoral_group   String?
+  sub_sector       String?
+  address          String?
+  latitude         Float?
+  longitude        Float?
+  registration_number String?
+  year_established   Int?
+  employee_count   Int?
+  is_active        Boolean              @default(true)
+  created_at       DateTime             @default(now())
+  updated_at       DateTime             @updatedAt
+  
+  powerInfo        PowerData[]
+}
+
+model PowerData {
+  id                  Int      @id @default(autoincrement())
+  manufacturer_id     Int
+  period              String   @default("H1-2026")
+  
+  // Core Manufacturing Indices
+  capacity_utilization    Float?
+  production_value       Float?
+  raw_material_cost      Float?
+  transport_cost         Float?
+  local_sourcing_percent Float?
+  unsold_goods_value     Float?
+  new_workers_employed   Int?
+  total_workers          Int?
+  workers_left           Int?
+  avg_interest_rate      Float?
+  avg_exchange_rate      Float?
+  
+  // Investment Spending
+  investment_land_buildings    Float?
+  investment_plant_machinery  Float?
+  investment_furniture        Float?
+  investment_motor_vehicles   Float?
+  investment_assets_in_progress Float?
+  
+  // Energy Indicators
+  avg_grid_hours              Float?
+  avg_power_outages           Float?
+  energy_diesel_cost          Float?
+  energy_gas_cost             Float?
+  energy_gen_maintenance_cost Float?
+  energy_other_cost           Float?
+  energy_other_source         String?
+  
+  // Comments
+  nigeria_first_policy_comment String?
+  additional_comments          String?
+  
+  // Metadata
+  status           ResponseStatus @default(draft)
+  submitted_at     DateTime?
+  submitted_by     Int?
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
+  
+  manufacturer     Manufacturer   @relation(fields: [manufacturer_id], references: [id], onDelete: Cascade)
+}
+
+
+
+enum Role {
+  admin
+  manufacturer
+  investor
+}
+
+enum ResponseStatus {
+  draft
+  submitted
+}

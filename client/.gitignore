@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+
+/src/router.ts*
+src/router.ts
+/src/router.ts
+/src/server.ts
+/src/start.ts
+/src/routeTree.gen.ts
+/src/routes/
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

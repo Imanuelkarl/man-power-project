@@ -34,7 +34,7 @@ export const DashboardPage: React.FC = () => {
   const avgCapacity = questionnaires.length
     ? (questionnaires.reduce((s, q) => s + q.capacityUtilization, 0) / questionnaires.length).toFixed(1)
     : "—";
-  const totalProduction = questionnaires.reduce((s, q) => s + q.productionValue, 0);
+  //const totalProduction = questionnaires.reduce((s, q) => s + q.productionValue, 0);
   const totalEnergy = questionnaires.reduce((s, q) => s + q.energyDiesel + q.energyGas + q.energyGenerator + q.energyOther, 0);
 
   const recent = [...questionnaires].sort((a, b) => (a.submittedAt < b.submittedAt ? 1 : -1)).slice(0, 6);

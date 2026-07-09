@@ -1,20 +1,24 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { useData } from "../lib/store";
-import { clusterManufacturers } from "../lib/clusters";
-import { Card } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
+import { useData } from "@/lib/store";
+import { clusterManufacturers } from "@/lib/clusters";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
 import { Building2, Layers, TrendingUp, Zap, Download, FileText, FileSpreadsheet } from "lucide-react";
-import { exportCSV, exportExcel, exportPDF } from "../lib/exports";
-import { PageHeader } from "../components/page-header";
-import { formatNaira } from "../lib/format";
+import { exportCSV, exportExcel, exportPDF } from "@/lib/exports";
+import { PageHeader } from "@/components/page-header";
+import { formatNaira } from "@/lib/format";
 
-
+export const Route = createFileRoute("/_app/dashboard")({
+  head: () => ({ meta: [{ title: "Dashboard — MAN" }] }),
+  component: Dashboard,
+});
 
 const COLORS = ["oklch(0.68 0.16 150)", "oklch(0.78 0.15 75)", "oklch(0.65 0.18 240)", "oklch(0.7 0.19 20)", "oklch(0.7 0.17 300)"];
 
-export const DashboardPage: React.FC = () => {
+function Dashboard() {
   const { manufacturers, questionnaires } = useData();
 
   const clusters = useMemo(() => clusterManufacturers(manufacturers), [manufacturers]);

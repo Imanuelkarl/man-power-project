@@ -7,6 +7,7 @@ type AuthResponse = {
       id: string;
       email: string;
       name?: string;
+      role: 'manufacturer'| 'admin'
     };
   };
 };
@@ -63,7 +64,15 @@ export const signup = async ({ name, email, password, role = "manufacturer" }: S
     throw error;
   }
 };
-
+export const logout = async ()=>{
+  try{
+    //await api.post("/auth/logout");
+  }catch (e){
+    console.error(e);
+  }
+  return;
+  
+}
 export const requestPasswordReset = async (email: string) => {
   return api.post("/auth/password-reset", { email });
 };
@@ -74,6 +83,7 @@ export const resetPassword = async (token: string, password: string) => {
 
 export default {
   login,
+  logout,
   signup,
   requestPasswordReset,
   resetPassword,

@@ -147,11 +147,18 @@ export class AuthController {
     }
   }
   static async verifyToken(req: Request, res: Response): Promise<void> {
+    
     try {
+      const token = req.headers.authorization?.split(' ')[1];
+      console.log(token);
+      if(!token){
+        return;
+      }
+      const user = await AuthService.verifyUser(token);
       res.status(200).json({
         success: true,
         message: "Token is valid",
-        data: { "message": "Token is valid" },
+        data: { user },
       });
     } catch (error) {
       res.status(401).json({
@@ -160,5 +167,12 @@ export class AuthController {
         error,
       });
     }
+  }
+  static async logout(req:Request ,res: Response): Promise<void> {
+    const token = req.headers.authorization?.split(' ')[1];
+    if(!token){
+        return;
+      }
+    return await AuthService.logout(token)
   }
 }

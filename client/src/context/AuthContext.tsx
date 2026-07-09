@@ -1,57 +1,112 @@
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
+import {
+  login as loginService,
+  signup as signupService,
+  requestPasswordReset as resetPasswordService,
+  logout as logoutService,
+} from "../services/authService";
+import { navigate } from "../components/navigate";
+import api from "../utils/api";
 
-import  { createContext, useContext, useState, type ReactNode } from 'react'
-import { login as loginService, signup as signupService, requestPasswordReset as resetPasswordService } from '../services/authService'
-
-type User = {
-  id: string
-  email: string
-  name?: string
-}
+export type User = {
+  id: string;
+  email: string;
+  name?: string;
+  role: "manufacturer" | "admin";
+};
 
 type AuthContextType = {
-  user: User | null
-  login: (email: string, password: string) => Promise<void>
-  signup: (name: string, email: string, password: string, role?: "manufacturer" | "investor") => Promise<void>
-  resetPassword: (email: string) => Promise<void>
-}
+  user: User | null;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  loading: boolean;
+  signup: (
+    name: string,
+    email: string,
+    password: string,
+    role?: "manufacturer" | "investor",
+  ) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+};
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 type AuthProviderProps = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null)
+  
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const login = async (email: string, password: string) => {
-    const data = await loginService({ email, password })
-    setUser(data.user)
-  }
+    const data = await loginService({ email, password });
+    setUser(data.user);
+    console.log("user set successfully", data.user);
+    navigate("/");
+  };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get("/auth/verify-token");
+        console.log(response);
+        setUser(response.data.data.user);
+        
+      } catch(e) {
 
-  const signup = async (name: string, email: string, password: string, role?: "manufacturer" | "investor") => {
-    const data = await signupService({ name, email, password, role })
-    setUser(data.user)
-  }
+      }finally{
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const signup = async (
+    name: string,
+    email: string,
+    password: string,
+    role?: "manufacturer" | "investor",
+  ) => {
+    const data = await signupService({ name, email, password, role });
+    setUser(data.user);
+  };
+
+  const logout = async () => {
+    localStorage.removeItem("token");
+
+    window.location.href="/login";
+    setUser(null);
+    await logoutService();
+  };
 
   const resetPassword = async (email: string) => {
-    await resetPasswordService(email)
-    console.log('Password reset request sent')
-  }
+    await resetPasswordService(email);
+    console.log("Password reset request sent");
+  };
+  
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, resetPassword }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, signup, resetPassword,loading }}
+    >
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context
-}
+  return context;
+};
 
-export default AuthContext
+export default AuthContext;

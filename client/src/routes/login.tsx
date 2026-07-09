@@ -1,51 +1,55 @@
+import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-import { Card } from "../../components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
+import { useAuth } from "@/lib/store";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Factory } from "lucide-react";
 import { toast } from "sonner";
-import { useHydrated } from "../../hooks/use-hydrated";
-import { useAuth } from "../../context/AuthContext";
-import { ThemeToggle } from "../../components/ThemeToggle";
-import Navigate, { navigate } from "../../components/navigate";
+import { useHydrated } from "@/hooks/use-hydrated";
 
-const LoginPage : React.FC = () => {
-  const { user, login, signup} = useAuth();
+export const Route = createFileRoute("/login")({
+  head: () => ({
+    meta: [
+      { title: "Sign in — MAN Manufacturing Intelligence" },
+      { name: "description", content: "Sign in to submit the MAN economic review questionnaire or manage manufacturers." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
+  component: LoginPage,
+});
+
+function LoginPage() {
+  const user = useAuth((s) => s.user);
+  const login = useAuth((s) => s.login);
+  const register = useAuth((s) => s.register);
+  const navigate = useNavigate();
   const hydrated = useHydrated();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
-  if (hydrated && user) return <Navigate to="/" title="Dashboard" />;
+  if (hydrated && user) return <Navigate to="/dashboard" />;
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await login(email, password);
-      navigate("/");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Login failed");
-    }
+    const r = login(email, password);
+    if (r.ok) navigate({ to: "/dashboard" });
+    else toast.error(r.error ?? "Login failed");
   };
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await signup(name, email, password);
-      
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Registration failed");
-    }
+    const r = register(name, email, password);
+    if (r.ok) navigate({ to: "/dashboard" });
+    else toast.error(r.error ?? "Registration failed");
   };
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
       <div className="hidden lg:flex flex-col justify-between p-12 bg-sidebar border-r border-sidebar-border relative overflow-hidden">
-         <div className="absolute top-4 right-4 z-10">
-          <ThemeToggle />
-        </div>
         <div className="absolute inset-0 opacity-[0.04] bg-[linear-gradient(to_right,var(--foreground)_1px,transparent_1px),linear-gradient(to_bottom,var(--foreground)_1px,transparent_1px)] bg-[size:40px_40px]" />
         <div className="relative flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary grid place-items-center text-primary-foreground">
@@ -94,9 +98,6 @@ const LoginPage : React.FC = () => {
                   <Label htmlFor="p1">Password</Label>
                   <Input id="p1" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
-                <div className="space-y-2 flex justify-end">
-                  <Label className="text-sm text-muted-foreground hover:underline cursor-pointer" htmlFor="r1">Forgot password?</Label>
-                </div>
                 <Button type="submit" className="w-full">Sign in</Button>
               </form>
             </TabsContent>
@@ -123,5 +124,3 @@ const LoginPage : React.FC = () => {
     </div>
   );
 }
-
-export default LoginPage;

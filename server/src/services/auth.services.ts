@@ -32,6 +32,15 @@ export type SignupInput = {
 };
 
 export class AuthService {
+  static async verifyUser(token: string ) {
+    const payload = this.verifyResetToken(token);
+    console.log(payload);
+    const user = await UserModel.findByUserId(payload.userId);
+    if(!user){
+      throw new Error("User does not exist");
+    }
+    return this.sanitizeUser(user);
+  }
   static async hashPassword(password: string): Promise<string> {
     const saltRounds = 10;
     return bcrypt.hash(password, saltRounds);
@@ -48,6 +57,7 @@ export class AuthService {
     return jwt.sign(
       {
         id: user.id,
+        userId: user.userId,
         name: user.name,
         role: user.role,
       },
@@ -60,6 +70,16 @@ export class AuthService {
     return jwt.sign({ userId }, JWT_SECRET, {
       expiresIn: RESET_TOKEN_EXPIRES_IN,
     });
+  }
+
+  private static invalidatedTokens = new Set<string>();
+
+  static logout(token: string) {
+    this.invalidatedTokens.add(token);
+  }
+
+  static isTokenValid(token: string): boolean {
+    return !this.invalidatedTokens.has(token);
   }
 
   private static sanitizeUser(user: User): UserResponse {

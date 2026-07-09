@@ -4,20 +4,40 @@ import LoginPage from "./pages/auth/LoginPage";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-import DashboardPage from "./pages/DashboardPage";
+import { AppLayout } from "./pages/AppLayout";
+import { DashboardPage } from "./pages/DashboardPage";
 
 function App() {
   return (
     <>
-    <AuthProvider>
-      <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-          <Route path="/login" element={<LoginPage />} />
-        </Routes>
-      </BrowserRouter>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <DashboardPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <DashboardPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/login" element={<LoginPage />} />
+            </Routes>
+          </BrowserRouter>
+        </ThemeProvider>
       </AuthProvider>
     </>
   );

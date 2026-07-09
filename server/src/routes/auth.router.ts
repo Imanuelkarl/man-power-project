@@ -18,5 +18,6 @@ authRouter.post('/reset-password', AuthController.resetPassword);
 authRouter.get('/test', AuthController.test);
 
 authRouter.get('/verify-token', verifyToken, AuthController.verifyToken);
+authRouter.post('logout',AuthController.logout);
 
 export default authRouter;

@@ -5,8 +5,6 @@ import { Label } from "../../components/ui/label";
 import { Card } from "../../components/ui/card";
 import {
   Tabs,
-  TabsList,
-  TabsTrigger,
   TabsContent,
 } from "../../components/ui/tabs";
 import { Factory } from "lucide-react";
@@ -18,12 +16,11 @@ import Navigate, { navigate } from "../../components/navigate";
 import { Link } from "react-router-dom";
 
 const LoginPage: React.FC = () => {
-  const { user, login, signup } = useAuth();
+  const { user, login} = useAuth();
   const hydrated = useHydrated();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
 
   if (hydrated && user) return <Navigate to="/" title="Dashboard" />;
 
@@ -34,16 +31,6 @@ const LoginPage: React.FC = () => {
       navigate("/");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Login failed");
-    }
-  };
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await signup(name, email, password);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Registration failed",
-      );
     }
   };
 

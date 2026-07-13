@@ -111,6 +111,7 @@ interface UsersState {
   users: Array<User & { password: string }>;
   addUser: (u: User & { password: string }) => void;
   removeUser: (id: string) => void;
+  updatePassword: (id: string, password: string) => void;
 }
 
 export const useUsers = create<UsersState>()(
@@ -119,6 +120,8 @@ export const useUsers = create<UsersState>()(
       users: DEFAULT_USERS,
       addUser: (u) => set((s) => ({ users: [...s.users, u] })),
       removeUser: (id) => set((s) => ({ users: s.users.filter((x) => x.id !== id) })),
+      updatePassword: (id: string, password: string) =>
+        set((s) => ({ users: s.users.map((x) => (x.id === id ? { ...x, password } : x)) })),
     }),
     { name: "man.users" }
   )
@@ -167,6 +170,112 @@ export const useData = create<DataState>()(
       bulkSet: (m, q) => set({ manufacturers: m, questionnaires: q }),
     }),
     { name: "man.data" }
+  )
+);
+
+// -------------------- Invites & Password Resets --------------------
+export interface InviteToken {
+  token: string;
+  email: string;
+  name: string;
+  companyId?: string;
+  createdAt: string;
+  used: boolean;
+}
+
+export interface ResetToken {
+  token: string;
+  userId: string;
+  email: string;
+  createdAt: string;
+  used: boolean;
+}
+
+interface TokensState {
+  invites: InviteToken[];
+  resets: ResetToken[];
+  createInvite: (input: { email: string; name: string; companyId?: string }) => { ok: boolean; token?: string; error?: string };
+  consumeInvite: (token: string, password: string) => { ok: boolean; error?: string };
+  createResetForEmail: (email: string) => { ok: boolean; token?: string; error?: string };
+  consumeReset: (token: string, password: string) => { ok: boolean; error?: string };
+}
+
+function randomToken() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(24)))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+export const useTokens = create<TokensState>()(
+  persist(
+    (set, get) => ({
+      invites: [],
+      resets: [],
+      createInvite: ({ email, name, companyId }) => {
+        const users = useUsers.getState();
+        if (users.users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
+          return { ok: false, error: "A user with this email already exists" };
+        }
+        const existing = get().invites.find(
+          (i) => !i.used && i.email.toLowerCase() === email.toLowerCase()
+        );
+        if (existing) return { ok: true, token: existing.token };
+        const token = randomToken();
+        set((s) => ({
+          invites: [
+            ...s.invites,
+            { token, email, name, companyId, createdAt: new Date().toISOString(), used: false },
+          ],
+        }));
+        return { ok: true, token };
+      },
+      consumeInvite: (token, password) => {
+        const invite = get().invites.find((i) => i.token === token);
+        if (!invite) return { ok: false, error: "Invite link is invalid" };
+        if (invite.used) return { ok: false, error: "Invite link has already been used" };
+        const users = useUsers.getState();
+        if (users.users.some((u) => u.email.toLowerCase() === invite.email.toLowerCase())) {
+          return { ok: false, error: "An account already exists for this email" };
+        }
+        users.addUser({
+          id: `u-${Date.now()}`,
+          email: invite.email,
+          name: invite.name,
+          password,
+          role: "manufacturer",
+          companyId: invite.companyId,
+        });
+        set((s) => ({
+          invites: s.invites.map((i) => (i.token === token ? { ...i, used: true } : i)),
+        }));
+        return { ok: true };
+      },
+      createResetForEmail: (email) => {
+        const users = useUsers.getState();
+        const user = users.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+        // Always return ok so we don't leak account existence, but only mint a token if found.
+        if (!user) return { ok: true };
+        const token = randomToken();
+        set((s) => ({
+          resets: [
+            ...s.resets,
+            { token, userId: user.id, email: user.email, createdAt: new Date().toISOString(), used: false },
+          ],
+        }));
+        return { ok: true, token };
+      },
+      consumeReset: (token, password) => {
+        const reset = get().resets.find((r) => r.token === token);
+        if (!reset) return { ok: false, error: "Reset link is invalid" };
+        if (reset.used) return { ok: false, error: "Reset link has already been used" };
+        useUsers.getState().updatePassword(reset.userId, password);
+        set((s) => ({
+          resets: s.resets.map((r) => (r.token === token ? { ...r, used: true } : r)),
+        }));
+        return { ok: true };
+      },
+    }),
+    { name: "man.tokens" }
   )
 );
 

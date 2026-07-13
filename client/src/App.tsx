@@ -9,6 +9,10 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { ForgotPasswordPage } from "./pages/auth/ResetPassword";
 import { InvitePage } from "./pages/auth/RequestResetLink";
+import { UsersManager } from "./pages/admin/UsersManager";
+import { ManufacturersPage } from "./pages/manufacturers/ManufacturerPage";
+import { QuestionnaireForm } from "./pages/manufacturers/Questionnaire";
+import { ClusterMapPage } from "./pages/manufacturers/Clusters";
 
 function App() {
   return (
@@ -48,11 +52,11 @@ function App() {
                 }
               />
               <Route
-                path="/cluster"
+                path="/clusters"
                 element={
                   <ProtectedRoute>
                     <AppLayout>
-                      <DashboardPage />
+                      <ClusterMapPage />
                     </AppLayout>
                   </ProtectedRoute>
                 }
@@ -63,6 +67,36 @@ function App() {
                   <ProtectedRoute>
                     <AppLayout>
                       <DashboardPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manufacturers"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <ManufacturersPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/questionnaire"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <QuestionnaireForm />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/users"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <UsersManager />
                     </AppLayout>
                   </ProtectedRoute>
                 }

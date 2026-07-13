@@ -31,6 +31,8 @@ export interface Questionnaire {
   id: string;
   manufacturerId: string;
   period: string; // e.g. "H1 2026"
+  startTime: Date;
+  endTime: Date;
   capacityUtilization: number;
   productionValue: number;
   rawMaterialsCost: number;

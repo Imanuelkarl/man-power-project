@@ -8,6 +8,7 @@ import {
   LogOut,
   Map,
   Settings,
+  User,
   Users,
 } from "lucide-react";
 import { cn } from "../lib/utils";
@@ -58,11 +59,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       roles: ["admin"],
     },
     {
-      to: "/map",
+      to: "/clusters",
       label: "Cluster Map",
       icon: Map,
       roles: ["admin", "manufacturer"],
     },
+    { to: "/users" ,label: "Users", icon: User, roles: ["admin"]},
     { to: "/admin", label: "Admin", icon: Settings, roles: ["admin"] },
   ];
   

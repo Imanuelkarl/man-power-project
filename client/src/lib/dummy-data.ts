@@ -55,6 +55,8 @@ export function generateQuestionnaire(manufacturerId: string, period = "H1 2026"
     id: `q-${slug()}`,
     manufacturerId,
     period,
+    startTime: new Date("2026-01-01"),
+    endTime: new Date("2026-07-01"),
     capacityUtilization: rand(30, 85, 1),
     productionValue: rand(50_000_000, 5_000_000_000),
     rawMaterialsCost: rand(20_000_000, 2_000_000_000),

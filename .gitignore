@@ -4,3 +4,4 @@ server/.env
 server/.env.*
 client/.env
 client/.env.*
+node_modules

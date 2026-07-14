@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/auth.controller.js';
 import { verifyToken } from '../middlewares/auth.middleware.js';
+import { adminOnly } from '../middlewares/role.middleware.js';
 
 const authRouter = Router();
 
@@ -8,7 +9,7 @@ const authRouter = Router();
 authRouter.post('/login', AuthController.login);
 
 // Signup endpoint
-authRouter.post('/signup', AuthController.signup);
+authRouter.post('/signup', verifyToken, adminOnly, AuthController.signup);
 
 
 // Reset password endpoint
@@ -18,6 +19,6 @@ authRouter.post('/reset-password', AuthController.resetPassword);
 authRouter.get('/test', AuthController.test);
 
 authRouter.get('/verify-token', verifyToken, AuthController.verifyToken);
-authRouter.post('logout',AuthController.logout);
+authRouter.post('/logout', AuthController.logout);
 
 export default authRouter;

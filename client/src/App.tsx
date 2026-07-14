@@ -113,6 +113,7 @@ function App() {
               />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage/>} />
+              <Route path="/invite/:token" element={<InvitePage/>} />
               <Route path="/reset-password/:token" element={<InvitePage/>} />
             </Routes>
           </BrowserRouter>

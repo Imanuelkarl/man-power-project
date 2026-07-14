@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRouter from './routes/auth.router.js';
+import manufacturerRouter from './routes/manufacturer.router.js';
 
 // Initialize dotenv
 dotenv.config();
@@ -17,6 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRouter);
+app.use("/api/manufacturers", manufacturerRouter);
 
 // Routes
 app.get('/', (req: any, res: { json: (arg0: { message: string; }) => void; }) => {

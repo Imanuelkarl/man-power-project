@@ -43,7 +43,7 @@ export class AuthController {
    */
   static async signup(req: Request, res: Response): Promise<void> {
     try {
-      const { name, email, password, role } = req.body;
+      const { name, email, password, role , companyName } = req.body;
 
       // Validate input
       if (!name || !email || !password || !role) {
@@ -62,20 +62,23 @@ export class AuthController {
         });
         return;
       }
-      if (role ==="admin") {
-        res.status(403).json({
+      if (role==="manufacturer"&&!companyName) {
+        res.status(400).json({
           success: false,
-          message: 'You cannot sign up as an admin.',
+          message: '"Company Name is required to create manufacturer"',
         });
         return;
       }
+      
+      
 
       // TODO: Implement signup logic
-      const { token, user } = await AuthService.signup({
+      const { token, user ,manufacturer } = await AuthService.signup({
         name: name,
         email: email,
         password: password,
         role: role,
+        companyName: companyName,
       });
 
       res.status(201).json({
@@ -84,14 +87,14 @@ export class AuthController {
         data: {
           token,
           user,
+          manufacturer
         },
       });
-    } catch (error) {
+    } catch (error:any) {
       console.error("Error during signup:", error);
-      res.status(500).json({
+      res.status(400).json({
         success: false,
-        message: "Sign up failed",
-        error,
+        message:  error.message
       });
     }
   }

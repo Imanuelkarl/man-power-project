@@ -4,7 +4,8 @@ import { UserModel } from "../models/user.model.js";
 import { Role, User } from "../generated/prisma/client.js";
 import { UserResponse } from "../types/user.types.js";
 import EmailSender from "../utils/emailSender.js";
-
+import { ManufacturerModel } from "../models/manufacturer.model.js";
+import { Manufacturer } from "@prisma/browser.js";
 
 const JWT_SECRET: Secret = process.env.JWT_SECRET ?? "default_jwt_secret";
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN ?? "1h") as NonNullable<
@@ -12,7 +13,7 @@ const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN ?? "1h") as NonNullable<
 >;
 const emailSender = new EmailSender(
   process.env.SMTP_URL,
-  process.env.EMAIL_FROM || "no-reply@example.com"
+  process.env.EMAIL_FROM || "no-reply@example.com",
 );
 
 const RESET_TOKEN_EXPIRES_IN = (process.env.RESET_TOKEN_EXPIRES_IN ??
@@ -20,6 +21,7 @@ const RESET_TOKEN_EXPIRES_IN = (process.env.RESET_TOKEN_EXPIRES_IN ??
 
 export type AuthPayload = {
   user: UserResponse;
+  manufacturer?: Manufacturer;
   token: string;
 };
 
@@ -28,15 +30,16 @@ export type SignupInput = {
   name: string;
   password: string;
   role?: Role;
+  companyName?: string;
   manufacturer_id?: number | null;
 };
 
 export class AuthService {
-  static async verifyUser(token: string ) {
+  static async verifyUser(token: string) {
     const payload = this.verifyResetToken(token);
     console.log(payload);
     const user = await UserModel.findByUserId(payload.userId);
-    if(!user){
+    if (!user) {
       throw new Error("User does not exist");
     }
     return this.sanitizeUser(user);
@@ -108,7 +111,21 @@ export class AuthService {
       password_hash,
       role: input.role ?? Role.manufacturer,
     });
-
+    if (input.role === "manufacturer") {
+      if(!input.companyName){
+        UserModel.delete(user.id);
+        throw new Error("Company Name is required to create manufacturer");
+      }
+      const company = await ManufacturerModel.create({
+        name: input.companyName,
+        email: input.email,
+      });
+      return {
+        user: this.sanitizeUser(user),
+        manufacturer: company,
+        token: this.generateToken(user),
+      };
+    }
     return {
       user: this.sanitizeUser(user),
       token: this.generateToken(user),
@@ -154,6 +171,23 @@ export class AuthService {
     return UserModel.update(user.id, { password_hash });
   }
 
+  static async ensureAdminUser(): Promise<void> {
+    const email = "admin@man.org.ng";
+    const password = "admin123";
+    const existingAdmin = await UserModel.findByEmail(email);
+    if (existingAdmin) {
+      return;
+    }
+
+    const password_hash = await this.hashPassword(password);
+    await UserModel.create({
+      name: "Administrator",
+      email,
+      password_hash,
+      role: Role.admin,
+    });
+  }
+
   static async createPasswordResetRequest(email: string): Promise<string> {
     const user = await UserModel.findByEmail(email);
     if (!user) {
@@ -162,3 +196,7 @@ export class AuthService {
     return this.generateResetToken(user.id);
   }
 }
+
+AuthService.ensureAdminUser().catch((error) => {
+  console.error("Failed to ensure admin user:", error);
+});

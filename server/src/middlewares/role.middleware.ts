@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { AuthRequest } from './auth.middleware.js';
 
 interface TokenPayload {
   id?: string;
@@ -7,19 +8,20 @@ interface TokenPayload {
   [key: string]: any;
 }
 
-const getTokenFromRequest = (req: Request): string | null => {
-  const authHeader = req.headers.authorization || req.headers.Authorization;
-  if (!authHeader) return null;
+const getTokenFromRequest = (req: Request,res: Response): string | undefined => {
+  const token = req.headers.authorization?.split(' ')[1];
 
-  const parts = authHeader.toString().split(' ');
-  if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') return null;
-
-  return parts[1];
+    if (!token) {
+      res.status(401).json({ message: 'No token provided' });
+      return;
+    }
+    return token;
 };
 
 const verifyToken = (token: string): TokenPayload | null => {
   try {
     const secret = process.env.JWT_SECRET || 'secret';
+    const decode =jwt.verify(token,secret);;
     return jwt.verify(token, secret) as TokenPayload;
   } catch {
     return null;
@@ -27,14 +29,15 @@ const verifyToken = (token: string): TokenPayload | null => {
 };
 
 const roleMiddleware = (...allowedRoles: Array<'admin' | 'manufacturer' | 'investor'>) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const token = getTokenFromRequest(req);
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    const token = getTokenFromRequest(req,res);
     if (!token) {
       return res.status(401).json({ message: 'Authentication token missing' });
     }
 
-    const payload = verifyToken(token);
+    const payload = req.user?req.user: verifyToken(token);
     if (!payload || !payload.role) {
+      console.log(req.user);
       return res.status(401).json({ message: 'Invalid or expired token' });
     }
 
@@ -48,6 +51,6 @@ const roleMiddleware = (...allowedRoles: Array<'admin' | 'manufacturer' | 'inves
 };
 
 export const adminOnly = roleMiddleware('admin');
-export const manufacturerOnly = roleMiddleware('manufacturer');
-export const investorOnly = roleMiddleware('investor');
+export const manufacturerOnly = roleMiddleware('manufacturer','admin');
+export const investorOnly = roleMiddleware('investor','admin');
 export const allowRoles = roleMiddleware;

@@ -26,6 +26,7 @@ export class PowerDataService {
     }
     const powerData = await PowerDataModel.create(timeData);
     return this.sanitizePowerData(powerData);
+    
   }
 
   static async findById(id: number): Promise<PowerDataResponse | null> {

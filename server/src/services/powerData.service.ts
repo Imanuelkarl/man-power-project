@@ -20,7 +20,11 @@ export class PowerDataService {
 
   static async create(data: CreatePowerDataInput): Promise<PowerDataResponse> {
     console.log("Creating power data with data:", data);
-    const powerData = await PowerDataModel.create(data);
+    const timeData = {...data,
+        startTime:data.startTime??new Date("2026-01-01"),
+      endTime: data.endTime?? new Date("2026-07-01"),
+    }
+    const powerData = await PowerDataModel.create(timeData);
     return this.sanitizePowerData(powerData);
   }
 

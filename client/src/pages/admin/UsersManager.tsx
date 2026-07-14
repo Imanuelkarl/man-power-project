@@ -82,7 +82,7 @@ export function UsersManager() {
             />
             <div className="bg-background z-52 p-6 rounded shadow-lg w-[500px]">
               <div className="flex items-center justify-between mb-4">
-                <div className="text-lg font-medium">Invite manufacturer</div>
+                <div className="text-lg font-medium">Invite User</div>
                 <Button variant="ghost" onClick={() => setShowInvite(false)}>
                   Close
                 </Button>

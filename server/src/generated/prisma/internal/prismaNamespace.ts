@@ -708,6 +708,8 @@ export const PowerDataScalarFieldEnum = {
   id: 'id',
   manufacturer_id: 'manufacturer_id',
   period: 'period',
+  startTime: 'startTime',
+  endTime: 'endTime',
   capacity_utilization: 'capacity_utilization',
   production_value: 'production_value',
   raw_material_cost: 'raw_material_cost',

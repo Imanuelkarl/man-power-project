@@ -86,6 +86,8 @@ export type PowerDataMinAggregateOutputType = {
   id: number | null
   manufacturer_id: number | null
   period: string | null
+  startTime: Date | null
+  endTime: Date | null
   capacity_utilization: number | null
   production_value: number | null
   raw_material_cost: number | null
@@ -122,6 +124,8 @@ export type PowerDataMaxAggregateOutputType = {
   id: number | null
   manufacturer_id: number | null
   period: string | null
+  startTime: Date | null
+  endTime: Date | null
   capacity_utilization: number | null
   production_value: number | null
   raw_material_cost: number | null
@@ -158,6 +162,8 @@ export type PowerDataCountAggregateOutputType = {
   id: number
   manufacturer_id: number
   period: number
+  startTime: number
+  endTime: number
   capacity_utilization: number
   production_value: number
   raw_material_cost: number
@@ -252,6 +258,8 @@ export type PowerDataMinAggregateInputType = {
   id?: true
   manufacturer_id?: true
   period?: true
+  startTime?: true
+  endTime?: true
   capacity_utilization?: true
   production_value?: true
   raw_material_cost?: true
@@ -288,6 +296,8 @@ export type PowerDataMaxAggregateInputType = {
   id?: true
   manufacturer_id?: true
   period?: true
+  startTime?: true
+  endTime?: true
   capacity_utilization?: true
   production_value?: true
   raw_material_cost?: true
@@ -324,6 +334,8 @@ export type PowerDataCountAggregateInputType = {
   id?: true
   manufacturer_id?: true
   period?: true
+  startTime?: true
+  endTime?: true
   capacity_utilization?: true
   production_value?: true
   raw_material_cost?: true
@@ -447,6 +459,8 @@ export type PowerDataGroupByOutputType = {
   id: number
   manufacturer_id: number
   period: string
+  startTime: Date | null
+  endTime: Date | null
   capacity_utilization: number | null
   production_value: number | null
   raw_material_cost: number | null
@@ -506,6 +520,8 @@ export type PowerDataWhereInput = {
   id?: Prisma.IntFilter<"PowerData"> | number
   manufacturer_id?: Prisma.IntFilter<"PowerData"> | number
   period?: Prisma.StringFilter<"PowerData"> | string
+  startTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
+  endTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
   capacity_utilization?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   production_value?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   raw_material_cost?: Prisma.FloatNullableFilter<"PowerData"> | number | null
@@ -543,6 +559,8 @@ export type PowerDataOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   manufacturer_id?: Prisma.SortOrder
   period?: Prisma.SortOrder
+  startTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  endTime?: Prisma.SortOrderInput | Prisma.SortOrder
   capacity_utilization?: Prisma.SortOrderInput | Prisma.SortOrder
   production_value?: Prisma.SortOrderInput | Prisma.SortOrder
   raw_material_cost?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -583,6 +601,8 @@ export type PowerDataWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.PowerDataWhereInput | Prisma.PowerDataWhereInput[]
   manufacturer_id?: Prisma.IntFilter<"PowerData"> | number
   period?: Prisma.StringFilter<"PowerData"> | string
+  startTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
+  endTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
   capacity_utilization?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   production_value?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   raw_material_cost?: Prisma.FloatNullableFilter<"PowerData"> | number | null
@@ -620,6 +640,8 @@ export type PowerDataOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   manufacturer_id?: Prisma.SortOrder
   period?: Prisma.SortOrder
+  startTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  endTime?: Prisma.SortOrderInput | Prisma.SortOrder
   capacity_utilization?: Prisma.SortOrderInput | Prisma.SortOrder
   production_value?: Prisma.SortOrderInput | Prisma.SortOrder
   raw_material_cost?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -664,6 +686,8 @@ export type PowerDataScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"PowerData"> | number
   manufacturer_id?: Prisma.IntWithAggregatesFilter<"PowerData"> | number
   period?: Prisma.StringWithAggregatesFilter<"PowerData"> | string
+  startTime?: Prisma.DateTimeNullableWithAggregatesFilter<"PowerData"> | Date | string | null
+  endTime?: Prisma.DateTimeNullableWithAggregatesFilter<"PowerData"> | Date | string | null
   capacity_utilization?: Prisma.FloatNullableWithAggregatesFilter<"PowerData"> | number | null
   production_value?: Prisma.FloatNullableWithAggregatesFilter<"PowerData"> | number | null
   raw_material_cost?: Prisma.FloatNullableWithAggregatesFilter<"PowerData"> | number | null
@@ -698,6 +722,8 @@ export type PowerDataScalarWhereWithAggregatesInput = {
 
 export type PowerDataCreateInput = {
   period?: string
+  startTime?: Date | string | null
+  endTime?: Date | string | null
   capacity_utilization?: number | null
   production_value?: number | null
   raw_material_cost?: number | null
@@ -735,6 +761,8 @@ export type PowerDataUncheckedCreateInput = {
   id?: number
   manufacturer_id: number
   period?: string
+  startTime?: Date | string | null
+  endTime?: Date | string | null
   capacity_utilization?: number | null
   production_value?: number | null
   raw_material_cost?: number | null
@@ -769,6 +797,8 @@ export type PowerDataUncheckedCreateInput = {
 
 export type PowerDataUpdateInput = {
   period?: Prisma.StringFieldUpdateOperationsInput | string
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_utilization?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   production_value?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   raw_material_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -806,6 +836,8 @@ export type PowerDataUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   manufacturer_id?: Prisma.IntFieldUpdateOperationsInput | number
   period?: Prisma.StringFieldUpdateOperationsInput | string
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_utilization?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   production_value?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   raw_material_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -842,6 +874,8 @@ export type PowerDataCreateManyInput = {
   id?: number
   manufacturer_id: number
   period?: string
+  startTime?: Date | string | null
+  endTime?: Date | string | null
   capacity_utilization?: number | null
   production_value?: number | null
   raw_material_cost?: number | null
@@ -876,6 +910,8 @@ export type PowerDataCreateManyInput = {
 
 export type PowerDataUpdateManyMutationInput = {
   period?: Prisma.StringFieldUpdateOperationsInput | string
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_utilization?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   production_value?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   raw_material_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -912,6 +948,8 @@ export type PowerDataUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   manufacturer_id?: Prisma.IntFieldUpdateOperationsInput | number
   period?: Prisma.StringFieldUpdateOperationsInput | string
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_utilization?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   production_value?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   raw_material_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -958,6 +996,8 @@ export type PowerDataCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   manufacturer_id?: Prisma.SortOrder
   period?: Prisma.SortOrder
+  startTime?: Prisma.SortOrder
+  endTime?: Prisma.SortOrder
   capacity_utilization?: Prisma.SortOrder
   production_value?: Prisma.SortOrder
   raw_material_cost?: Prisma.SortOrder
@@ -1022,6 +1062,8 @@ export type PowerDataMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   manufacturer_id?: Prisma.SortOrder
   period?: Prisma.SortOrder
+  startTime?: Prisma.SortOrder
+  endTime?: Prisma.SortOrder
   capacity_utilization?: Prisma.SortOrder
   production_value?: Prisma.SortOrder
   raw_material_cost?: Prisma.SortOrder
@@ -1058,6 +1100,8 @@ export type PowerDataMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   manufacturer_id?: Prisma.SortOrder
   period?: Prisma.SortOrder
+  startTime?: Prisma.SortOrder
+  endTime?: Prisma.SortOrder
   capacity_utilization?: Prisma.SortOrder
   production_value?: Prisma.SortOrder
   raw_material_cost?: Prisma.SortOrder
@@ -1160,16 +1204,18 @@ export type PowerDataUncheckedUpdateManyWithoutManufacturerNestedInput = {
   deleteMany?: Prisma.PowerDataScalarWhereInput | Prisma.PowerDataScalarWhereInput[]
 }
 
-export type EnumResponseStatusFieldUpdateOperationsInput = {
-  set?: $Enums.ResponseStatus
-}
-
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
 
+export type EnumResponseStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ResponseStatus
+}
+
 export type PowerDataCreateWithoutManufacturerInput = {
   period?: string
+  startTime?: Date | string | null
+  endTime?: Date | string | null
   capacity_utilization?: number | null
   production_value?: number | null
   raw_material_cost?: number | null
@@ -1205,6 +1251,8 @@ export type PowerDataCreateWithoutManufacturerInput = {
 export type PowerDataUncheckedCreateWithoutManufacturerInput = {
   id?: number
   period?: string
+  startTime?: Date | string | null
+  endTime?: Date | string | null
   capacity_utilization?: number | null
   production_value?: number | null
   raw_material_cost?: number | null
@@ -1270,6 +1318,8 @@ export type PowerDataScalarWhereInput = {
   id?: Prisma.IntFilter<"PowerData"> | number
   manufacturer_id?: Prisma.IntFilter<"PowerData"> | number
   period?: Prisma.StringFilter<"PowerData"> | string
+  startTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
+  endTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
   capacity_utilization?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   production_value?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   raw_material_cost?: Prisma.FloatNullableFilter<"PowerData"> | number | null
@@ -1305,6 +1355,8 @@ export type PowerDataScalarWhereInput = {
 export type PowerDataCreateManyManufacturerInput = {
   id?: number
   period?: string
+  startTime?: Date | string | null
+  endTime?: Date | string | null
   capacity_utilization?: number | null
   production_value?: number | null
   raw_material_cost?: number | null
@@ -1339,6 +1391,8 @@ export type PowerDataCreateManyManufacturerInput = {
 
 export type PowerDataUpdateWithoutManufacturerInput = {
   period?: Prisma.StringFieldUpdateOperationsInput | string
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_utilization?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   production_value?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   raw_material_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1374,6 +1428,8 @@ export type PowerDataUpdateWithoutManufacturerInput = {
 export type PowerDataUncheckedUpdateWithoutManufacturerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   period?: Prisma.StringFieldUpdateOperationsInput | string
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_utilization?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   production_value?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   raw_material_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1409,6 +1465,8 @@ export type PowerDataUncheckedUpdateWithoutManufacturerInput = {
 export type PowerDataUncheckedUpdateManyWithoutManufacturerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   period?: Prisma.StringFieldUpdateOperationsInput | string
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capacity_utilization?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   production_value?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   raw_material_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1447,6 +1505,8 @@ export type PowerDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   id?: boolean
   manufacturer_id?: boolean
   period?: boolean
+  startTime?: boolean
+  endTime?: boolean
   capacity_utilization?: boolean
   production_value?: boolean
   raw_material_cost?: boolean
@@ -1484,6 +1544,8 @@ export type PowerDataSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   id?: boolean
   manufacturer_id?: boolean
   period?: boolean
+  startTime?: boolean
+  endTime?: boolean
   capacity_utilization?: boolean
   production_value?: boolean
   raw_material_cost?: boolean
@@ -1521,6 +1583,8 @@ export type PowerDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   id?: boolean
   manufacturer_id?: boolean
   period?: boolean
+  startTime?: boolean
+  endTime?: boolean
   capacity_utilization?: boolean
   production_value?: boolean
   raw_material_cost?: boolean
@@ -1558,6 +1622,8 @@ export type PowerDataSelectScalar = {
   id?: boolean
   manufacturer_id?: boolean
   period?: boolean
+  startTime?: boolean
+  endTime?: boolean
   capacity_utilization?: boolean
   production_value?: boolean
   raw_material_cost?: boolean
@@ -1590,7 +1656,7 @@ export type PowerDataSelectScalar = {
   updated_at?: boolean
 }
 
-export type PowerDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "manufacturer_id" | "period" | "capacity_utilization" | "production_value" | "raw_material_cost" | "transport_cost" | "local_sourcing_percent" | "unsold_goods_value" | "new_workers_employed" | "total_workers" | "workers_left" | "avg_interest_rate" | "avg_exchange_rate" | "investment_land_buildings" | "investment_plant_machinery" | "investment_furniture" | "investment_motor_vehicles" | "investment_assets_in_progress" | "avg_grid_hours" | "avg_power_outages" | "energy_diesel_cost" | "energy_gas_cost" | "energy_gen_maintenance_cost" | "energy_other_cost" | "energy_other_source" | "nigeria_first_policy_comment" | "additional_comments" | "status" | "submitted_at" | "submitted_by" | "created_at" | "updated_at", ExtArgs["result"]["powerData"]>
+export type PowerDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "manufacturer_id" | "period" | "startTime" | "endTime" | "capacity_utilization" | "production_value" | "raw_material_cost" | "transport_cost" | "local_sourcing_percent" | "unsold_goods_value" | "new_workers_employed" | "total_workers" | "workers_left" | "avg_interest_rate" | "avg_exchange_rate" | "investment_land_buildings" | "investment_plant_machinery" | "investment_furniture" | "investment_motor_vehicles" | "investment_assets_in_progress" | "avg_grid_hours" | "avg_power_outages" | "energy_diesel_cost" | "energy_gas_cost" | "energy_gen_maintenance_cost" | "energy_other_cost" | "energy_other_source" | "nigeria_first_policy_comment" | "additional_comments" | "status" | "submitted_at" | "submitted_by" | "created_at" | "updated_at", ExtArgs["result"]["powerData"]>
 export type PowerDataInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   manufacturer?: boolean | Prisma.ManufacturerDefaultArgs<ExtArgs>
 }
@@ -1610,6 +1676,8 @@ export type $PowerDataPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     id: number
     manufacturer_id: number
     period: string
+    startTime: Date | null
+    endTime: Date | null
     capacity_utilization: number | null
     production_value: number | null
     raw_material_cost: number | null
@@ -2067,6 +2135,8 @@ export interface PowerDataFieldRefs {
   readonly id: Prisma.FieldRef<"PowerData", 'Int'>
   readonly manufacturer_id: Prisma.FieldRef<"PowerData", 'Int'>
   readonly period: Prisma.FieldRef<"PowerData", 'String'>
+  readonly startTime: Prisma.FieldRef<"PowerData", 'DateTime'>
+  readonly endTime: Prisma.FieldRef<"PowerData", 'DateTime'>
   readonly capacity_utilization: Prisma.FieldRef<"PowerData", 'Float'>
   readonly production_value: Prisma.FieldRef<"PowerData", 'Float'>
   readonly raw_material_cost: Prisma.FieldRef<"PowerData", 'Float'>

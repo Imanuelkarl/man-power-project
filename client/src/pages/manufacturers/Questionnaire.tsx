@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import {
-  useAuth,
   useData,
   SECTORAL_GROUPS,
   NIGERIAN_STATES,
@@ -22,32 +21,38 @@ import {
 import { PageHeader } from "../../components/page-header";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 const num = (v: string) => (v === "" ? 0 : Number(v));
 
 export function QuestionnaireForm() {
-  const user = useAuth((s) => s.user)!;
+  const { user } =useAuth(); //useAuth((s) => s.user)!;
   const {
     manufacturers,
     questionnaires,
     addManufacturer,
     upsertQuestionnaire,
   } = useData();
+  if(!user){
+    return (<>
+    No user found
+    </>)
+  }
 
   const existing = useMemo(() => {
-    if (user.companyId) {
-      const m = manufacturers.find((x) => x.id === user.companyId);
+    if (user.email) {
+      const m = manufacturers.find((x) => x.id === user.email);
       const q = questionnaires.find(
-        (x) => x.manufacturerId === user.companyId && x.period === "H1 2026",
+        (x) => x.manufacturerId === user.email && x.period === "H1 2026",
       );
       return { m, q };
     }
     return { m: undefined, q: undefined };
-  }, [manufacturers, questionnaires, user.companyId]);
+  }, [manufacturers, questionnaires, user.email]);
 
   const [profile, setProfile] = useState({
     company: existing.m?.company ?? "",
-    contactPerson: existing.m?.contactPerson ?? user.name,
+    contactPerson: existing.m?.contactPerson ?? user.name ?? "",
     email: existing.m?.email ?? user.email,
     phone: existing.m?.phone ?? "",
     branch: existing.m?.branch ?? "",
@@ -86,7 +91,7 @@ export function QuestionnaireForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    let manufacturerId = user.companyId ?? existing.m?.id;
+    let manufacturerId = user.email ?? existing.m?.id;
     if (!manufacturerId) {
       const loc =
         NIGERIAN_STATES.find((s) => s.state === profile.state) ??
@@ -103,7 +108,7 @@ export function QuestionnaireForm() {
       addManufacturer(m);
       manufacturerId = m.id;
       // link company to user
-      user.companyId = m.id;
+      user.email = m.id;
     }
     const q: Questionnaire = {
       id: existing.q?.id ?? `q-${Date.now()}`,

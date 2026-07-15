@@ -13,7 +13,10 @@ authRouter.post('/signup', verifyToken, adminOnly, AuthController.signup);
 
 
 // Reset password endpoint
-authRouter.post('/reset-password', AuthController.resetPassword);
+authRouter.post('/update-password', AuthController.resetPassword);
+
+//Create password reset request
+authRouter.post('/reset-password', AuthController.requestResetPassword);
 
 //Test endpoint to check if the user is authenticated
 authRouter.get('/test', AuthController.test);

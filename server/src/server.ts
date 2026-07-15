@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRouter from './routes/auth.router.js';
 import manufacturerRouter from './routes/manufacturer.router.js';
 import powerDataRouter from './routes/powerData.router.js';
+import EmailSender from './utils/emailSender.js';
 
 // Initialize dotenv
 dotenv.config();
@@ -25,6 +26,19 @@ app.use("/api/power-data", powerDataRouter);
 // Routes
 app.get('/', (req: any, res: { json: (arg0: { message: string; }) => void; }) => {
   res.json({ message: 'Welcome to Man Power Project API' });
+});
+const emailSender = new EmailSender();
+
+//Email Testing
+app.post('/new-mail', (req: any, res: { json: (arg0: { message: string; }) => void; }) => {
+  const { body ,to} = req.body;
+  
+  emailSender.sendMail({
+    to,
+    text: body,
+    subject: 'Test Mail'
+  });
+  res.json({ message: 'Sending new mail' });
 });
 
 

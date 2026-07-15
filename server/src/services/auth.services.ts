@@ -11,10 +11,7 @@ const JWT_SECRET: Secret = process.env.JWT_SECRET ?? "default_jwt_secret";
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN ?? "1h") as NonNullable<
   SignOptions["expiresIn"]
 >;
-const emailSender = new EmailSender(
-  process.env.SMTP_URL,
-  process.env.EMAIL_FROM || "no-reply@example.com",
-);
+const emailSender = new EmailSender();
 
 const RESET_TOKEN_EXPIRES_IN = (process.env.RESET_TOKEN_EXPIRES_IN ??
   "15m") as NonNullable<SignOptions["expiresIn"]>;
@@ -111,8 +108,24 @@ export class AuthService {
       password_hash,
       role: input.role ?? Role.manufacturer,
     });
+    //  const user = {
+    //   id:1,
+    //   name: "Tester",
+    //   email: "user@test-email.com",
+    //   password_hash,
+    //   role: "manufacturer",
+    //   is_active: true,
+    //   created_at: new Date(),
+    //   updated_at: new Date()
+    // } as User
+    emailSender.sendInvite(
+      this.generateToken(user),
+      user.email,
+      user.name,
+      user.role,
+    );
     if (input.role === "manufacturer") {
-      if(!input.companyName){
+      if (!input.companyName) {
         UserModel.delete(user.id);
         throw new Error("Company Name is required to create manufacturer");
       }
@@ -126,6 +139,10 @@ export class AuthService {
         token: this.generateToken(user),
       };
     }
+
+   
+    
+
     return {
       user: this.sanitizeUser(user),
       token: this.generateToken(user),
@@ -193,7 +210,9 @@ export class AuthService {
     if (!user) {
       throw new Error("User not found");
     }
-    return this.generateResetToken(user.id);
+    const generateToken = this.generateResetToken(user.id);
+    emailSender.sendPasswordReset(generateToken, email);
+    return "Token has been sent to your email";
   }
 }
 

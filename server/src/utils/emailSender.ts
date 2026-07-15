@@ -1,4 +1,4 @@
-import nodemailer, { Transporter } from 'nodemailer';
+import nodemailer, { Transporter } from "nodemailer";
 
 type MailOptions = {
   to: string;
@@ -15,20 +15,25 @@ export default class EmailSender {
   constructor(smtpUrl?: string, from?: string) {
     // Allow passing full SMTP url or rely on env vars
     // Example SMTP_URL: smtp://user:pass@smtp.example.com:587
-    const url = smtpUrl || process.env.SMTP_URL || '';
+    const url = smtpUrl || process.env.SMTP_URL || "";
 
     // Nodemailer accepts a connection URL or config object
-    this.transporter = nodemailer.createTransport(url || {
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined,
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: process.env.SMTP_USER || process.env.SMTP_USERNAME ? {
-        user: process.env.SMTP_USER || process.env.SMTP_USERNAME,
-        pass: process.env.SMTP_PASS || process.env.SMTP_PASSWORD,
-      } : undefined,
-    });
+    this.transporter = nodemailer.createTransport(
+      url || {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined,
+        secure: process.env.SMTP_SECURE === "true",
+        auth:
+          process.env.SMTP_USER || process.env.SMTP_USERNAME
+            ? {
+                user: process.env.SMTP_USER || process.env.SMTP_USERNAME,
+                pass: process.env.SMTP_PASS || process.env.SMTP_PASSWORD,
+              }
+            : undefined,
+      },
+    );
 
-    this.from = from || process.env.EMAIL_FROM || 'no-reply@example.com';
+    this.from = from || process.env.EMAIL_FROM || "no-reply@example.com";
   }
 
   async sendMail(opts: MailOptions) {
@@ -46,13 +51,21 @@ export default class EmailSender {
   }
 
   // Sends a password reset email. token is included in a link to frontendUrl/reset-password?token=...
-  async sendPasswordReset(token: string, to: string, options?: { frontendUrl?: string; expiresIn?: string }) {
-    const frontend = options?.frontendUrl || process.env.FRONTEND_URL || 'http://localhost:3000';
-    const expiresIn = options?.expiresIn || process.env.PASSWORD_RESET_EXPIRES || '1h';
+  async sendPasswordReset(
+    token: string,
+    to: string,
+    options?: { frontendUrl?: string; expiresIn?: string },
+  ) {
+    const frontend =
+      options?.frontendUrl ||
+      process.env.FRONTEND_URL ||
+      "http://localhost:3000";
+    const expiresIn =
+      options?.expiresIn || process.env.PASSWORD_RESET_EXPIRES || "1h";
 
-    const resetUrl = `${frontend.replace(/\/$/, '')}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(to)}`;
+    const resetUrl = `${frontend.replace(/\/$/, "")}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(to)}`;
 
-    const subject = 'Password reset request';
+    const subject = "Password reset request";
     const html = `
       <div style="font-family: Arial, sans-serif; line-height:1.6; color:#333;">
         <h2>Password Reset</h2>
@@ -64,6 +77,42 @@ export default class EmailSender {
         <p><a href="${resetUrl}">${resetUrl}</a></p>
         <hr />
         <p>If you did not request this, please ignore this email.</p>
+      </div>
+    `;
+
+    return this.sendMail({ to, subject, html });
+  }
+
+  // Sends an invitation email to join the platform. Includes invite token and role.
+  async sendInvite(
+    token: string,
+    to: string,
+    name: string,
+    role: string,
+    options?: { frontendUrl?: string; expiresIn?: string },
+  ) {
+    console.log("Sending Invite")
+    const frontend =
+      options?.frontendUrl ||
+      process.env.FRONTEND_URL ||
+      "http://localhost:3000";
+    const expiresIn = options?.expiresIn || process.env.INVITE_EXPIRES || "7d";
+
+    const inviteUrl = `${frontend.replace(/\/$/, "")}/invite/${encodeURIComponent(token)}?email=${encodeURIComponent(to)}`;
+    const appName = process.env.APP_NAME || "MAN Power Intel";
+    const subject = `Invitation to join ${appName}`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; line-height:1.6; color:#333;">
+        <h2>You're invited, ${name}!</h2>
+        <p>You have been invited to join the ${appName} platform ${['a','e','i','o','u'].includes(role[0].toLowerCase())?"an":"a"} <strong>${role}</strong>. This invitation expires in ${expiresIn}.</p>
+        <p style="text-align:center; margin:20px 0;">
+          <a href="${inviteUrl}" style="background:#10b981;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">Accept Invitation</a>
+        </p>
+        <p>If the button doesn't work, copy and paste the following link into your browser:</p>
+        <p><a href="${inviteUrl}">${inviteUrl}</a></p>
+        <hr />
+        <p>After accepting the invitation you will be asked to set your password. If you already have an account, you can reset your password <a href="${inviteUrl}">here</a>.</p>
+        <p>If you did not expect this invitation, please ignore this email.</p>
       </div>
     `;
 

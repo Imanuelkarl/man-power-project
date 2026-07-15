@@ -98,6 +98,35 @@ export class AuthController {
       });
     }
   }
+  /**
+   * Create Reset password request
+   */
+  static async requestResetPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.body;
+
+      // Validate input
+      if (!email) {
+        res.status(400).json({
+          success: false,
+          message: "Email is required",
+        });
+        return;
+      }
+      await AuthService.createPasswordResetRequest(email);
+
+      res.status(200).json({
+        success: true,
+        message: "Password reset request has been sent successfully",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to send password reset request",
+        error,
+      });
+    }
+  }
 
   /**
    * Reset password with token
@@ -114,14 +143,7 @@ export class AuthController {
         });
         return;
       }
-
-      // TODO: Implement reset password logic
-      // - Verify token validity
-      // - Find user by token
-      // - Hash new password
-      // - Update user password
-      // - Invalidate token
-      // - Return success message
+      await AuthService.resetPassword(token,newPassword);
 
       res.status(200).json({
         success: true,

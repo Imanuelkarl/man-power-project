@@ -87,6 +87,7 @@ function App() {
                   <ProtectedRoute>
                     <AppLayout>
                       <QuestionnaireForm />
+                      
                     </AppLayout>
                   </ProtectedRoute>
                 }

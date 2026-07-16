@@ -1,17 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { User } from "../types/user.types";
 
 export type Role = "admin" | "manufacturer";
-
-export interface User {
-  id: number;
-  email: string;
-  name: string;
-  role: Role;
-  is_active?: boolean;
-  password?: string;
-  companyId?: string;
-}
 
 export interface Manufacturer {
   id: string;
@@ -264,7 +255,7 @@ export const useTokens = create<TokensState>()(
           password,
           role: "manufacturer",
           is_active:true,
-          companyId: invite.companyId,
+          companyName: invite.companyId,
         });
         set((s) => ({
           invites: s.invites.map((i) => (i.token === token ? { ...i, used: true } : i)),

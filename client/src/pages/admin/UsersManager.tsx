@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useUsers, type User } from "../../lib/store";
+import { useUsers } from "../../lib/store";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -9,6 +9,8 @@ import { Search, Trash2, Mail } from "lucide-react";
 import { Label } from "../../components/ui/label";
 import { toast } from "sonner";
 import { Select } from "../../components/ui/selector";
+import authService from "../../services/authService";
+import type { User } from "../../types/user.types";
 
 export function UsersManager() {
   const { users, addUser, removeUser } = useUsers();
@@ -19,7 +21,7 @@ export function UsersManager() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("");
 
-  const handleInvite = (e: React.FormEvent) => {
+  const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newUser: User & { password: string } = {
@@ -31,11 +33,21 @@ export function UsersManager() {
       is_active: true,
       password: genSecurePass(),
     };
-
-    addUser(newUser);
-    toast.success(
-      `Invite created for ${inviteName} <${inviteEmail}>${inviteRole ? ` as ${inviteRole}` : ""}`,
-    );
+    try {
+      const data = await authService.signup({
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role as "manufacturer" | "investor",
+        password: newUser.password,
+        companyName: newUser.companyId,
+      });
+      addUser(data.user as User & { password: string });
+      toast.success(
+        `Invite created for ${inviteName} <${inviteEmail}>${inviteRole ? ` as ${inviteRole}` : ""}`,
+      );
+    } catch (error) {
+      console.error("Error uploading user", error);
+    }
 
     setInviteName("");
     setInviteEmail("");
@@ -66,7 +78,7 @@ export function UsersManager() {
     <div className="p-6 lg:p-10 space-y-6 max-w-[1400px]">
       <PageHeader
         title="Users"
-        subtitle={`${users.length} ${users.length>1?"users":"user"} on file`}
+        subtitle={`${users.length} ${users.length > 1 ? "users" : "user"} on file`}
       />
 
       <Card className="p-0 overflow-hidden">

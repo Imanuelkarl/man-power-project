@@ -13,13 +13,8 @@ import {
 } from "../services/authService";
 import { navigate } from "../components/navigate";
 import api from "../utils/api";
+import type { User } from "../types/user.types";
 
-export type User = {
-  id: number;
-  email: string;
-  name?: string;
-  role: "manufacturer" | "admin";
-};
 
 type AuthContextType = {
   user: User | null;

@@ -1,14 +1,10 @@
+import type { User } from "../types/user.types";
 import api from "../utils/api";
 
 type AuthResponse = {
   data: {
     token: string;
-    user: {
-      id: number;
-      email: string;
-      name?: string;
-      role: 'manufacturer'| 'admin'
-    };
+    user: User;
   };
 };
 
@@ -17,6 +13,7 @@ type SignupPayload = {
   email: string;
   password: string;
   role?: "manufacturer" | "investor"; // Optional role for signup
+  companyName? : string;
   
 };
 
@@ -45,14 +42,15 @@ export const login = async ({ email, password }: LoginPayload) => {
   }
 };
 
-export const signup = async ({ name, email, password, role = "manufacturer" }: SignupPayload) => {
-  console.log("Signup payload:", {name, email, password, role });
+export const signup = async ({ name, email, password, role = "manufacturer",companyName}: SignupPayload) => {
+  console.log("Signup payload:", {name, email, password, role,companyName });
   try {
     const response = await api.post<AuthResponse>("/auth/signup", {
       name,
       email,
       password,
       role, // Default role for signup
+      companyName
     });
     const data = response.data.data;
     console.log("Signup response data:", data);

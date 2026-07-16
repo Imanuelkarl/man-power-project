@@ -8,7 +8,7 @@ import { AppLayout } from "./pages/AppLayout";
 import { DashboardPage } from "./pages/DashboardPage";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { ForgotPasswordPage } from "./pages/auth/ResetPassword";
-import { InvitePage } from "./pages/auth/RequestResetLink";
+import { InvitePage } from "./pages/auth/UpdatePassword";
 import { UsersManager } from "./pages/admin/UsersManager";
 import { ManufacturersPage } from "./pages/manufacturers/ManufacturerPage";
 import { QuestionnaireForm } from "./pages/manufacturers/Questionnaire";

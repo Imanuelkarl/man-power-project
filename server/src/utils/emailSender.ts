@@ -98,7 +98,7 @@ export default class EmailSender {
       "http://localhost:3000";
     const expiresIn = options?.expiresIn || process.env.INVITE_EXPIRES || "7d";
 
-    const inviteUrl = `${frontend.replace(/\/$/, "")}/invite/${encodeURIComponent(token)}?email=${encodeURIComponent(to)}`;
+    const inviteUrl = `${frontend.replace(/\/$/, "")}/invite/${(token)}`;
     const appName = process.env.APP_NAME || "MAN Power Intel";
     const subject = `Invitation to join ${appName}`;
     const html = `

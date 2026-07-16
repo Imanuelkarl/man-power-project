@@ -1,18 +1,17 @@
 import { useMemo, useState } from "react";
-import { useData } from "../../lib/store";
+import { useUsers, type User } from "../../lib/store";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { PageHeader } from "../../components/page-header";
-import { formatNaira } from "../../lib/format";
 import { Search, Trash2, Mail } from "lucide-react";
 import { Label } from "../../components/ui/label";
 import { toast } from "sonner";
 import { Select } from "../../components/ui/selector";
 
 export function UsersManager() {
-  const { manufacturers, questionnaires, removeManufacturer } = useData();
+  const { users, addUser, removeUser } = useUsers();
   const [query, setQuery] = useState("");
   const [showInvite, setShowInvite] = useState(false);
   const [inviteName, setInviteName] = useState("");
@@ -22,38 +21,52 @@ export function UsersManager() {
 
   const handleInvite = (e: React.FormEvent) => {
     e.preventDefault();
-    // pretend to create invite
+
+    const newUser: User & { password: string } = {
+      id: users.length,
+      name: inviteName,
+      role: inviteRole as User["role"],
+      companyId: inviteCompanyName,
+      email: inviteEmail,
+      is_active: true,
+      password: genSecurePass(),
+    };
+
+    addUser(newUser);
     toast.success(
       `Invite created for ${inviteName} <${inviteEmail}>${inviteRole ? ` as ${inviteRole}` : ""}`,
     );
+
     setInviteName("");
     setInviteEmail("");
     setInviteRole("");
     setInviteCompanyName("");
     setShowInvite(false);
   };
+  const genSecurePass = () => {
+    return "RandomPass";
+  };
 
   const rows = useMemo(() => {
     const q = query.toLowerCase();
-    return manufacturers
+    return users
       .filter(
         (m) =>
           !q ||
-          m.company.toLowerCase().includes(q) ||
-          m.state.toLowerCase().includes(q) ||
-          m.sectoralGroup.toLowerCase().includes(q),
+          m.name.toLowerCase().includes(q) ||
+          m.email.toLowerCase().includes(q) ||
+          m.role.toLowerCase().includes(q),
       )
       .map((m) => {
-        const qres = questionnaires.find((x) => x.manufacturerId === m.id);
-        return { m, q: qres };
+        return { m };
       });
-  }, [manufacturers, questionnaires, query]);
+  }, [users, query]);
 
   return (
     <div className="p-6 lg:p-10 space-y-6 max-w-[1400px]">
       <PageHeader
         title="Users"
-        subtitle={`${manufacturers.length} companies on file`}
+        subtitle={`${users.length} ${users.length>1?"users":"user"} on file`}
       />
 
       <Card className="p-0 overflow-hidden">
@@ -61,7 +74,7 @@ export function UsersManager() {
           <div className="relative flex-1 max-w-sm">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search company, state, sector…"
+              placeholder="Search name, role, email..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="pl-9"
@@ -120,15 +133,17 @@ export function UsersManager() {
                     <option value={"investor"}>Investor</option>
                   </Select>
                 </div>
-                {(inviteRole&&inviteRole==="manufacturer")&&<div className="space-y-2">
-                  <Label htmlFor="inv-com-name">Company Name</Label>
-                  <Input
-                    id="inv-com-name"
-                    required
-                    value={inviteCompanyName}
-                    onChange={(e) => setInviteCompanyName(e.target.value)}
-                  />
-                </div>}
+                {inviteRole && inviteRole === "manufacturer" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="inv-com-name">Company Name</Label>
+                    <Input
+                      id="inv-com-name"
+                      required
+                      value={inviteCompanyName}
+                      onChange={(e) => setInviteCompanyName(e.target.value)}
+                    />
+                  </div>
+                )}
                 <div className="flex items-end justify-end">
                   <Button type="submit">
                     <Mail className="w-4 h-4 mr-2" /> Create invite
@@ -145,6 +160,7 @@ export function UsersManager() {
                 <th className="text-left px-4 py-3">Name</th>
                 <th className="text-left px-4 py-3">Email</th>
                 <th className="text-left px-4 py-3">Status</th>
+                <th className="text-left px-4 py-3">Role</th>
                 <th className="w-10"></th>
               </tr>
             </thead>
@@ -155,47 +171,42 @@ export function UsersManager() {
                     colSpan={7}
                     className="text-center py-10 text-muted-foreground"
                   >
-                    No User has been added yet.
-                    page.
+                    No User has been added yet. page.
                   </td>
                 </tr>
               )}
-              {rows.map(({ m, q }) => (
+              {rows.map(({ m }) => (
                 <tr key={m.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3">
-                    <div className="font-medium">{m.company}</div>
+                    <div className="font-medium">{m.name}</div>
+                  </td>
+                  <td className="px-4 py-3">
                     <div className="text-xs text-muted-foreground">
-                      {m.contactPerson}
+                      {m.email}
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <div>{m.city}</div>
                     <div className="text-xs text-muted-foreground">
-                      {m.state}
+                      {m.role}
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <Badge variant="secondary" className="font-normal">
-                      {m.sectoralGroup}
+                    <Badge
+                      variant="secondary"
+                      className={`font-normal ${m.is_active ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}
+                    >
+                      <div>{m.is_active ? "Active" : "InActive"}</div>
                     </Badge>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono">
-                    {q ? `${q.capacityUtilization}%` : "—"}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono">
-                    {q ? formatNaira(q.productionValue) : "—"}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono">
-                    {q ? q.totalWorkers.toLocaleString() : "—"}
-                  </td>
+
                   <td className="px-4 py-3">
                     <Button
                       variant="ghost"
                       size="icon"
                       className="text-muted-foreground hover:text-destructive"
                       onClick={() => {
-                        removeManufacturer(m.id);
-                        toast.success(`Removed ${m.company}`);
+                        removeUser(m.id);
+                        toast.success(`Removed ${m.name}`);
                       }}
                     >
                       <Trash2 className="w-4 h-4" />

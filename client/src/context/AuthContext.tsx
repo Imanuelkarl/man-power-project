@@ -15,7 +15,7 @@ import { navigate } from "../components/navigate";
 import api from "../utils/api";
 
 export type User = {
-  id: string;
+  id: number;
   email: string;
   name?: string;
   role: "manufacturer" | "admin";

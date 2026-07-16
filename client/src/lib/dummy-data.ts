@@ -1,18 +1,73 @@
-import type { Manufacturer, Questionnaire } from "./store";
+import type { Manufacturer, PowerData } from "./store";
 import { NIGERIAN_STATES, SECTORAL_GROUPS } from "./store";
 
 const COMPANY_PREFIXES = [
-  "Zenith", "Coral", "Green Leaf", "Sahara", "Niger", "Trans", "Delta", "Golden",
-  "Royal", "Prime", "Apex", "Union", "First", "Meridian", "Vanguard", "Kola",
-  "Ade", "Oba", "Emeka", "Yaba", "Ikeja", "Cross", "Tiger", "Falcon", "Chi",
+  "Zenith",
+  "Coral",
+  "Green Leaf",
+  "Sahara",
+  "Niger",
+  "Trans",
+  "Delta",
+  "Golden",
+  "Royal",
+  "Prime",
+  "Apex",
+  "Union",
+  "First",
+  "Meridian",
+  "Vanguard",
+  "Kola",
+  "Ade",
+  "Oba",
+  "Emeka",
+  "Yaba",
+  "Ikeja",
+  "Cross",
+  "Tiger",
+  "Falcon",
+  "Chi",
 ];
 const COMPANY_SUFFIXES = [
-  "Industries Ltd", "Manufacturing Plc", "Foods Ltd", "Chemicals Ltd",
-  "Steel Works", "Textiles Ltd", "Plastics Ltd", "Beverages Nig. Ltd",
-  "Cement Plc", "Pharma Ltd", "Electricals Ltd", "Motors Ltd",
+  "Industries Ltd",
+  "Manufacturing Plc",
+  "Foods Ltd",
+  "Chemicals Ltd",
+  "Steel Works",
+  "Textiles Ltd",
+  "Plastics Ltd",
+  "Beverages Nig. Ltd",
+  "Cement Plc",
+  "Pharma Ltd",
+  "Electricals Ltd",
+  "Motors Ltd",
 ];
-const FIRST_NAMES = ["Adaeze", "Chinedu", "Fatima", "Emeka", "Ngozi", "Yusuf", "Bola", "Tunde", "Amina", "Ifeoma", "Musa", "Kemi"];
-const LAST_NAMES = ["Okafor", "Adeyemi", "Bello", "Eze", "Ibrahim", "Okonkwo", "Adekunle", "Musa", "Balogun", "Nwosu"];
+const FIRST_NAMES = [
+  "Adaeze",
+  "Chinedu",
+  "Fatima",
+  "Emeka",
+  "Ngozi",
+  "Yusuf",
+  "Bola",
+  "Tunde",
+  "Amina",
+  "Ifeoma",
+  "Musa",
+  "Kemi",
+];
+const LAST_NAMES = [
+  "Okafor",
+  "Adeyemi",
+  "Bello",
+  "Eze",
+  "Ibrahim",
+  "Okonkwo",
+  "Adekunle",
+  "Musa",
+  "Balogun",
+  "Nwosu",
+];
 
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -50,7 +105,10 @@ export function generateManufacturer(): Manufacturer {
   };
 }
 
-export function generateQuestionnaire(manufacturerId: string, period = "H1 2026"): Questionnaire {
+export function generateQuestionnaire(
+  manufacturerId: string,
+  period = "H1 2026",
+): PowerData {
   return {
     id: `q-${slug()}`,
     manufacturerId,
@@ -87,7 +145,7 @@ export function generateQuestionnaire(manufacturerId: string, period = "H1 2026"
 
 export function generateBatch(count: number) {
   const manufacturers: Manufacturer[] = [];
-  const questionnaires: Questionnaire[] = [];
+  const questionnaires: PowerData[] = [];
   for (let i = 0; i < count; i++) {
     const m = generateManufacturer();
     manufacturers.push(m);

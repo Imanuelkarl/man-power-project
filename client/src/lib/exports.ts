@@ -2,9 +2,9 @@ import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import type { Manufacturer, Questionnaire } from "./store";
+import type { Manufacturer, PowerData } from "./store";
 
-function buildRows(manufacturers: Manufacturer[], questionnaires: Questionnaire[]) {
+function buildRows(manufacturers: Manufacturer[], questionnaires: PowerData[]) {
   const byId = new Map(manufacturers.map((m) => [m.id, m]));
   return questionnaires.map((q) => {
     const m = byId.get(q.manufacturerId);
@@ -31,7 +31,10 @@ function buildRows(manufacturers: Manufacturer[], questionnaires: Questionnaire[
   });
 }
 
-export function exportExcel(manufacturers: Manufacturer[], questionnaires: Questionnaire[]) {
+export function exportExcel(
+  manufacturers: Manufacturer[],
+  questionnaires: PowerData[],
+) {
   const rows = buildRows(manufacturers, questionnaires);
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
@@ -39,7 +42,10 @@ export function exportExcel(manufacturers: Manufacturer[], questionnaires: Quest
   XLSX.writeFile(wb, `MAN-Economic-Review-${Date.now()}.xlsx`);
 }
 
-export function exportCSV(manufacturers: Manufacturer[], questionnaires: Questionnaire[]) {
+export function exportCSV(
+  manufacturers: Manufacturer[],
+  questionnaires: PowerData[],
+) {
   const rows = buildRows(manufacturers, questionnaires);
   const csv = Papa.unparse(rows);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -51,7 +57,10 @@ export function exportCSV(manufacturers: Manufacturer[], questionnaires: Questio
   URL.revokeObjectURL(url);
 }
 
-export function exportPDF(manufacturers: Manufacturer[], questionnaires: Questionnaire[]) {
+export function exportPDF(
+  manufacturers: Manufacturer[],
+  questionnaires: PowerData[],
+) {
   const rows = buildRows(manufacturers, questionnaires);
   const doc = new jsPDF({ orientation: "landscape" });
   doc.setFontSize(16);

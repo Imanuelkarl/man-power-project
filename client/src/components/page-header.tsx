@@ -9,6 +9,7 @@ export function PageHeader({
   subtitle?: string;
   actions?: ReactNode;
 }) {
+  document.title = `${title} - ${subtitle}`
   return (
     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-2 border-b border-border">
       <div>

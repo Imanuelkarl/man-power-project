@@ -12,9 +12,10 @@ import { toast } from "sonner";
 
 
 export function ManufacturersPage() {
-  const { manufacturers, questionnaires, removeManufacturer } = useData();
+  const { setLiveEnabled ,manufacturers, questionnaires, removeManufacturer } = useData();
   const [query, setQuery] = useState("");
 
+  setLiveEnabled(true);
   const rows = useMemo(() => {
     const q = query.toLowerCase();
     return manufacturers

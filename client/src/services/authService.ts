@@ -4,7 +4,7 @@ type AuthResponse = {
   data: {
     token: string;
     user: {
-      id: string;
+      id: number;
       email: string;
       name?: string;
       role: 'manufacturer'| 'admin'

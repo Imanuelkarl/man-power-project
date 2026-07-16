@@ -4,7 +4,7 @@ import {
   SECTORAL_GROUPS,
   NIGERIAN_STATES,
   type Manufacturer,
-  type Questionnaire,
+  type PowerData,
 } from "../../lib/store";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
@@ -26,17 +26,15 @@ import { useAuth } from "../../context/AuthContext";
 const num = (v: string) => (v === "" ? 0 : Number(v));
 
 export function QuestionnaireForm() {
-  const { user } =useAuth(); //useAuth((s) => s.user)!;
+  const { user } = useAuth(); //useAuth((s) => s.user)!;
   const {
     manufacturers,
     questionnaires,
     addManufacturer,
     upsertQuestionnaire,
   } = useData();
-  if(!user){
-    return (<>
-    No user found
-    </>)
+  if (!user) {
+    return <>No user found</>;
   }
 
   const existing = useMemo(() => {
@@ -110,7 +108,7 @@ export function QuestionnaireForm() {
       // link company to user
       user.email = m.id;
     }
-    const q: Questionnaire = {
+    const q: PowerData = {
       id: existing.q?.id ?? `q-${Date.now()}`,
       manufacturerId,
       period: "H1 2026",
@@ -229,16 +227,14 @@ export function QuestionnaireForm() {
 
         <Section title="B. Manufacturing Core Indices">
           <div className="pt-2">
-            <div className="text-sm font-medium mb-3">
-               DATA PERIOD 
-            </div>
+            <div className="text-sm font-medium mb-3">DATA PERIOD</div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
-            <Field label="Start Date">
-              <Input value={"2026-01-01"} type="date" disabled></Input>
-            </Field>
-            <Field label="End Date">
-              <Input value={"2026-07-01"} type="date" disabled></Input>
-            </Field>
+              <Field label="Start Date">
+                <Input value={"2026-01-01"} type="date" disabled></Input>
+              </Field>
+              <Field label="End Date">
+                <Input value={"2026-07-01"} type="date" disabled></Input>
+              </Field>
             </div>
           </div>
 

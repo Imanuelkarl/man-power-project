@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User } from "../types/user.types";
 
-export type Role = "admin" | "manufacturer";
+export type Role = "admin" | "manufacturer"|"investor";
 
 export interface Manufacturer {
   id: string;

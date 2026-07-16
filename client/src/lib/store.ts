@@ -1,7 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import manufacturerService from "../services/manufacturerService";
-import { getPowerData } from "../services/powerDataService";
 
 export type Role = "admin" | "manufacturer";
 
@@ -68,24 +66,12 @@ interface AuthState {
   user: User | null;
   login: (email: string, password: string) => { ok: boolean; error?: string };
   logout: () => void;
-  register: (
-    name: string,
-    email: string,
-    password: string,
-    companyId?: string,
-  ) => { ok: boolean; error?: string };
+  register: (name: string, email: string, password: string, companyId?: string) => { ok: boolean; error?: string };
 }
 
 // Seeded credentials so the demo is usable immediately.
 const DEFAULT_USERS: Array<User & { password: string }> = [
-  {
-    id: 0,
-    email: "admin@man.org.ng",
-    password: "admin123",
-    name: "MAN Administrator",
-    is_active: true,
-    role: "admin",
-  },
+  { id: 0, email: "admin@man.org.ng", password: "admin123", name: "MAN Administrator",is_active:true, role: "admin" },
 ];
 
 export const useAuth = create<AuthState>()(
@@ -94,11 +80,7 @@ export const useAuth = create<AuthState>()(
       user: null,
       login: (email, password) => {
         const store = useUsers.getState();
-        const found = store.users.find(
-          (u) =>
-            u.email.toLowerCase() === email.toLowerCase() &&
-            u.password === password,
-        );
+        const found = store.users.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
         if (!found) return { ok: false, error: "Invalid email or password" };
         const { password: _pw, ...safe } = found;
         set({ user: safe });
@@ -107,9 +89,7 @@ export const useAuth = create<AuthState>()(
       logout: () => set({ user: null }),
       register: (name, email, password, companyId) => {
         const store = useUsers.getState();
-        if (
-          store.users.some((u) => u.email.toLowerCase() === email.toLowerCase())
-        ) {
+        if (store.users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
           return { ok: false, error: "Email already registered" };
         }
         const newUser: User & { password: string } = {
@@ -118,7 +98,7 @@ export const useAuth = create<AuthState>()(
           password,
           name,
           role: "manufacturer",
-          is_active: true,
+          is_active:true,
           companyId,
         };
         store.addUser(newUser);
@@ -127,8 +107,8 @@ export const useAuth = create<AuthState>()(
         return { ok: true };
       },
     }),
-    { name: "man.auth" },
-  ),
+    { name: "man.auth" }
+  )
 );
 
 // -------------------- Users (mock DB) --------------------
@@ -144,15 +124,12 @@ export const useUsers = create<UsersState>()(
     (set) => ({
       users: DEFAULT_USERS,
       addUser: (u) => set((s) => ({ users: [...s.users, u] })),
-      removeUser: (id) =>
-        set((s) => ({ users: s.users.filter((x) => x.id !== id) })),
+      removeUser: (id) => set((s) => ({ users: s.users.filter((x) => x.id !== id) })),
       updatePassword: (id: number, password: string) =>
-        set((s) => ({
-          users: s.users.map((x) => (x.id === id ? { ...x, password } : x)),
-        })),
+        set((s) => ({ users: s.users.map((x) => (x.id === id ? { ...x, password } : x)) })),
     }),
-    { name: "man.users" },
-  ),
+    { name: "man.users" }
+  )
 );
 
 // -------------------- Data --------------------
@@ -160,14 +137,10 @@ interface DataState {
   manufacturers: Manufacturer[];
   questionnaires: PowerData[];
   users: User[];
-  liveEnabled: boolean;
-  setLiveEnabled: (enabled: boolean) => void;
-  fetchManufacturers: (options?: { live?: boolean }) => Promise<void>;
-  fetchQuestionnaires: (options?: { live?: boolean }) => Promise<void>;
   addUser: (u: User) => void;
-  updateUser: (id: number, patch: Partial<User>) => void;
-  removeUser: (id: number) => void;
-  addManufacturer: (m: Manufacturer) => void;
+  updateUser:(id: number, patch: Partial<User>)=> void;
+  removeUser: (id: number)=> void;
+  addManufacturer: (m: Manufacturer) => void; 
   updateManufacturer: (id: string, patch: Partial<Manufacturer>) => void;
   removeManufacturer: (id: string) => void;
   addQuestionnaire: (q: PowerData) => void;
@@ -178,105 +151,10 @@ interface DataState {
 
 export const useData = create<DataState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       manufacturers: [],
       questionnaires: [],
-      users: [],
-      liveEnabled: false,
-      setLiveEnabled: (enabled) => set({ liveEnabled: enabled }),
-      fetchManufacturers: async ({ live } = {}) => {
-        const useLive = live ?? get().liveEnabled;
-        if (!useLive) return;
-        try {
-          const data = await manufacturerService.findAll();
-          const manufacturers = data.map((item: any): Manufacturer => ({
-            id: item._id || item.id || "",
-            company: item.company || item.name || "",
-            contactPerson: item.contactPerson || item.contact_person || "",
-            email: item.email || "",
-            phone: item.phone || item.mobile || item.phone_number || "",
-            branch: item.branch || "",
-            sectoralGroup: item.sectoralGroup || item.sectoral_group || "",
-            subSector: item.subSector || item.sub_sector || "",
-            state: item.state || "",
-            city: item.city || "",
-            lat: Number(item.lat || 0),
-            lng: Number(item.lng || 0),
-            createdAt:
-              item.createdAt || item.created_at || new Date().toISOString(),
-          }));
-          set({ manufacturers });
-        } catch (error) {
-          console.error("Failed to load live manufacturers", error);
-        }
-      },
-      fetchQuestionnaires: async ({ live } = {}) => {
-        const useLive = live ?? get().liveEnabled;
-        if (!useLive) return;
-        try {
-          const data = await getPowerData();
-          const questionnaires = data.map((item: any): PowerData => ({
-            id: item.id || item._id || "",
-            manufacturerId: item.manufacturerId || item.manufacturer_id || "",
-            period: item.period || "",
-            startTime: new Date(
-              item.startTime || item.start_time || Date.now(),
-            ),
-            endTime: new Date(item.endTime || item.end_time || Date.now()),
-            capacityUtilization: Number(
-              item.capacityUtilization ?? item.capacity_utilization ?? 0,
-            ),
-            productionValue: Number(
-              item.productionValue ?? item.production_value ?? 0,
-            ),
-            rawMaterialsCost: Number(
-              item.rawMaterialsCost ?? item.raw_materials_cost ?? 0,
-            ),
-            rawMaterialsTransport: Number(
-              item.rawMaterialsTransport ?? item.raw_materials_transport ?? 0,
-            ),
-            localSourcing: Number(
-              item.localSourcing ?? item.local_sourcing ?? 0,
-            ),
-            unsoldGoods: Number(item.unsoldGoods ?? item.unsold_goods ?? 0),
-            newHires: Number(item.newHires ?? item.new_hires ?? 0),
-            totalWorkers: Number(item.totalWorkers ?? item.total_workers ?? 0),
-            workersLeft: Number(item.workersLeft ?? item.workers_left ?? 0),
-            interestRate: Number(item.interestRate ?? item.interest_rate ?? 0),
-            exchangeRate: Number(item.exchangeRate ?? item.exchange_rate ?? 0),
-            investLandBuildings: Number(
-              item.investLandBuildings ?? item.invest_land_buildings ?? 0,
-            ),
-            investPlant: Number(item.investPlant ?? item.invest_plant ?? 0),
-            investFurniture: Number(
-              item.investFurniture ?? item.invest_furniture ?? 0,
-            ),
-            investVehicles: Number(
-              item.investVehicles ?? item.invest_vehicles ?? 0,
-            ),
-            investInProgress: Number(
-              item.investInProgress ?? item.invest_in_progress ?? 0,
-            ),
-            electricityHours: Number(
-              item.electricityHours ?? item.electricity_hours ?? 0,
-            ),
-            powerOutages: Number(item.powerOutages ?? item.power_outages ?? 0),
-            energyDiesel: Number(item.energyDiesel ?? item.energy_diesel ?? 0),
-            energyGas: Number(item.energyGas ?? item.energy_gas ?? 0),
-            energyGenerator: Number(
-              item.energyGenerator ?? item.energy_generator ?? 0,
-            ),
-            energyOther: Number(item.energyOther ?? item.energy_other ?? 0),
-            nigeriaFirstComment:
-              item.nigeriaFirstComment || item.nigeria_first_comment || "",
-            submittedAt:
-              item.submittedAt || item.submitted_at || new Date().toISOString(),
-          }));
-          set({ questionnaires });
-        } catch (error) {
-          console.error("Failed to load live questionnaires", error);
-        }
-      },
+      users:[],
       addUser: (u) => set((s) => ({ users: [...s.users, u] })),
       updateUser: (id, patch) =>
         set((s) => ({
@@ -286,28 +164,21 @@ export const useData = create<DataState>()(
         set((s) => ({
           users: s.users.filter((u) => u.id !== id),
         })),
-      addManufacturer: (m) =>
-        set((s) => ({ manufacturers: [...s.manufacturers, m] })),
+        addManufacturer: (m) => set((s) => ({ manufacturers: [...s.manufacturers, m] })),
       updateManufacturer: (id, patch) =>
         set((s) => ({
-          manufacturers: s.manufacturers.map((m) =>
-            m.id === id ? { ...m, ...patch } : m,
-          ),
+          manufacturers: s.manufacturers.map((m) => (m.id === id ? { ...m, ...patch } : m)),
         })),
       removeManufacturer: (id) =>
         set((s) => ({
           manufacturers: s.manufacturers.filter((m) => m.id !== id),
-          questionnaires: s.questionnaires.filter(
-            (q) => q.manufacturerId !== id,
-          ),
+          questionnaires: s.questionnaires.filter((q) => q.manufacturerId !== id),
         })),
-      addQuestionnaire: (q) =>
-        set((s) => ({ questionnaires: [...s.questionnaires, q] })),
+      addQuestionnaire: (q) => set((s) => ({ questionnaires: [...s.questionnaires, q] })),
       upsertQuestionnaire: (q) =>
         set((s) => {
           const idx = s.questionnaires.findIndex(
-            (x) =>
-              x.manufacturerId === q.manufacturerId && x.period === q.period,
+            (x) => x.manufacturerId === q.manufacturerId && x.period === q.period
           );
           if (idx === -1) return { questionnaires: [...s.questionnaires, q] };
           const copy = s.questionnaires.slice();
@@ -317,8 +188,8 @@ export const useData = create<DataState>()(
       clearAll: () => set({ manufacturers: [], questionnaires: [] }),
       bulkSet: (m, q) => set({ manufacturers: m, questionnaires: q }),
     }),
-    { name: "man.data" },
-  ),
+    { name: "man.data" }
+  )
 );
 
 // -------------------- Invites & Password Resets --------------------
@@ -343,24 +214,10 @@ export interface ResetToken {
 interface TokensState {
   invites: InviteToken[];
   resets: ResetToken[];
-  createInvite: (input: {
-    email: string;
-    name: string;
-    companyId?: string;
-  }) => { ok: boolean; token?: string; error?: string };
-  consumeInvite: (
-    token: string,
-    password: string,
-  ) => { ok: boolean; error?: string };
-  createResetForEmail: (email: string) => {
-    ok: boolean;
-    token?: string;
-    error?: string;
-  };
-  consumeReset: (
-    token: string,
-    password: string,
-  ) => { ok: boolean; error?: string };
+  createInvite: (input: { email: string; name: string; companyId?: string }) => { ok: boolean; token?: string; error?: string };
+  consumeInvite: (token: string, password: string) => { ok: boolean; error?: string };
+  createResetForEmail: (email: string) => { ok: boolean; token?: string; error?: string };
+  consumeReset: (token: string, password: string) => { ok: boolean; error?: string };
 }
 
 function randomToken() {
@@ -376,27 +233,18 @@ export const useTokens = create<TokensState>()(
       resets: [],
       createInvite: ({ email, name, companyId }) => {
         const users = useUsers.getState();
-        if (
-          users.users.some((u) => u.email.toLowerCase() === email.toLowerCase())
-        ) {
+        if (users.users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
           return { ok: false, error: "A user with this email already exists" };
         }
         const existing = get().invites.find(
-          (i) => !i.used && i.email.toLowerCase() === email.toLowerCase(),
+          (i) => !i.used && i.email.toLowerCase() === email.toLowerCase()
         );
         if (existing) return { ok: true, token: existing.token };
         const token = randomToken();
         set((s) => ({
           invites: [
             ...s.invites,
-            {
-              token,
-              email,
-              name,
-              companyId,
-              createdAt: new Date().toISOString(),
-              used: false,
-            },
+            { token, email, name, companyId, createdAt: new Date().toISOString(), used: false },
           ],
         }));
         return { ok: true, token };
@@ -404,18 +252,10 @@ export const useTokens = create<TokensState>()(
       consumeInvite: (token, password) => {
         const invite = get().invites.find((i) => i.token === token);
         if (!invite) return { ok: false, error: "Invite link is invalid" };
-        if (invite.used)
-          return { ok: false, error: "Invite link has already been used" };
+        if (invite.used) return { ok: false, error: "Invite link has already been used" };
         const users = useUsers.getState();
-        if (
-          users.users.some(
-            (u) => u.email.toLowerCase() === invite.email.toLowerCase(),
-          )
-        ) {
-          return {
-            ok: false,
-            error: "An account already exists for this email",
-          };
+        if (users.users.some((u) => u.email.toLowerCase() === invite.email.toLowerCase())) {
+          return { ok: false, error: "An account already exists for this email" };
         }
         users.addUser({
           id: users.users.length,
@@ -423,34 +263,24 @@ export const useTokens = create<TokensState>()(
           name: invite.name,
           password,
           role: "manufacturer",
-          is_active: true,
+          is_active:true,
           companyId: invite.companyId,
         });
         set((s) => ({
-          invites: s.invites.map((i) =>
-            i.token === token ? { ...i, used: true } : i,
-          ),
+          invites: s.invites.map((i) => (i.token === token ? { ...i, used: true } : i)),
         }));
         return { ok: true };
       },
       createResetForEmail: (email) => {
         const users = useUsers.getState();
-        const user = users.users.find(
-          (u) => u.email.toLowerCase() === email.toLowerCase(),
-        );
+        const user = users.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
         // Always return ok so we don't leak account existence, but only mint a token if found.
         if (!user) return { ok: true };
         const token = randomToken();
-        set((s: { resets: any }) => ({
+        set((s: { resets: any; }) => ({
           resets: [
             ...s.resets,
-            {
-              token,
-              userId: user.id,
-              email: user.email,
-              createdAt: new Date().toISOString(),
-              used: false,
-            },
+            { token, userId: user.id, email: user.email, createdAt: new Date().toISOString(), used: false },
           ],
         }));
         return { ok: true, token };
@@ -458,19 +288,16 @@ export const useTokens = create<TokensState>()(
       consumeReset: (token, password) => {
         const reset = get().resets.find((r) => r.token === token);
         if (!reset) return { ok: false, error: "Reset link is invalid" };
-        if (reset.used)
-          return { ok: false, error: "Reset link has already been used" };
+        if (reset.used) return { ok: false, error: "Reset link has already been used" };
         useUsers.getState().updatePassword(reset.id, password);
         set((s) => ({
-          resets: s.resets.map((r) =>
-            r.token === token ? { ...r, used: true } : r,
-          ),
+          resets: s.resets.map((r) => (r.token === token ? { ...r, used: true } : r)),
         }));
         return { ok: true };
       },
     }),
-    { name: "man.tokens" },
-  ),
+    { name: "man.tokens" }
+  )
 );
 
 export const SECTORAL_GROUPS = [
@@ -486,12 +313,7 @@ export const SECTORAL_GROUPS = [
   "Domestic & Industrial Plastic, Rubber",
 ];
 
-export const NIGERIAN_STATES: Array<{
-  state: string;
-  city: string;
-  lat: number;
-  lng: number;
-}> = [
+export const NIGERIAN_STATES: Array<{ state: string; city: string; lat: number; lng: number }> = [
   { state: "Lagos", city: "Ikeja", lat: 6.6018, lng: 3.3515 },
   { state: "Lagos", city: "Apapa", lat: 6.4488, lng: 3.3595 },
   { state: "Lagos", city: "Agbara", lat: 6.5031, lng: 3.0908 },

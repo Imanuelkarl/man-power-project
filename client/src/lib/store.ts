@@ -50,6 +50,7 @@ export interface PowerData {
   energyOther: number;
   nigeriaFirstComment: string;
   submittedAt: string;
+  submittedBy: string;
 }
 
 // -------------------- Auth --------------------
@@ -136,6 +137,7 @@ interface DataState {
   removeManufacturer: (id: string) => void;
   addQuestionnaire: (q: PowerData) => void;
   upsertQuestionnaire: (q: PowerData) => void;
+  removeQuestionnaire: (id: string) => void;
   clearAll: () => void;
   bulkSet: (m: Manufacturer[], q: PowerData[]) => void;
 }
@@ -166,6 +168,10 @@ export const useData = create<DataState>()(
           questionnaires: s.questionnaires.filter((q) => q.manufacturerId !== id),
         })),
       addQuestionnaire: (q) => set((s) => ({ questionnaires: [...s.questionnaires, q] })),
+      removeQuestionnaire: (id) =>
+      set((s) => ({
+         questionnaires: s.questionnaires.filter((q) => q.manufacturerId !== id),
+      })),
       upsertQuestionnaire: (q) =>
         set((s) => {
           const idx = s.questionnaires.findIndex(

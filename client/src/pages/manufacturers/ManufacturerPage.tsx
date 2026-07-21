@@ -25,8 +25,8 @@ export function ManufacturersPage() {
         m.sectoralGroup.toLowerCase().includes(q)
       )
       .map((m) => {
-        const qres = questionnaires.find((x) => x.manufacturerId === m.id);
-        return { m, q: qres };
+        const ques = questionnaires.find((x) => x.manufacturerId === m.id);
+        return { m, q: ques };
       });
   }, [manufacturers, questionnaires, query]);
 

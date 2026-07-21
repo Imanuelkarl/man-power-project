@@ -33,6 +33,8 @@ model Manufacturer {
   sectoral_group      String?
   sub_sector          String?
   address             String?
+  state               String?
+  city                String?
   latitude            Float?
   longitude           Float?
   registration_number String?
@@ -45,10 +47,17 @@ model Manufacturer {
   powerInfo PowerData[]
 }
 
+model Branch {
+  id         Int      @id @default(autoincrement())
+  name       String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
 model PowerData {
-  id              Int      @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   manufacturer_id Int
-  period          String   @default("H1-2026")
+  period          String    @default("H1-2026")
   startTime       DateTime?
   endTime         DateTime?
 

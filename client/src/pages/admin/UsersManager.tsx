@@ -28,7 +28,7 @@ export function UsersManager() {
       id: users.length,
       name: inviteName,
       role: inviteRole as User["role"],
-      companyId: inviteCompanyName,
+      companyName: inviteCompanyName,
       email: inviteEmail,
       is_active: true,
       password: genSecurePass(),
@@ -39,7 +39,7 @@ export function UsersManager() {
         email: newUser.email,
         role: newUser.role as "manufacturer" | "investor",
         password: newUser.password,
-        companyName: newUser.companyId,
+        companyName: newUser.companyName,
       });
       addUser(data.user as User & { password: string });
       toast.success(
@@ -171,8 +171,8 @@ export function UsersManager() {
               <tr>
                 <th className="text-left px-4 py-3">Name</th>
                 <th className="text-left px-4 py-3">Email</th>
-                <th className="text-left px-4 py-3">Status</th>
                 <th className="text-left px-4 py-3">Role</th>
+                <th className="text-left px-4 py-3">Status</th>
                 <th className="w-10"></th>
               </tr>
             </thead>

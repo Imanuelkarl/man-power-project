@@ -11,14 +11,20 @@ import { ForgotPasswordPage } from "./pages/auth/ResetPassword";
 import { InvitePage } from "./pages/auth/UpdatePassword";
 import { UsersManager } from "./pages/admin/UsersManager";
 import { ManufacturersPage } from "./pages/manufacturers/ManufacturerPage";
-import { QuestionnaireForm } from "./pages/manufacturers/Questionnaire";
+
 import { ClusterMapPage } from "./pages/manufacturers/Clusters";
+import { Submissions } from "./pages/manufacturers/Submissions";
+import NewQuestionnairePage from "./pages/QuestionnairePage";
+import { Toaster } from "sonner";
+import CompanyProfile from "./pages/manufacturers/CompanyProfile";
 
 function App() {
   return (
     <>
       <AuthProvider>
         <ThemeProvider>
+        <div>  
+          < Toaster />
           <BrowserRouter>
             <Routes>
               <Route
@@ -85,9 +91,26 @@ function App() {
                 path="/questionnaire"
                 element={
                   <ProtectedRoute>
+                    <NewQuestionnairePage/>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/submissions"
+                element={
+                  <ProtectedRoute>
                     <AppLayout>
-                      <QuestionnaireForm />
-                      
+                      <Submissions />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/company"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <CompanyProfile/>
                     </AppLayout>
                   </ProtectedRoute>
                 }
@@ -113,11 +136,12 @@ function App() {
                 }
               />
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage/>} />
-              <Route path="/invite/:token" element={<InvitePage/>} />
-              <Route path="/reset-password/:token" element={<InvitePage/>} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/invite/:token" element={<InvitePage />} />
+              <Route path="/reset-password/:token" element={<InvitePage />} />
             </Routes>
           </BrowserRouter>
+          </div>
         </ThemeProvider>
       </AuthProvider>
     </>

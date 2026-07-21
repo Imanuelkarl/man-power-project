@@ -4,7 +4,9 @@ import { Button } from "../components/ui/button";
 import {
   BarChart3,
   Factory,
+  FactoryIcon,
   FileText,
+  Info,
   LogOut,
   Map,
   Settings,
@@ -23,7 +25,7 @@ interface AppLayoutProps {
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   //export function AppLayout(){
 
-  const { user, logout ,loading } = useAuth();
+  const { user, logout, loading } = useAuth();
 
   const hydrated = useHydrated();
   console.log(user);
@@ -32,7 +34,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   if (loading) {
     return <>Loading...</>;
   }
-  if ( !user) return <Navigate to="/login" />;
+  if (!user) return <Navigate to="/login" />;
 
   const nav: Array<{
     to: string;
@@ -44,13 +46,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       to: "/dashboard",
       label: "Dashboard",
       icon: BarChart3,
-      roles: ["admin", "manufacturer"],
+      roles: ["admin", "manufacturer", "investor"],
     },
     {
-      to: "/questionnaire",
-      label: "Questionnaire",
+      to: "/submissions",
+      label: "Submissions",
       icon: FileText,
-      roles: ["admin", "manufacturer"],
+      roles: ["manufacturer"],
     },
     {
       to: "/manufacturers",
@@ -64,10 +66,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       icon: Map,
       roles: ["admin", "manufacturer"],
     },
-    { to: "/users" ,label: "Users", icon: User, roles: ["admin"]},
+    {
+      to: "/company",
+      label: "Company Info",
+      icon: FactoryIcon,
+      roles: ["manufacturer"],
+    },
+    { to: "/users", label: "Users", icon: User, roles: ["admin"] },
     { to: "/admin", label: "Admin", icon: Settings, roles: ["admin"] },
   ];
-  
 
   return (
     <div className="h-screen flex bg-background text-foreground">
@@ -128,9 +135,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </Button>
         </div>
       </aside>
-      <main className="flex-1 min-w-0 overflow-x-hidden">
-        {children }
-      </main>
+      <main className="flex-1 min-w-0 overflow-x-hidden ">{children}</main>
     </div>
   );
 };

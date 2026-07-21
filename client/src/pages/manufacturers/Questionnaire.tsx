@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useData,
   SECTORAL_GROUPS,
@@ -24,9 +24,26 @@ import { CheckCircle2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 const num = (v: string) => (v === "" ? 0 : Number(v));
+const getMonthFromDate = (date: string, subtractOneDay = false) => {
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return "";
+  if (subtractOneDay) {
+    parsed.setDate(parsed.getDate() - 1);
+  }
+  return parsed.toLocaleString("default", { month: "long" });
+};
+interface QuestionnaireFormProp{
+  setStep?: (step: number) =>void;
+}
 
-export function QuestionnaireForm() {
+export function QuestionnaireForm({setStep} : QuestionnaireFormProp) {
+  
   const { user } = useAuth(); //useAuth((s) => s.user)!;
+  const [startMonth, setStartMonth] =useState("January");
+  const [endMonth, setEndMonth] = useState("June");
+  const [startTime, setStartTime] = useState("2026-01-01");
+  const [endTime, setEndTime] = useState("2026-07-01");
+  const [year, setYear] = useState(new Date().getFullYear());
   const {
     manufacturers,
     questionnaires,
@@ -59,6 +76,11 @@ export function QuestionnaireForm() {
     state: existing.m?.state ?? NIGERIAN_STATES[0].state,
   });
 
+  useEffect(() =>{
+    setStartMonth(getMonthFromDate(startTime));
+    setEndMonth(getMonthFromDate(endTime,true));
+    setYear(new Date(startTime).getFullYear());
+  },[startTime,endTime]);
   const [form, setForm] = useState({
     startTime: existing.q?.startTime ?? null,
     endTime: existing.q?.endTime ?? null,
@@ -89,6 +111,7 @@ export function QuestionnaireForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if(setStep) setStep(0);
     let manufacturerId = user.email ?? existing.m?.id;
     if (!manufacturerId) {
       const loc =
@@ -116,6 +139,7 @@ export function QuestionnaireForm() {
       startTime: form.startTime ?? new Date("2026-01-01"),
       endTime: form.endTime ?? new Date("2026-07-01"),
       submittedAt: new Date().toISOString(),
+      submittedBy: "User"
     };
     upsertQuestionnaire(q);
     toast.success("Questionnaire submitted for H1 2026");
@@ -125,7 +149,7 @@ export function QuestionnaireForm() {
     <div className="p-6 lg:p-10 space-y-6 max-w-5xl">
       <PageHeader
         title="MAN Economic Review Questionnaire"
-        subtitle="January – June 2026"
+        subtitle={`${startMonth} – ${endMonth} ${year}`}
       />
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -230,10 +254,10 @@ export function QuestionnaireForm() {
             <div className="text-sm font-medium mb-3">DATA PERIOD</div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
               <Field label="Start Date">
-                <Input value={"2026-01-01"} type="date" disabled></Input>
+                <Input onChange={(e)=>{setStartTime(e.target.value)}} value={startTime} type="date" ></Input>
               </Field>
               <Field label="End Date">
-                <Input value={"2026-07-01"} type="date" disabled></Input>
+                <Input onChange={(e)=>{setEndTime(e.target.value)}} value={endTime} type="date"></Input>
               </Field>
             </div>
           </div>
@@ -275,7 +299,7 @@ export function QuestionnaireForm() {
               onChange={(v) => setForm({ ...form, newHires: v })}
             />
             <NumField
-              label="8. Total workers as at June 2026"
+              label={`8. Total workers as at ${endMonth} ${year}`}
               value={form.totalWorkers}
               onChange={(v) => setForm({ ...form, totalWorkers: v })}
             />

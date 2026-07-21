@@ -140,6 +140,7 @@ export function generateQuestionnaire(
     nigeriaFirstComment:
       "Modest improvement in government patronage observed, though procurement lead times remain long.",
     submittedAt: new Date().toISOString(),
+    submittedBy: FIRST_NAMES[rand(0,10)]+" "+LAST_NAMES[rand(0,9)]
   };
 }
 

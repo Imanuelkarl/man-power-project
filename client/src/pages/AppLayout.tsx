@@ -6,7 +6,6 @@ import {
   Factory,
   FactoryIcon,
   FileText,
-  Info,
   LogOut,
   Map,
   Settings,

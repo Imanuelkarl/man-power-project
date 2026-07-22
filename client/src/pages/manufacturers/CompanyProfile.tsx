@@ -3,7 +3,6 @@ import {
   useData,
   SECTORAL_GROUPS,
   NIGERIAN_STATES,
-  type Manufacturer,
 } from "../../lib/store";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -20,10 +19,11 @@ import { CheckCircle2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import Section from "../../components/forms/Section";
 import Field from "../../components/forms/Field";
+import type { Manufacturer } from "../../types/manufacturer.types";
 
 function CompanyProfile() {
   const { user } = useAuth(); //useAuth((s) => s.user)!;
-  const { manufacturers, addManufacturer } = useData();
+  const { manufacturers, addManufacturer, updateManufacturer } = useData();
   const mapRef = useRef<HTMLDivElement | null>(null);
   const [isMapOpen, setIsMapOpen] = useState(false);
 
@@ -155,27 +155,52 @@ function CompanyProfile() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    let manufacturerId = user.email ?? existing.m?.id;
-    if (!manufacturerId) {
-      const loc =
-        NIGERIAN_STATES.find((s) => s.state === profile.state) ??
-        NIGERIAN_STATES[0];
-      const jitter = () => (Math.random() - 0.5) * 0.08;
-      const m: Manufacturer = {
-        id: `m-${Date.now()}`,
-        ...profile,
-        city: loc.city,
-        lat: parseFloat(profile.lat) || loc.lat + jitter(),
-        lng: parseFloat(profile.lng) || loc.lng + jitter(),
-        createdAt: new Date().toISOString(),
-      };
-      addManufacturer(m);
-      manufacturerId = m.id;
-      // link company to user
-      user.email = m.id;
+    try {
+      let manufacturerEmail = user.email ;//?? existing.m?.id;
+      const manufacturer = findManufacturerByEmail(manufacturerEmail);
+      if (!manufacturer) {
+        const loc =
+          NIGERIAN_STATES.find((s) => s.state === profile.state) ??
+          NIGERIAN_STATES[0];
+        const jitter = () => (Math.random() - 0.5) * 0.08;
+        const m: Manufacturer = {
+          id: manufacturers.length,
+          ...profile,
+          city: loc.city,
+          lat: parseFloat(profile.lat) || loc.lat + jitter(),
+          lng: parseFloat(profile.lng) || loc.lng + jitter(),
+          createdAt: new Date().toISOString(),
+        };
+        addManufacturer(m);
+        manufacturerEmail = m.email;
+        console.log("adding new manufacturer");
+        // link company to user
+        user.email = m.email;
+      } else {
+        
+        console.log(manufacturer);
+        if (manufacturer) {
+          const loc =
+            NIGERIAN_STATES.find((s) => s.state === profile.state) ??
+            NIGERIAN_STATES[0];
+          updateManufacturer(manufacturer.id, {
+            ...profile,
+            city: loc.city,
+            lat: parseFloat(profile.lat) || manufacturer.lat || loc.lat,
+            lng: parseFloat(profile.lng) || manufacturer.lng || loc.lng,
+          });
+        }
+      }
+      toast.success("Company's profile updated");
+    } catch (error) {
+      console.error("Failed to update company's profile:", error);
+      toast.error("Unable to update company's profile.");
     }
-    toast.success("Company's profile updated");
   };
+  const findManufacturerByEmail =(email: string) =>{
+    const manufacturer =manufacturers.find((m)=> m.email === email);
+    return manufacturer;
+  }
 
   return (
     <div className="p-6 lg:p-10 space-y-6 ">

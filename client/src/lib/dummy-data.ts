@@ -1,4 +1,5 @@
-import type { Manufacturer, PowerData } from "./store";
+import type { Manufacturer } from "../types/manufacturer.types";
+import type { PowerData } from "./store";
 import { NIGERIAN_STATES, SECTORAL_GROUPS } from "./store";
 
 const COMPANY_PREFIXES = [
@@ -81,18 +82,37 @@ function slug() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-export function generateManufacturer(): Manufacturer {
+export function generateManufacturer(
+  id: number,
+  users: any[] = [],
+  usedEmails: Set<string> = new Set(),
+): Manufacturer {
   const loc = pick(NIGERIAN_STATES);
   const jitter = () => (Math.random() - 0.5) * 0.12; // ~13km
   const first = pick(FIRST_NAMES);
   const last = pick(LAST_NAMES);
   const companyName = `${pick(COMPANY_PREFIXES)} ${pick(COMPANY_SUFFIXES)}`;
   const group = pick(SECTORAL_GROUPS);
+  const availableUserEmails = users
+    .map((user) => user.email)
+    .filter(
+      (email): email is string => Boolean(email) && !usedEmails.has(email),
+    );
+  let email =
+    availableUserEmails.length > 0
+      ? pick(availableUserEmails)
+      : `${first.toLowerCase()}.${last.toLowerCase()}@${companyName.split(" ")[0].toLowerCase()}.ng`;
+
+  while (usedEmails.has(email)) {
+    email = `${first.toLowerCase()}.${last.toLowerCase()}-${slug()}@${companyName.split(" ")[0].toLowerCase()}.ng`;
+  }
+  usedEmails.add(email);
+
   return {
-    id: `m-${slug()}`,
+    id,
     company: companyName,
     contactPerson: `${first} ${last}`,
-    email: `${first.toLowerCase()}.${last.toLowerCase()}@${companyName.split(" ")[0].toLowerCase()}.ng`,
+    email,
     phone: `+2348${rand(10000000, 99999999)}`,
     branch: loc.city,
     sectoralGroup: group,
@@ -106,7 +126,7 @@ export function generateManufacturer(): Manufacturer {
 }
 
 export function generateQuestionnaire(
-  manufacturerId: string,
+  manufacturerId: number,
   period = "H1 2026",
 ): PowerData {
   return {
@@ -140,15 +160,16 @@ export function generateQuestionnaire(
     nigeriaFirstComment:
       "Modest improvement in government patronage observed, though procurement lead times remain long.",
     submittedAt: new Date().toISOString(),
-    submittedBy: FIRST_NAMES[rand(0,10)]+" "+LAST_NAMES[rand(0,9)]
+    submittedBy: FIRST_NAMES[rand(0, 10)] + " " + LAST_NAMES[rand(0, 9)],
   };
 }
 
-export function generateBatch(count: number) {
+export function generateBatch(count: number, users: any[] = []) {
   const manufacturers: Manufacturer[] = [];
   const questionnaires: PowerData[] = [];
+  const usedEmails = new Set<string>();
   for (let i = 0; i < count; i++) {
-    const m = generateManufacturer();
+    const m = generateManufacturer(i, users, usedEmails);
     manufacturers.push(m);
     questionnaires.push(generateQuestionnaire(m.id));
   }

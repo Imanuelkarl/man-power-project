@@ -53,8 +53,6 @@ export const signup = async ({ name, email, password, role = "manufacturer",comp
       companyName
     });
     const data = response.data.data;
-    console.log("Signup response data:", data);
-    localStorage.setItem("token", data.token);
     
     return data;
   } catch (error) {
@@ -72,11 +70,12 @@ export const logout = async ()=>{
   
 }
 export const requestPasswordReset = async (email: string) => {
-  return api.post("/auth/password-reset", { email });
+  console.log("Sending reset link");
+  return api.post("/auth/reset-password", { email });
 };
 
 export const resetPassword = async (token: string, password: string) => {
-  return api.post(`/auth/reset-password/${token}`, { password });
+  return api.post(`/auth/update-password`, { token,password });
 };
 
 export default {

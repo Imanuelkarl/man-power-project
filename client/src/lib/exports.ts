@@ -2,7 +2,8 @@ import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import type { Manufacturer, PowerData } from "./store";
+import type {  PowerData } from "./store";
+import type { Manufacturer } from "../types/manufacturer.types";
 
 function buildRows(manufacturers: Manufacturer[], questionnaires: PowerData[]) {
   const byId = new Map(manufacturers.map((m) => [m.id, m]));

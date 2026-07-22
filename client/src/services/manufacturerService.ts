@@ -1,3 +1,4 @@
+import type { Manufacturer } from "../types/manufacturer.types";
 import api from "../utils/api";
 
 export interface ManufacturerCreateData {
@@ -14,12 +15,7 @@ export interface ManufacturerUpdateData {
     [key: string]: any;
 }
 
-export interface Manufacturer {
-    _id: string;
-    name: string;
-    email: string;
-    [key: string]: any;
-}
+
 
 const manufacturerService = {
     create: async (data: ManufacturerCreateData) => {
@@ -32,7 +28,7 @@ const manufacturerService = {
         return response.data;
     },
 
-    findById: async (id: string) => {
+    findById: async (id: number) => {
         const response = await api.get<Manufacturer>(`/manufacturers/${id}`);
         return response.data;
     },
@@ -42,12 +38,12 @@ const manufacturerService = {
         return response.data;
     },
 
-    update: async (id: string, data: ManufacturerUpdateData) => {
+    update: async (id: number, data: ManufacturerUpdateData) => {
         const response = await api.put<Manufacturer>(`/manufacturers/${id}`, data);
         return response.data;
     },
 
-    delete: async (id: string) => {
+    delete: async (id: number) => {
         const response = await api.delete<{ message: string }>(`/manufacturers/${id}`);
         return response.data;
     },

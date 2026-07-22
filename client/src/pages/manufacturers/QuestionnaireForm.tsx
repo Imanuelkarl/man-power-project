@@ -10,6 +10,14 @@ import { useAuth } from "../../context/AuthContext";
 import Navigate from "../../components/navigate";
 
 const num = (v: string) => (v === "" ? 0 : Number(v));
+const currencySymbols: Record<string, string> = {
+  NGN: "₦",
+  USD: "$",
+  GBP: "£",
+  EUR: "€",
+  CNY: "¥",
+  ZAR: "R",
+};
 const getMonthFromDate = (date: string, subtractOneDay = false) => {
   const parsed = new Date(date);
   if (Number.isNaN(parsed.getTime())) return "";
@@ -44,15 +52,16 @@ export function QuestionnaireForm({
   const [startTime, setStartTime] = useState("2026-01-01");
   const [endTime, setEndTime] = useState("2026-07-01");
   const [year, setYear] = useState(new Date().getFullYear());
+  const [currency, setCurrency] = useState("NGN");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { manufacturers, questionnaires, upsertQuestionnaire } = useData();
   if (!user) return <Navigate to="/login" />;
 
   const existing = useMemo(() => {
     if (user.email) {
-      const m = manufacturers.find((x) => x.id === user.email);
+      const m = manufacturers.find((x) => x.email === user.email);
       const q = questionnaires.find(
-        (x) => x.manufacturerId === user.email && x.period === "H1 2026",
+        (x) => x.manufacturerId === m?.id && x.period === "H1 2026",
       );
       return { m, q };
     }
@@ -96,7 +105,7 @@ export function QuestionnaireForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (currentStep === QUESTIONNAIRE_STEPS.REVIEW) {
-      const manufacturerId = user.email ?? existing.m?.id;
+      const manufacturerId = existing.m?.id;
       if (!manufacturerId) {
         toast.error(
           "Complete your company profile in Settings before submitting.",
@@ -154,6 +163,20 @@ export function QuestionnaireForm({
                 onChange={(e) => setEndTime(e.target.value)}
               />
             </Field>
+            <Field label="Currency">
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+              >
+                <option value="NGN">Nigerian Naira (NGN)</option>
+                <option value="USD">US Dollar (USD)</option>
+                <option value="GBP">British Pound (GBP)</option>
+                <option value="EUR">Euro (EUR)</option>
+                <option value="CNY">Chinese Yuan (CNY)</option>
+                <option value="ZAR">South African Rand (ZAR)</option>
+              </select>
+            </Field>
           </div>
           <Button type="button" size="lg" onClick={goNext}>
             Get started <ArrowRight className="w-4 h-4 ml-2" />
@@ -172,18 +195,21 @@ export function QuestionnaireForm({
                   onChange={(v) => setForm({ ...form, capacityUtilization: v })}
                 />
                 <NumField
-                  label="2. Estimated production value (₦)"
+                  label={`2. Estimated production value (${currencySymbols[currency]})`}
                   value={form.productionValue}
+                  
                   onChange={(v) => setForm({ ...form, productionValue: v })}
                 />
                 <NumField
-                  label="3. Cost of raw materials used (₦)"
+                  label={`3. Cost of raw materials used (${currencySymbols[currency]})`}
                   value={form.rawMaterialsCost}
+                  
                   onChange={(v) => setForm({ ...form, rawMaterialsCost: v })}
                 />
                 <NumField
-                  label="4. Transport cost of raw materials (₦)"
+                  label={`4. Transport cost of raw materials (${currencySymbols[currency]})`}
                   value={form.rawMaterialsTransport}
+                  
                   onChange={(v) =>
                     setForm({ ...form, rawMaterialsTransport: v })
                   }
@@ -194,8 +220,9 @@ export function QuestionnaireForm({
                   onChange={(v) => setForm({ ...form, localSourcing: v })}
                 />
                 <NumField
-                  label="6. Naira value of unsold finished goods"
+                  label={`6. Value of unsold finished goods (${currencySymbols[currency]})`}
                   value={form.unsoldGoods}
+                  
                   onChange={(v) => setForm({ ...form, unsoldGoods: v })}
                 />
                 <NumField
@@ -219,7 +246,7 @@ export function QuestionnaireForm({
                   onChange={(v) => setForm({ ...form, interestRate: v })}
                 />
                 <NumField
-                  label="11. Average exchange rate (₦/US$)"
+                  label={`12. Average exchange rate (₦/${currency})`}
                   value={form.exchangeRate}
                   onChange={(v) => setForm({ ...form, exchangeRate: v })}
                 />
@@ -284,11 +311,13 @@ export function QuestionnaireForm({
                   <NumField
                     label="Diesel"
                     value={form.energyDiesel}
+                    currency={currencySymbols[currency]}
                     onChange={(v) => setForm({ ...form, energyDiesel: v })}
                   />
                   <NumField
                     label="Gas"
                     value={form.energyGas}
+                    currency={currencySymbols[currency]}
                     onChange={(v) => setForm({ ...form, energyGas: v })}
                   />
                   <NumField
@@ -360,7 +389,7 @@ export function QuestionnaireForm({
                         Production Value:
                       </span>{" "}
                       <span className="ml-2">
-                        ₦{form.productionValue.toLocaleString()}
+                        {currencySymbols[currency]}{form.productionValue.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -382,11 +411,15 @@ export function QuestionnaireForm({
                       <span className="ml-2">{form.interestRate}%</span>
                     </div>
                     <div>
+                      <span className="text-muted-foreground">Currency:</span>{" "}
+                      <span className="ml-2">{currency}</span>
+                    </div>
+                    <div>
                       <span className="text-muted-foreground">
                         Exchange Rate:
                       </span>{" "}
                       <span className="ml-2">
-                        ₦{form.exchangeRate.toLocaleString()}/US$
+                        ₦{form.exchangeRate.toLocaleString()}/{currency}
                       </span>
                     </div>
                   </div>
@@ -402,7 +435,7 @@ export function QuestionnaireForm({
                         Land & Buildings:
                       </span>{" "}
                       <span className="ml-2">
-                        ₦{form.investLandBuildings.toLocaleString()}
+                        {currencySymbols[currency]}{form.investLandBuildings.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -410,7 +443,7 @@ export function QuestionnaireForm({
                         Plant & Machinery:
                       </span>{" "}
                       <span className="ml-2">
-                        ₦{form.investPlant.toLocaleString()}
+                        {currencySymbols[currency]}{form.investPlant.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -418,7 +451,7 @@ export function QuestionnaireForm({
                         Furniture & Equipment:
                       </span>{" "}
                       <span className="ml-2">
-                        ₦{form.investFurniture.toLocaleString()}
+                        {currencySymbols[currency]}{form.investFurniture.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -426,7 +459,7 @@ export function QuestionnaireForm({
                         Motor Vehicle:
                       </span>{" "}
                       <span className="ml-2">
-                        ₦{form.investVehicles.toLocaleString()}
+                        {currencySymbols[currency]}{form.investVehicles.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -434,7 +467,7 @@ export function QuestionnaireForm({
                         Assets in Progress:
                       </span>{" "}
                       <span className="ml-2">
-                        ₦{form.investInProgress.toLocaleString()}
+                        {currencySymbols[currency]}{form.investInProgress.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -464,7 +497,7 @@ export function QuestionnaireForm({
                         Diesel Spending:
                       </span>{" "}
                       <span className="ml-2">
-                        ₦{form.energyDiesel.toLocaleString()}
+                        {currencySymbols[currency]}{form.energyDiesel.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -472,7 +505,7 @@ export function QuestionnaireForm({
                         Gas Spending:
                       </span>{" "}
                       <span className="ml-2">
-                        ₦{form.energyGas.toLocaleString()}
+                        {currencySymbols[currency]}{form.energyGas.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -558,20 +591,30 @@ function NumField({
   label,
   value,
   onChange,
+  currency,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
+  currency?: string;
 }) {
   return (
     <Field label={label}>
-      <Input
-        type="number"
-        min={0}
-        step="any"
-        value={value || ""}
-        onChange={(e) => onChange(num(e.target.value))}
-      />
+      <div className="relative">
+        {currency && (
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            {currency}
+          </span>
+        )}
+        <Input
+          type="number"
+          min={0}
+          step="any"
+          value={value || ""}
+          className={currency ? "pl-8" : undefined}
+          onChange={(e) => onChange(num(e.target.value))}
+        />
+      </div>
     </Field>
   );
 }

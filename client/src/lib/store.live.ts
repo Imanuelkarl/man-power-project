@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import * as authService from "../services/authService";
-import manufacturerService, { type Manufacturer } from "../services/manufacturerService";
+import manufacturerService, { } from "../services/manufacturerService";
 import * as powerDataService from "../services/powerDataService";
+import type { Manufacturer } from "../types/manufacturer.types";
 
 type User = {
   id: number;

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useUsers } from "../../lib/store";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
@@ -13,7 +13,7 @@ import authService from "../../services/authService";
 import type { User } from "../../types/user.types";
 
 export function UsersManager() {
-  const { users, addUser, removeUser } = useUsers();
+  const { users, fetchUsers, addUser, removeUser } = useUsers();
   const [query, setQuery] = useState("");
   const [showInvite, setShowInvite] = useState(false);
   const [inviteName, setInviteName] = useState("");
@@ -21,6 +21,10 @@ export function UsersManager() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("");
 
+
+  useEffect(()=>{
+    fetchUsers();
+  },[users])
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -61,7 +65,17 @@ export function UsersManager() {
 
   const rows = useMemo(() => {
     const q = query.toLowerCase();
-    return users
+    const response = users as unknown as {
+      data?: User[] | { users?: User[] };
+      users?: User[];
+    };
+    const userList: User[] = Array.isArray(users)
+      ? users
+      : Array.isArray(response.data)
+        ? response.data
+        : response.data?.users ?? response.users ?? [];
+
+    return userList
       .filter(
         (m) =>
           !q ||

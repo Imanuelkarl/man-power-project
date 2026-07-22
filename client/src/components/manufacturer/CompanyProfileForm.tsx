@@ -4,7 +4,6 @@ import {
   useData,
   SECTORAL_GROUPS,
   NIGERIAN_STATES,
-  type Manufacturer,
 } from "../../lib/store";
 import {
   Select,
@@ -16,15 +15,16 @@ import {
 import { Input } from "../ui/input";;
 import Field from "../forms/Field";
 import Section from "../forms/Section";
+import type { Manufacturer } from "../../types/manufacturer.types";
 export function CompanyProfile() {
   const user = useAuth((s) => s.user)!;
   const { manufacturers, questionnaires, addManufacturer } = useData();
 
   const existing = useMemo(() => {
     if (user.companyId) {
-      const m = manufacturers.find((x) => x.id === user.companyId);
+      const m = manufacturers.find((x) => x.email === user.email);
       const q = questionnaires.find(
-        (x) => x.manufacturerId === user.companyId && x.period === "H1 2026",
+        (x) => x.manufacturerId === m?.id && x.period === "H1 2026",
       );
       return { m, q };
     }
@@ -49,7 +49,7 @@ export function CompanyProfile() {
         NIGERIAN_STATES[0];
       const jitter = () => (Math.random() - 0.5) * 0.08;
       const m: Manufacturer = {
-        id: `m-${Date.now()}`,
+        id: manufacturerId as number,
         ...profile,
         city: loc.city,
         lat: loc.lat + jitter(),
@@ -59,7 +59,7 @@ export function CompanyProfile() {
       addManufacturer(m);
       manufacturerId = m.id;
       // link company to user
-      user.companyId = m.id;
+      
     }
   };
 

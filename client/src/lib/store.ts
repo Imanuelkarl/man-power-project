@@ -1,28 +1,18 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User } from "../types/user.types";
+import manufacturerService from "../services/manufacturerService";
+import userService from "../services/userService";
+import { login as loginUser, signup as signupUser } from "../services/authService";
+import type { Manufacturer } from "../types/manufacturer.types";
 
-export type Role = "admin" | "manufacturer"|"investor";
+export type { Manufacturer };
 
-export interface Manufacturer {
-  id: string;
-  company: string;
-  contactPerson: string;
-  email: string;
-  phone: string;
-  branch: string;
-  sectoralGroup: string;
-  subSector: string;
-  state: string;
-  city: string;
-  lat: number;
-  lng: number;
-  createdAt: string;
-}
+export type Role = "admin" | "manufacturer" | "investor";
 
 export interface PowerData {
   id: string;
-  manufacturerId: string;
+  manufacturerId: number;
   period: string; // e.g. "H1 2026"
   startTime: Date;
   endTime: Date;
@@ -56,86 +46,96 @@ export interface PowerData {
 // -------------------- Auth --------------------
 interface AuthState {
   user: User | null;
-  login: (email: string, password: string) => { ok: boolean; error?: string };
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
-  register: (name: string, email: string, password: string, companyId?: string) => { ok: boolean; error?: string };
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    companyId?: string,
+  ) => Promise<{ ok: boolean; error?: string }>;
 }
-
-// Seeded credentials so the demo is usable immediately.
-const DEFAULT_USERS: Array<User & { password: string }> = [
-  { id: 0, email: "admin@man.org.ng", password: "admin123", name: "MAN Administrator",is_active:true, role: "admin" },
-];
 
 export const useAuth = create<AuthState>()(
   persist(
-    (set, _get) => ({
+    (set) => ({
       user: null,
-      login: (email, password) => {
-        const store = useUsers.getState();
-        const found = store.users.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-        if (!found) return { ok: false, error: "Invalid email or password" };
-        const { password: _pw, ...safe } = found;
-        set({ user: safe });
-        return { ok: true };
+      login: async (email, password) => {
+        try {
+          const { user } = await loginUser({email, password});
+          set({ user });
+          return { ok: true };
+        } catch {
+          return { ok: false, error: "Invalid email or password" };
+        }
       },
       logout: () => set({ user: null }),
-      register: (name, email, password, companyId) => {
-        const store = useUsers.getState();
-        if (store.users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
-          return { ok: false, error: "Email already registered" };
+      register: async (name, email, password, companyId) => {
+        try {
+          const { user } = await signupUser({
+            name,
+            email,
+            password,
+            companyName: companyId,
+          });
+          set({ user });
+          return { ok: true };
+        } catch {
+          return { ok: false, error: "Unable to register user" };
         }
-        const newUser: User & { password: string } = {
-          id: store.users.length,
-          email,
-          password,
-          name,
-          role: "manufacturer",
-          is_active:true,
-          companyId,
-        };
-        store.addUser(newUser);
-        const { password: _pw, ...safe } = newUser;
-        set({ user: safe });
-        return { ok: true };
       },
     }),
-    { name: "man.auth" }
-  )
+    { name: "man.auth" },
+  ),
 );
 
-// -------------------- Users (mock DB) --------------------
+// -------------------- Users --------------------
 interface UsersState {
-  users: Array<User & { password: string }>;
-  addUser: (u: User & { password: string }) => void;
+  users: User[];
+  loading: boolean;
+  fetchUsers: () => Promise<void>;
+  addUser: (u: User) => void;
   removeUser: (id: number) => void;
-  updatePassword: (id: number, password: string) => void;
+  updatePassword: (id: number, password: string) => Promise<void>;
 }
 
 export const useUsers = create<UsersState>()(
   persist(
     (set) => ({
-      users: DEFAULT_USERS,
+      users: [],
+      loading: false,
+      fetchUsers: async () => {
+        set({ loading: true });
+        try {
+          const users = await userService.findAll();
+          set({ users, loading: false });
+        } catch {
+          set({ loading: false });
+        }
+      },
       addUser: (u) => set((s) => ({ users: [...s.users, u] })),
-      removeUser: (id) => set((s) => ({ users: s.users.filter((x) => x.id !== id) })),
-      updatePassword: (id: number, password: string) =>
-        set((s) => ({ users: s.users.map((x) => (x.id === id ? { ...x, password } : x)) })),
+      removeUser: (id) =>
+        set((s) => ({ users: s.users.filter((x) => x.id !== id) })),
+      updatePassword: async (id, password) => {
+        await userService.update(id, { password });
+      },
     }),
-    { name: "man.users" }
-  )
+    { name: "man.users", partialize: () => ({ users: [], loading: false }) },
+  ),
 );
 
 // -------------------- Data --------------------
 interface DataState {
   manufacturers: Manufacturer[];
   questionnaires: PowerData[];
-  users: User[];
-  addUser: (u: User) => void;
-  updateUser:(id: number, patch: Partial<User>)=> void;
-  removeUser: (id: number)=> void;
-  addManufacturer: (m: Manufacturer) => void; 
-  updateManufacturer: (id: string, patch: Partial<Manufacturer>) => void;
-  removeManufacturer: (id: string) => void;
+  addManufacturer: (m: Manufacturer) => void;
+  updateManufacturer: (
+    id: number,
+    patch: Partial<Manufacturer>,
+  ) => Promise<void>;
+  removeManufacturer: (id: number) => void;
   addQuestionnaire: (q: PowerData) => void;
+  getQuestionnaireByEmail: (email: string) => PowerData[];
   upsertQuestionnaire: (q: PowerData) => void;
   removeQuestionnaire: (id: string) => void;
   clearAll: () => void;
@@ -144,38 +144,51 @@ interface DataState {
 
 export const useData = create<DataState>()(
   persist(
-    (set) => ({
+    (set): DataState => ({
       manufacturers: [],
       questionnaires: [],
-      users:[],
-      addUser: (u) => set((s) => ({ users: [...s.users, u] })),
-      updateUser: (id, patch) =>
+      addManufacturer: (m) => {
+        set((s) => ({ manufacturers: [...s.manufacturers, m] }));
+      },
+      updateManufacturer: async (id, patch) => {
+        const manufacturer = await manufacturerService.update(id, patch);
         set((s) => ({
-          users: s.users.map((m) => (m.id === id ? { ...m, ...patch } : m)),
-        })),
-      removeUser: (id) =>
-        set((s) => ({
-          users: s.users.filter((u) => u.id !== id),
-        })),
-        addManufacturer: (m) => set((s) => ({ manufacturers: [...s.manufacturers, m] })),
-      updateManufacturer: (id, patch) =>
-        set((s) => ({
-          manufacturers: s.manufacturers.map((m) => (m.id === id ? { ...m, ...patch } : m)),
-        })),
+          manufacturers: [...s.manufacturers, manufacturer],
+        }));
+      },
       removeManufacturer: (id) =>
         set((s) => ({
           manufacturers: s.manufacturers.filter((m) => m.id !== id),
-          questionnaires: s.questionnaires.filter((q) => q.manufacturerId !== id),
+          questionnaires: s.questionnaires.filter(
+            (q) => q.manufacturerId !== id,
+          ),
         })),
-      addQuestionnaire: (q) => set((s) => ({ questionnaires: [...s.questionnaires, q] })),
+      addQuestionnaire: (q) =>
+        set((s) => ({ questionnaires: [...s.questionnaires, q] })),
+      getQuestionnaireByEmail: (email): PowerData[] => {
+        const manufacturer = useData
+          .getState()
+          .manufacturers.find(
+            (m) => m.email.toLowerCase() === email.toLowerCase(),
+          );
+
+        if (!manufacturer) return [];
+
+        return useData
+          .getState()
+          .questionnaires.filter(
+            (q) => q.manufacturerId === manufacturer.id,
+          );
+      },
       removeQuestionnaire: (id) =>
-      set((s) => ({
-         questionnaires: s.questionnaires.filter((q) => q.manufacturerId !== id),
-      })),
+        set((s) => ({
+          questionnaires: s.questionnaires.filter((q) => q.id !== id),
+        })),
       upsertQuestionnaire: (q) =>
         set((s) => {
           const idx = s.questionnaires.findIndex(
-            (x) => x.manufacturerId === q.manufacturerId && x.period === q.period
+            (x) =>
+              x.manufacturerId === q.manufacturerId && x.period === q.period,
           );
           if (idx === -1) return { questionnaires: [...s.questionnaires, q] };
           const copy = s.questionnaires.slice();
@@ -185,117 +198,11 @@ export const useData = create<DataState>()(
       clearAll: () => set({ manufacturers: [], questionnaires: [] }),
       bulkSet: (m, q) => set({ manufacturers: m, questionnaires: q }),
     }),
-    { name: "man.data" }
-  )
+    { name: "man.data" },
+  ),
 );
 
 // -------------------- Invites & Password Resets --------------------
-export interface InviteToken {
-  token: string;
-  email: string;
-  name: string;
-  companyId?: string;
-  createdAt: string;
-  used: boolean;
-}
-
-export interface ResetToken {
-  token: string;
-  id: number;
-  userId: string;
-  email: string;
-  createdAt: string;
-  used: boolean;
-}
-
-interface TokensState {
-  invites: InviteToken[];
-  resets: ResetToken[];
-  createInvite: (input: { email: string; name: string; companyId?: string }) => { ok: boolean; token?: string; error?: string };
-  consumeInvite: (token: string, password: string) => { ok: boolean; error?: string };
-  createResetForEmail: (email: string) => { ok: boolean; token?: string; error?: string };
-  consumeReset: (token: string, password: string) => { ok: boolean; error?: string };
-}
-
-function randomToken() {
-  return Array.from(crypto.getRandomValues(new Uint8Array(24)))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-export const useTokens = create<TokensState>()(
-  persist(
-    (set, get) => ({
-      invites: [],
-      resets: [],
-      createInvite: ({ email, name, companyId }) => {
-        const users = useUsers.getState();
-        if (users.users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
-          return { ok: false, error: "A user with this email already exists" };
-        }
-        const existing = get().invites.find(
-          (i) => !i.used && i.email.toLowerCase() === email.toLowerCase()
-        );
-        if (existing) return { ok: true, token: existing.token };
-        const token = randomToken();
-        set((s) => ({
-          invites: [
-            ...s.invites,
-            { token, email, name, companyId, createdAt: new Date().toISOString(), used: false },
-          ],
-        }));
-        return { ok: true, token };
-      },
-      consumeInvite: (token, password) => {
-        const invite = get().invites.find((i) => i.token === token);
-        if (!invite) return { ok: false, error: "Invite link is invalid" };
-        if (invite.used) return { ok: false, error: "Invite link has already been used" };
-        const users = useUsers.getState();
-        if (users.users.some((u) => u.email.toLowerCase() === invite.email.toLowerCase())) {
-          return { ok: false, error: "An account already exists for this email" };
-        }
-        users.addUser({
-          id: users.users.length,
-          email: invite.email,
-          name: invite.name,
-          password,
-          role: "manufacturer",
-          is_active:true,
-          companyName: invite.companyId,
-        });
-        set((s) => ({
-          invites: s.invites.map((i) => (i.token === token ? { ...i, used: true } : i)),
-        }));
-        return { ok: true };
-      },
-      createResetForEmail: (email) => {
-        const users = useUsers.getState();
-        const user = users.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-        // Always return ok so we don't leak account existence, but only mint a token if found.
-        if (!user) return { ok: true };
-        const token = randomToken();
-        set((s: { resets: any; }) => ({
-          resets: [
-            ...s.resets,
-            { token, userId: user.id, email: user.email, createdAt: new Date().toISOString(), used: false },
-          ],
-        }));
-        return { ok: true, token };
-      },
-      consumeReset: (token, password) => {
-        const reset = get().resets.find((r) => r.token === token);
-        if (!reset) return { ok: false, error: "Reset link is invalid" };
-        if (reset.used) return { ok: false, error: "Reset link has already been used" };
-        useUsers.getState().updatePassword(reset.id, password);
-        set((s) => ({
-          resets: s.resets.map((r) => (r.token === token ? { ...r, used: true } : r)),
-        }));
-        return { ok: true };
-      },
-    }),
-    { name: "man.tokens" }
-  )
-);
 
 export const SECTORAL_GROUPS = [
   "Food, Beverage & Tobacco",
@@ -310,7 +217,12 @@ export const SECTORAL_GROUPS = [
   "Domestic & Industrial Plastic, Rubber",
 ];
 
-export const NIGERIAN_STATES: Array<{ state: string; city: string; lat: number; lng: number }> = [
+export const NIGERIAN_STATES: Array<{
+  state: string;
+  city: string;
+  lat: number;
+  lng: number;
+}> = [
   { state: "Lagos", city: "Ikeja", lat: 6.6018, lng: 3.3515 },
   { state: "Lagos", city: "Apapa", lat: 6.4488, lng: 3.3595 },
   { state: "Lagos", city: "Agbara", lat: 6.5031, lng: 3.0908 },

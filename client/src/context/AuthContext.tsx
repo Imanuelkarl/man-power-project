@@ -75,8 +75,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = async () => {
     localStorage.removeItem("token");
-
-    window.location.href="/login";
     setUser(null);
     await logoutService();
   };

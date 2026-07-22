@@ -63,7 +63,8 @@ export default class EmailSender {
     const expiresIn =
       options?.expiresIn || process.env.PASSWORD_RESET_EXPIRES || "1h";
 
-    const resetUrl = `${frontend.replace(/\/$/, "")}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(to)}`;
+      console.log("sending reset password link");
+    const resetUrl = `${frontend.replace(/\/$/, "")}/reset-password/${(token)}`;
 
     const subject = "Password reset request";
     const html = `

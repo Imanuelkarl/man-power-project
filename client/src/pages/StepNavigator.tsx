@@ -156,7 +156,7 @@ export function StepNavigator({
       </div>
 
       {/* ---------------- Content pane: active step + children ---------------- */}
-      <div className="flex-1 px-9 py-8 flex flex-col">
+      <div className="flex-1 px-9 py-8 flex flex-col overflow-y-auto">
         {onBack && (
           <button
             type="button"

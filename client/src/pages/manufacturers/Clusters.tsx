@@ -14,16 +14,30 @@
 // (useData(), Card/Badge/Button, oklch palette, formatNaira).
 
 import { useMemo, useState, useCallback, useRef } from "react";
-import { GoogleMap, Polygon, Circle, OverlayView, useJsApiLoader } from "@react-google-maps/api";
-import { useData, type Manufacturer } from "../../lib/store";
+import {
+  GoogleMap,
+  Polygon,
+  Circle,
+  OverlayView,
+  useJsApiLoader,
+} from "@react-google-maps/api";
+import { useData } from "../../lib/store";
 import { clusterByRadius, type GeoPoint } from "../../lib/geo-clustering";
 import { Card } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Slider } from "../../components/ui/slider";
-import { MapPin, Layers, Satellite, Map as MapIcon, Zap, Building2 } from "lucide-react";
+import {
+  MapPin,
+  Layers,
+  Satellite,
+  Map as MapIcon,
+  Zap,
+  Building2,
+} from "lucide-react";
 import { PageHeader } from "../../components/page-header";
 import { formatNaira } from "../../lib/format";
+import type { Manufacturer } from "../../types/manufacturer.types";
 // pages/ClusterMapPage.tsx
 //
 // ASSUMPTIONS (adjust if your real types differ):
@@ -36,7 +50,6 @@ import { formatNaira } from "../../lib/format";
 //
 // This file is self-contained and follows the same conventions as DashboardPage.tsx
 // (useData(), Card/Badge/Button, oklch palette, formatNaira).
-
 
 const CLUSTER_COLORS = [
   "oklch(0.68 0.16 150)",
@@ -59,12 +72,19 @@ const MAP_OPTIONS: google.maps.MapOptions = {
   mapTypeControl: false,
   clickableIcons: false,
   styles: [
-    { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+    {
+      featureType: "poi",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }],
+    },
     { featureType: "transit", stylers: [{ visibility: "off" }] },
   ],
 };
 
-interface ManufacturerGeo extends GeoPoint {
+interface ManufacturerGeo {
+  id: number;
+  lat: number;
+  lng: number;
   company: string;
   state: string;
   sectoralGroup: string;
@@ -76,8 +96,10 @@ export const ClusterMapPage: React.FC = () => {
   const [radiusKm, setRadiusKm] = useState(15);
   const [showPolygons, setShowPolygons] = useState(true);
   const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [selectedClusterId, setSelectedClusterId] = useState<string | null>(null);
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [selectedClusterId, setSelectedClusterId] = useState<string | null>(
+    null,
+  );
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const { isLoaded } = useJsApiLoader({
@@ -88,7 +110,10 @@ export const ClusterMapPage: React.FC = () => {
   const geoManufacturers: ManufacturerGeo[] = useMemo(
     () =>
       manufacturers
-        .filter((m: Manufacturer) => typeof m.lat === "number" && typeof m.lng === "number")
+        .filter(
+          (m: Manufacturer) =>
+            typeof m.lat === "number" && typeof m.lng === "number",
+        )
         .map((m: Manufacturer) => ({
           id: m.id,
           lat: m.lat,
@@ -97,37 +122,51 @@ export const ClusterMapPage: React.FC = () => {
           state: m.state,
           sectoralGroup: m.sectoralGroup,
         })),
-    [manufacturers]
+    [manufacturers],
   );
 
   const clusters = useMemo(
-    () => clusterByRadius(geoManufacturers, radiusKm),
-    [geoManufacturers, radiusKm]
+    () =>
+      clusterByRadius(
+        geoManufacturers.map((manufacturer): GeoPoint => ({
+          id: String(manufacturer.id),
+          lat: manufacturer.lat,
+          lng: manufacturer.lng,
+        })),
+        radiusKm,
+      ),
+    [geoManufacturers, radiusKm],
   );
 
   const clusterColorById = useMemo(() => {
     const map = new Map<string, string>();
-    clusters.forEach((c, i) => map.set(c.id, CLUSTER_COLORS[i % CLUSTER_COLORS.length]));
+    clusters.forEach((c, i) =>
+      map.set(c.id, CLUSTER_COLORS[i % CLUSTER_COLORS.length]),
+    );
     return map;
   }, [clusters]);
 
   const companyToCluster = useMemo(() => {
-    const map = new Map<string, string>();
-    clusters.forEach((c) => c.points.forEach((p) => map.set(p.id, c.id)));
+    const map = new Map<number, string>();
+    clusters.forEach((c) =>
+      c.points.forEach((p) => map.set(Number(p.id), c.id)),
+    );
     return map;
   }, [clusters]);
 
   // avg power usage (Naira spend) per manufacturer, from their questionnaire history
   const avgPowerByManufacturer = useMemo(() => {
-    const totals = new Map<string, { sum: number; count: number }>();
+    const totals = new Map<number, { sum: number; count: number }>();
     questionnaires.forEach((q: any) => {
-      const spend = q.energyDiesel + q.energyGas + q.energyGenerator + q.energyOther;
-      const entry = totals.get(q.manufacturerId) ?? { sum: 0, count: 0 };
+      const spend =
+        q.energyDiesel + q.energyGas + q.energyGenerator + q.energyOther;
+      const manufacturerId = Number(q.manufacturerId);
+      const entry = totals.get(manufacturerId) ?? { sum: 0, count: 0 };
       entry.sum += spend;
       entry.count += 1;
-      totals.set(q.manufacturerId, entry);
+      totals.set(manufacturerId, entry);
     });
-    const result = new Map<string, number>();
+    const result = new Map<number, number>();
     totals.forEach((v, k) => result.set(k, v.sum / v.count));
     return result;
   }, [questionnaires]);
@@ -135,14 +174,25 @@ export const ClusterMapPage: React.FC = () => {
   const clusterStats = useMemo(
     () =>
       clusters.map((c) => {
-        const powers = c.points.map((p) => avgPowerByManufacturer.get(p.id) ?? 0);
-        const avgPower = powers.length ? powers.reduce((s, v) => s + v, 0) / powers.length : 0;
+        const powers = c.points.map(
+          (p) => avgPowerByManufacturer.get(Number(p.id)) ?? 0,
+        );
+        const avgPower = powers.length
+          ? powers.reduce((s, v) => s + v, 0) / powers.length
+          : 0;
         const stateCounts = new Map<string, number>();
-        c.points.forEach((p) => stateCounts.set(p.state, (stateCounts.get(p.state) ?? 0) + 1));
-        const dominantState = [...stateCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—";
+        c.points.forEach((p) => {
+          const manufacturer = geoManufacturers.find(
+            (candidate) => candidate.id === Number(p.id),
+          );
+          const state = manufacturer?.state ?? "—";
+          stateCounts.set(state, (stateCounts.get(state) ?? 0) + 1);
+        });
+        const dominantState =
+          [...stateCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—";
         return { cluster: c, avgPower, dominantState };
       }),
-    [clusters, avgPowerByManufacturer]
+    [clusters, avgPowerByManufacturer, geoManufacturers],
   );
 
   const flyToCluster = useCallback(
@@ -153,10 +203,11 @@ export const ClusterMapPage: React.FC = () => {
       mapRef.current.panTo(c.centroid);
       mapRef.current.setZoom(c.points.length > 1 ? 10 : 12);
     },
-    [clusters]
+    [clusters],
   );
 
-  const hoveredCompany = geoManufacturers.find((m) => m.id === hoveredId) ?? null;
+  const hoveredCompany =
+    geoManufacturers.find((m) => m.id === hoveredId) ?? null;
 
   return (
     <div className="p-6 lg:p-10 space-y-6 max-w-[1600px]">
@@ -179,7 +230,11 @@ export const ClusterMapPage: React.FC = () => {
             >
               <Satellite className="w-4 h-4 mr-2" /> Satellite
             </Button>
-            <Button variant={showPolygons ? "default" : "outline"} size="sm" onClick={() => setShowPolygons((v) => !v)}>
+            <Button
+              variant={showPolygons ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowPolygons((v) => !v)}
+            >
               <Layers className="w-4 h-4 mr-2" /> Clusters
             </Button>
           </div>
@@ -190,7 +245,9 @@ export const ClusterMapPage: React.FC = () => {
         {/* Map */}
         <Card className="p-0 overflow-hidden relative" style={{ height: 640 }}>
           {!isLoaded ? (
-            <div className="h-full grid place-items-center text-sm text-muted-foreground">Loading map…</div>
+            <div className="h-full grid place-items-center text-sm text-muted-foreground">
+              Loading map…
+            </div>
           ) : (
             <GoogleMap
               mapContainerStyle={MAP_CONTAINER_STYLE}
@@ -242,7 +299,9 @@ export const ClusterMapPage: React.FC = () => {
 
               {geoManufacturers.map((m) => {
                 const clusterId = companyToCluster.get(m.id);
-                const color = clusterId ? clusterColorById.get(clusterId)! : "oklch(0.5 0 0)";
+                const color = clusterId
+                  ? clusterColorById.get(clusterId)!
+                  : "oklch(0.5 0 0)";
                 return (
                   <OverlayView
                     key={m.id}
@@ -251,7 +310,9 @@ export const ClusterMapPage: React.FC = () => {
                   >
                     <div
                       onMouseEnter={() => setHoveredId(m.id)}
-                      onMouseLeave={() => setHoveredId((id) => (id === m.id ? null : id))}
+                      onMouseLeave={() =>
+                        setHoveredId((id) => (id === m.id ? null : id))
+                      }
                       style={{
                         transform: "translate(-50%, -100%)",
                         cursor: "pointer",
@@ -261,7 +322,12 @@ export const ClusterMapPage: React.FC = () => {
                         className="drop-shadow"
                         width={hoveredId === m.id ? 26 : 20}
                         height={hoveredId === m.id ? 26 : 20}
-                        style={{ color, fill: color, fillOpacity: 0.25, transition: "all 120ms ease" }}
+                        style={{
+                          color,
+                          fill: color,
+                          fillOpacity: 0.25,
+                          transition: "all 120ms ease",
+                        }}
                       />
                     </div>
                   </OverlayView>
@@ -270,18 +336,26 @@ export const ClusterMapPage: React.FC = () => {
 
               {hoveredCompany && (
                 <OverlayView
-                  position={{ lat: hoveredCompany.lat, lng: hoveredCompany.lng }}
+                  position={{
+                    lat: hoveredCompany.lat,
+                    lng: hoveredCompany.lng,
+                  }}
                   mapPaneName={OverlayView.FLOAT_PANE}
                 >
                   <div style={{ transform: "translate(-50%, -140%)" }}>
                     <Card className="px-3 py-2 shadow-lg border min-w-[180px] pointer-events-none">
-                      <div className="font-medium text-sm truncate">{hoveredCompany.company}</div>
+                      <div className="font-medium text-sm truncate">
+                        {hoveredCompany.company}
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         {hoveredCompany.state} · {hoveredCompany.sectoralGroup}
                       </div>
                       <div className="flex items-center gap-1 mt-1 text-xs font-mono">
                         <Zap className="w-3 h-3 text-energy" />
-                        {formatNaira(avgPowerByManufacturer.get(hoveredCompany.id) ?? 0)} avg/period
+                        {formatNaira(
+                          avgPowerByManufacturer.get(hoveredCompany.id) ?? 0,
+                        )}{" "}
+                        avg/period
                       </div>
                     </Card>
                   </div>
@@ -306,19 +380,24 @@ export const ClusterMapPage: React.FC = () => {
               onValueChange={([v]) => setRadiusKm(v)}
             />
             <p className="text-xs text-muted-foreground">
-              Companies within this distance of a growing cluster's centroid are grouped together. Lower it for
-              tight local clusters, raise it for regional groupings.
+              Companies within this distance of a growing cluster's centroid are
+              grouped together. Lower it for tight local clusters, raise it for
+              regional groupings.
             </p>
           </Card>
 
           <Card className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-display font-semibold text-sm">Clusters ({clusters.length})</h3>
+              <h3 className="font-display font-semibold text-sm">
+                Clusters ({clusters.length})
+              </h3>
               <Building2 className="w-4 h-4 text-muted-foreground" />
             </div>
             <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
               {clusterStats
-                .sort((a, b) => b.cluster.points.length - a.cluster.points.length)
+                .sort(
+                  (a, b) => b.cluster.points.length - a.cluster.points.length,
+                )
                 .map(({ cluster, avgPower, dominantState }, i) => {
                   const color = clusterColorById.get(cluster.id)!;
                   const isSelected = selectedClusterId === cluster.id;
@@ -327,7 +406,9 @@ export const ClusterMapPage: React.FC = () => {
                       key={cluster.id}
                       onClick={() => flyToCluster(cluster.id)}
                       className={`w-full text-left rounded-md border p-3 transition-colors ${
-                        isSelected ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
+                        isSelected
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:bg-muted/50"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-1">
@@ -335,10 +416,16 @@ export const ClusterMapPage: React.FC = () => {
                           className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                           style={{ backgroundColor: color }}
                         />
-                        <span className="text-sm font-medium truncate">Cluster {i + 1}</span>
-                        <span className="ml-auto text-xs text-muted-foreground">{cluster.points.length} co.</span>
+                        <span className="text-sm font-medium truncate">
+                          Cluster {i + 1}
+                        </span>
+                        <span className="ml-auto text-xs text-muted-foreground">
+                          {cluster.points.length} co.
+                        </span>
                       </div>
-                      <div className="text-xs text-muted-foreground">{dominantState}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {dominantState}
+                      </div>
                       <div className="flex items-center gap-1 mt-1 text-xs font-mono">
                         <Zap className="w-3 h-3 text-energy" />
                         {formatNaira(avgPower)} avg

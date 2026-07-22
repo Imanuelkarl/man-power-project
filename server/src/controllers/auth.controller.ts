@@ -120,6 +120,7 @@ export class AuthController {
         message: "Password reset request has been sent successfully",
       });
     } catch (error) {
+      console.error(error);
       res.status(500).json({
         success: false,
         message: "Failed to send password reset request",
@@ -133,17 +134,18 @@ export class AuthController {
    */
   static async resetPassword(req: Request, res: Response): Promise<void> {
     try {
-      const { token, newPassword } = req.body;
+      const { token, password } = req.body;
 
       // Validate input
-      if (!token || !newPassword) {
+      if (!token || !password) {
+        console.error(`Token and new password are required token is ${token} and password is ${password}`);
         res.status(400).json({
           success: false,
           message: "Token and new password are required",
         });
         return;
       }
-      await AuthService.resetPassword(token,newPassword);
+      await AuthService.resetPassword(token,password);
 
       res.status(200).json({
         success: true,

@@ -176,7 +176,7 @@ export class AuthService {
 
   static async resetPassword(
     token: string,
-    newPassword: string,
+    password: string,
   ): Promise<User> {
     const payload = this.verifyResetToken(token);
     const user = await UserModel.findById(payload.userId);
@@ -184,7 +184,7 @@ export class AuthService {
       throw new Error("Invalid reset token");
     }
 
-    const password_hash = await this.hashPassword(newPassword);
+    const password_hash = await this.hashPassword(password);
     return UserModel.update(user.id, { password_hash });
   }
 
@@ -207,10 +207,12 @@ export class AuthService {
 
   static async createPasswordResetRequest(email: string): Promise<string> {
     const user = await UserModel.findByEmail(email);
+    console.log(email);
     if (!user) {
       throw new Error("User not found");
     }
     const generateToken = this.generateResetToken(user.id);
+    console.log("The reset password token is",generateToken);
     emailSender.sendPasswordReset(generateToken, email);
     return "Token has been sent to your email";
   }

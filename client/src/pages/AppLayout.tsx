@@ -8,14 +8,17 @@ import {
   FileText,
   LogOut,
   Map,
+  Menu,
   Settings,
   User,
   Users,
+  X,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useHydrated } from "../hooks/use-hydrated";
 import Navigate, { navigate } from "../components/navigate";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
 interface AppLayoutProps {
@@ -25,6 +28,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   //export function AppLayout(){
 
   const { user, logout, loading } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
   const hydrated = useHydrated();
   console.log(user);
@@ -57,13 +62,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       to: "/manufacturers",
       label: "Manufacturers",
       icon: Users,
-      roles: ["admin"],
+      roles: ["admin","investor"],
     },
     {
       to: "/clusters",
       label: "Cluster Map",
       icon: Map,
-      roles: ["admin", "manufacturer"],
+      roles: ["admin", "investor"],
     },
     {
       to: "/company",
@@ -77,8 +82,22 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   return (
     <div className="h-screen flex bg-background text-foreground">
-      <aside className="w-64 shrink-0 border-r border-sidebar-border bg-sidebar flex flex-col">
-        <div className="p-5 flex items-center gap-3 border-b border-sidebar-border">
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 w-64 shrink-0 border-r border-sidebar-border bg-sidebar flex flex-col transition-transform duration-200 md:relative md:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        <div className="p-5 flex items-center justify-between gap-3 border-b border-sidebar-border">
+          <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-primary grid place-items-center text-primary-foreground">
             <Factory className="w-4 h-4" />
           </div>
@@ -90,6 +109,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               Manufacturing Intel
             </div>
           </div>
+          </div>
+          <button
+            type="button"
+            aria-label="Close navigation"
+            className="p-1 rounded-md hover:bg-sidebar-accent md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
         <nav className="flex-1 p-3 space-y-1">
           {nav
@@ -101,6 +129,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <Link
                   key={item.to}
                   to={item.to as any}
+                  onClick={() => setSidebarOpen(false)}
                   className={cn(
                     "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
                     active
@@ -134,7 +163,19 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </Button>
         </div>
       </aside>
-      <main className="flex-1 min-w-0 overflow-x-hidden ">{children}</main>
+      <main className="flex-1 min-w-0 overflow-x-hidden">
+        <div className="flex items-center border-b border-border p-3 md:hidden">
+          <button
+            type="button"
+            aria-label="Open navigation"
+            className="rounded-md p-2 hover:bg-muted"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        </div>
+        {children}
+      </main>
     </div>
   );
 };

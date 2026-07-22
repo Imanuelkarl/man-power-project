@@ -1,10 +1,11 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import authRouter from './routes/auth.router.js';
-import manufacturerRouter from './routes/manufacturer.router.js';
-import powerDataRouter from './routes/powerData.router.js';
-import EmailSender from './utils/emailSender.js';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import authRouter from "./routes/auth.router.js";
+import manufacturerRouter from "./routes/manufacturer.router.js";
+import powerDataRouter from "./routes/powerData.router.js";
+import EmailSender from "./utils/emailSender.js";
+import userRouter from "./routes/user.router.js";
 
 // Initialize dotenv
 dotenv.config();
@@ -21,32 +22,34 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRouter);
 app.use("/api/manufacturers", manufacturerRouter);
+app.use("/api/users", userRouter);
 app.use("/api/power-data", powerDataRouter);
 
 // Routes
-app.get('/', (req: any, res: { json: (arg0: { message: string; }) => void; }) => {
-  res.json({ message: 'Welcome to Man Power Project API' });
+app.get("/", (req: any, res: { json: (arg0: { message: string }) => void }) => {
+  res.json({ message: "Welcome to Man Power Project API" });
 });
 const emailSender = new EmailSender();
 
 //Email Testing
-app.post('/new-mail', (req: any, res: { json: (arg0: { message: string; }) => void; }) => {
-  const { body ,to} = req.body;
-  
-  emailSender.sendMail({
-    to,
-    text: body,
-    subject: 'Test Mail'
-  });
-  res.json({ message: 'Sending new mail' });
-});
+app.post(
+  "/new-mail",
+  (req: any, res: { json: (arg0: { message: string }) => void }) => {
+    const { body, to } = req.body;
 
-
+    emailSender.sendMail({
+      to,
+      text: body,
+      subject: "Test Mail",
+    });
+    res.json({ message: "Sending new mail" });
+  },
+);
 
 // Server listening
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
 });
 
 export default app;

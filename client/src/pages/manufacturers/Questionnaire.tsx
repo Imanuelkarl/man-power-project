@@ -3,7 +3,6 @@ import {
   useData,
   SECTORAL_GROUPS,
   NIGERIAN_STATES,
-  type Manufacturer,
   type PowerData,
 } from "../../lib/store";
 import { Card } from "../../components/ui/card";
@@ -22,6 +21,7 @@ import { PageHeader } from "../../components/page-header";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import type { Manufacturer } from "../../types/manufacturer.types";
 
 const num = (v: string) => (v === "" ? 0 : Number(v));
 const getMonthFromDate = (date: string, subtractOneDay = false) => {
@@ -56,9 +56,9 @@ export function QuestionnaireForm({setStep} : QuestionnaireFormProp) {
 
   const existing = useMemo(() => {
     if (user.email) {
-      const m = manufacturers.find((x) => x.id === user.email);
+      const m = manufacturers.find((x) => x.email === user.email);
       const q = questionnaires.find(
-        (x) => x.manufacturerId === user.email && x.period === "H1 2026",
+        (x) => x.manufacturerId === m?.id && x.period === "H1 2026",
       );
       return { m, q };
     }
@@ -112,14 +112,14 @@ export function QuestionnaireForm({setStep} : QuestionnaireFormProp) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if(setStep) setStep(0);
-    let manufacturerId = user.email ?? existing.m?.id;
+    let manufacturerId = existing.m?.id;
     if (!manufacturerId) {
       const loc =
         NIGERIAN_STATES.find((s) => s.state === profile.state) ??
         NIGERIAN_STATES[0];
       const jitter = () => (Math.random() - 0.5) * 0.08;
       const m: Manufacturer = {
-        id: `m-${Date.now()}`,
+        id: manufacturers.length,
         ...profile,
         city: loc.city,
         lat: loc.lat + jitter(),
@@ -128,8 +128,6 @@ export function QuestionnaireForm({setStep} : QuestionnaireFormProp) {
       };
       addManufacturer(m);
       manufacturerId = m.id;
-      // link company to user
-      user.email = m.id;
     }
     const q: PowerData = {
       id: existing.q?.id ?? `q-${Date.now()}`,

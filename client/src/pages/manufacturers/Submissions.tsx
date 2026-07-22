@@ -6,23 +6,51 @@ import { Button } from "../../components/ui/button";
 //import { Badge } from "../../components/ui/badge";
 import { PageHeader } from "../../components/page-header";
 import { formatNaira } from "../../lib/format";
-import { Edit, Search, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+
 
 export function Submissions() {
-  const { manufacturers, questionnaires, removeQuestionnaire } = useData();
-  const [query, setQuery] = useState("");
+  const { manufacturers, getQuestionnaireByEmail, removeQuestionnaire } = useData();
+  const [query, _setQuery] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const { user} = useAuth();
+  if(!user){
+    return(<></>)
+  }
+  const questionnaires = getQuestionnaireByEmail(user.email)
+  //const { user} = useAuth();
 
   const rows = useMemo(() => {
     //const q = query.toLowerCase();
 
-    return questionnaires.map((m) => {
-      const qre = manufacturers.find((x) => x.id === m.manufacturerId);
+    return getQuestionnaireByEmail(user.email)
+      .filter((submission) => {
+        const submissionTime = new Date(submission.startTime).getTime();
+        const fromTime = startDate
+          ? new Date(`${startDate}T00:00:00`).getTime()
+          : -Infinity;
+        const toTime = endDate
+          ? new Date(`${endDate}T23:59:59.999`).getTime()
+          : Infinity;
 
-      return { m: qre, q: m };
-    });
-  }, [manufacturers, questionnaires, query]);
+        return (
+          !Number.isNaN(submissionTime) &&
+          submissionTime >= fromTime &&
+          submissionTime <= toTime
+        );
+      })
+      .map((m) => {
+        const qre = manufacturers.find((x) => x.id === m.manufacturerId);
+
+        return { m: qre, q: m };
+      });
+  }, [manufacturers, questionnaires, query, startDate, endDate]);
+  //const manufacturer = 
+  //const powerData = user.role === "manufacturer"?questionnaires.filter((q) => (q.id ==)
   const sanitizeDate = (
     date: Date | string | number | null | undefined,
     subtractOneDay:boolean= false,
@@ -53,7 +81,7 @@ export function Submissions() {
 
       <Card className="p-0 overflow-hidden">
         <div className="p-4 border-b border-border flex items-center gap-3">
-          <div className="relative flex-1 max-w-sm">
+          {/* <div className="relative flex-1 max-w-sm">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="     Search company, state, sector…"
@@ -61,7 +89,32 @@ export function Submissions() {
               onChange={(e) => setQuery(e.target.value)}
               className="pl-9"
             />
+          </div> */}
+
+          <div className="flex items-center gap-2">
+            <label htmlFor="submissions-start-date" className="text-xs text-muted-foreground">
+              From
+            </label>
+            <Input
+              id="submissions-start-date"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-auto"
+            />
+            <label htmlFor="submissions-end-date" className="text-xs text-muted-foreground">
+              To
+            </label>
+            <Input
+              id="submissions-end-date"
+              type="date"
+              value={endDate}
+              min={startDate || undefined}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-auto"
+            />
           </div>
+          
           <div className="text-xs text-muted-foreground ml-auto">
             {rows.length} shown
           </div>

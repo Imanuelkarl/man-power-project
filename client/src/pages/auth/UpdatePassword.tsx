@@ -1,6 +1,4 @@
-
-import { useMemo, useState } from "react";
-import { useAuth, useTokens } from "../../lib/store";
+import { useState } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -8,37 +6,47 @@ import { Card } from "../../components/ui/card";
 import { Factory } from "lucide-react";
 import { toast } from "sonner";
 import { useHydrated } from "../../hooks/use-hydrated";
-import { Link, useNavigate, useParams } from "react-router-dom";
-
-
+import { useNavigate, useParams } from "react-router-dom";
+import authService from "../../services/authService";
 
 export function InvitePage() {
   const { token } = useParams();
   const navigate = useNavigate();
   const hydrated = useHydrated();
-  const invites = useTokens((s) => s.invites);
-  const consumeInvite = useTokens((s) => s.consumeInvite);
-  const login = useAuth((s) => s.login);
-
-  const invite = useMemo(() => invites.find((i) => i.token === token), [invites, token]);
+  //const login = useAuth((s) => s.login);
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) return toast.error("Password must be at least 6 characters");
+    if (password.length < 6)
+      return toast.error("Password must be at least 6 characters");
     if (password !== confirm) return toast.error("Passwords do not match");
-    const r = token?consumeInvite(token, password):{"ok":false,"error":"No token found"};
-    if (!r.ok) return toast.error(r.error ?? "Failed to accept invite");
-    if (invite) login(invite.email, password);
-    toast.success("Welcome to MAN Manufacturing Intelligence");
-    navigate( "/dashboard" );
+    if (!token) {
+      console.log(token);
+      toast.error("Invite token cannot be null");
+      return;
+    }
+    try {
+      // const r = token
+      //   ? consumeInvite(token, password)
+      //   : { ok: false, error: "No token found" };
+
+      // if (!r.ok) return toast.error(r.error ?? "Failed to accept invite");
+
+      const response = await authService.resetPassword(token, password);
+      //if (response.data) login(invite.email, password);
+      if (response.data) {
+        toast.success("Welcome to MAN Manufacturing Intelligence");
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   if (!hydrated) return null;
-
-  const invalid = !invite || invite.used;
 
   return (
     <div className="min-h-screen grid place-items-center bg-background p-6">
@@ -48,38 +56,39 @@ export function InvitePage() {
             <Factory className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-display text-xl font-semibold leading-none">Accept your invitation</h2>
-            {invite && !invite.used && (
-              <p className="text-xs text-muted-foreground mt-1">
-                {invite.name} · {invite.email}
-              </p>
-            )}
+            <h2 className="font-display text-xl font-semibold leading-none">
+              Accept your invitation
+            </h2>
           </div>
         </div>
 
-        {invalid ? (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              This invitation link is invalid or has already been used. Contact your MAN
-              administrator to request a new invitation.
-            </p>
-            <Link to="/login" className="text-sm text-primary hover:underline">
-              Back to sign in →
-            </Link>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="iv-1">Choose a password</Label>
+            <Input
+              id="iv-1"
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="iv-1">Choose a password</Label>
-              <Input id="iv-1" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="iv-2">Confirm password</Label>
-              <Input id="iv-2" type="password" required minLength={6} value={confirm} onChange={(e) => setConfirm(e.target.value)} />
-            </div>
-            <Button type="submit" className="w-full">Activate account</Button>
-          </form>
-        )}
+          <div className="space-y-2">
+            <Label htmlFor="iv-2">Confirm password</Label>
+            <Input
+              id="iv-2"
+              type="password"
+              required
+              minLength={6}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+            />
+          </div>
+          <Button type="submit" className="w-full">
+            Activate account
+          </Button>
+        </form>
       </Card>
     </div>
   );

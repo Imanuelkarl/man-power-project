@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTokens } from "../../lib/store";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -7,23 +6,26 @@ import { Card } from "../../components/ui/card";
 import { ArrowLeft, Factory, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import authService from "../../services/authService";
 
-
-export const ForgotPasswordPage= () => {
-  const createResetForEmail = useTokens((s) => s.createResetForEmail);
+export const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [devLink, setDevLink] = useState<string | null>(null);
+  const [devLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const r = createResetForEmail(email);
-    setSubmitted(true);
-    if (r.token && typeof window !== "undefined") {
-      setDevLink(`${window.location.origin}/reset-password/${r.token}`);
-    } else {
-      setDevLink(null);
+    try {
+      
+      const r = await authService.requestPasswordReset(email);
+      if(r.data){
+        setSubmitted(true);
+      }
+      
+    } catch (error) {
+      toast.error(`Error sending request link +${error}`);
+      console.error("Error sending request link",error);
     }
   };
 
@@ -43,8 +45,12 @@ export const ForgotPasswordPage= () => {
             <Factory className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-display text-xl font-semibold leading-none">Reset password</h2>
-            <p className="text-xs text-muted-foreground mt-1">We'll send you a secure link</p>
+            <h2 className="font-display text-xl font-semibold leading-none">
+              Reset password
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              We'll send you a secure link
+            </p>
           </div>
         </div>
 
@@ -61,13 +67,16 @@ export const ForgotPasswordPage= () => {
                 placeholder="you@company.com"
               />
             </div>
-            <Button type="submit" className="w-full">Send reset link</Button>
+            <Button type="submit" className="w-full">
+              Send reset link
+            </Button>
           </form>
         ) : (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              If an account exists for <span className="text-foreground font-medium">{email}</span>,
-              a password reset link has been sent.
+              If an account exists for{" "}
+              <span className="text-foreground font-medium">{email}</span>, a
+              password reset link has been sent.
             </p>
             {devLink && (
               <div className="space-y-2 rounded-md border border-dashed border-border p-3 bg-muted/30">
@@ -75,9 +84,20 @@ export const ForgotPasswordPage= () => {
                   Demo link (frontend-only mock)
                 </div>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 text-xs font-mono truncate">{devLink}</code>
-                  <Button type="button" size="icon" variant="ghost" onClick={copyLink}>
-                    {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
+                  <code className="flex-1 text-xs font-mono truncate">
+                    {devLink}
+                  </code>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={copyLink}
+                  >
+                    {copied ? (
+                      <Check className="w-4 h-4 text-primary" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
                   </Button>
                 </div>
               </div>
@@ -94,4 +114,4 @@ export const ForgotPasswordPage= () => {
       </Card>
     </div>
   );
-}
+};

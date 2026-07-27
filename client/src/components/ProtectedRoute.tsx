@@ -8,12 +8,9 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const token = localStorage.getItem("token");
-  console.log("ProtectedRoute token:", token);
-
 
   if (!token) {
     const verifyToken = async () => {
-      console.log("Verifying token:", token);
       try {
         const response = await api.get("/auth/verify-token", {
           headers: {
@@ -21,10 +18,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           },
         });
         const data = await response.data.data;
-        console.log(data);
         if (!data.isValid) {
           localStorage.removeItem("token");
-          
+
           return <Navigate to="/login" replace />;
         }
       } catch (error) {

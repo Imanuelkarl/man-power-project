@@ -9,8 +9,8 @@ export type CreateManufacturerInput = {
   sectoral_group?: string | null;
   sub_sector?: string | null;
   address?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
+  lat?: number | null;
+  lng?: number | null;
   registration_number?: string | null;
   year_established?: number | null;
   employee_count?: number | null;
@@ -35,8 +35,8 @@ export class ManufacturerModel {
         sectoral_group: data.sectoral_group ?? null,
         sub_sector: data.sub_sector ?? null,
         address: data.address ?? null,
-        latitude: data.latitude ?? null,
-        longitude: data.longitude ?? null,
+        lat: data.lat ?? null,
+        lng: data.lng ?? null,
         registration_number: data.registration_number ?? null,
         year_established: data.year_established ?? null,
         employee_count: data.employee_count ?? null,
@@ -65,6 +65,7 @@ export class ManufacturerModel {
     id: number,
     data: Partial<CreateManufacturerInput>
   ): Promise<Manufacturer> {
+    console.log(data as Manufacturer);
     return prisma.manufacturer.update({
       where: { id },
       data,

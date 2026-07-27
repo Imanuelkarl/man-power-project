@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, BarChart3, Landmark, Zap, Search } from "lucide-react";
+import { Sparkles, BarChart3, Landmark, Zap, PlugZapIcon, Eye } from "lucide-react";
 import { StepNavigator, type StepNavigatorStep } from "./StepNavigator";
 import {
   QuestionnaireForm,
@@ -47,7 +47,7 @@ const steps: StepNavigatorStep[] = [
     id: "power",
     label: "Power",
     sublabel: "Section D",
-    icon: <Zap className="h-4 w-4" />,
+    icon: <PlugZapIcon className="h-4 w-4" />,
     heading: "Manufacturing Power Data",
     description: "Grid electricity, outages, and alternative energy costs.",
   },
@@ -55,7 +55,7 @@ const steps: StepNavigatorStep[] = [
     id: "review",
     label: "Review",
     sublabel: "Review Submission",
-    icon: <Search className="h-4 w-4" />,
+    icon: <Eye className="h-4 w-4" />,
     heading: "Review and Verify your data before submission",
   },
 ];

@@ -179,7 +179,7 @@ export class AuthService {
     password: string,
   ): Promise<User> {
     const payload = this.verifyResetToken(token);
-    const user = await UserModel.findById(payload.userId);
+    const user = await UserModel.findByUserId(payload.userId);
     if (!user) {
       throw new Error("Invalid reset token");
     }

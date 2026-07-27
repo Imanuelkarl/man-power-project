@@ -15,7 +15,6 @@ import { navigate } from "../components/navigate";
 import api from "../utils/api";
 import type { User } from "../types/user.types";
 
-
 type AuthContextType = {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
@@ -37,26 +36,29 @@ type AuthProviderProps = {
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   const login = async (email: string, password: string) => {
-    const data = await loginService({ email, password });
-    setUser(data.user);
-    console.log("user set successfully", data.user);
+    setLoading(true);
+    try {
+      const data = await loginService({ email, password });
+      setUser(data.user);
+    } catch (error) {
+      console.error("Error logging in user", error);
+    } finally {
+      setLoading(false);
+    }
+
     navigate("/");
   };
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await api.get("/auth/verify-token");
-        console.log(response);
         setUser(response.data.data.user);
-        
-      } catch(e) {
-
-      }finally{
+      } catch (e) {
+      } finally {
         setLoading(false);
       }
     };
@@ -83,11 +85,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     await resetPasswordService(email);
     console.log("Password reset request sent");
   };
-  
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, signup, resetPassword,loading }}
+      value={{ user, login, logout, signup, resetPassword, loading }}
     >
       {children}
     </AuthContext.Provider>

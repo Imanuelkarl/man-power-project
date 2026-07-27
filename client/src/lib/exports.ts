@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import type {  PowerData } from "./store";
+import type { PowerData } from "./store";
 import type { Manufacturer } from "../types/manufacturer.types";
 
 function buildRows(manufacturers: Manufacturer[], questionnaires: PowerData[]) {
@@ -10,10 +10,10 @@ function buildRows(manufacturers: Manufacturer[], questionnaires: PowerData[]) {
   return questionnaires.map((q) => {
     const m = byId.get(q.manufacturerId);
     return {
-      Company: m?.company ?? "-",
+      Company: m?.name ?? "-",
       State: m?.state ?? "-",
       City: m?.city ?? "-",
-      Sector: m?.sectoralGroup ?? "-",
+      Sector: m?.sectoral_group ?? "-",
       Period: q.period,
       "Capacity Utilization (%)": q.capacityUtilization,
       "Production Value (₦)": q.productionValue,

@@ -32,7 +32,9 @@ import { distanceKm } from "./geo-hull";
  * unaffected by this and always resolve correctly.
  */
 
-export function enrichManufacturers(manufacturers: Manufacturer[]): EnrichedManufacturer[] {
+export function enrichManufacturers(
+  manufacturers: Manufacturer[],
+): EnrichedManufacturer[] {
   return manufacturers
     .filter((m) => typeof m.lat === "number" && typeof m.lng === "number")
     .map((m) => {
@@ -41,14 +43,14 @@ export function enrichManufacturers(manufacturers: Manufacturer[]): EnrichedManu
       const officialLga = city ? findOfficialLga(state, city) : null;
       return {
         id: m.id,
-        company: m.company,
+        company: m.name,
         state,
         region: regionForState(state),
         lga: officialLga ? lgaKey(state, officialLga) : "",
         ward: "", // no per-company ward data exists yet
         lat: m.lat,
         lng: m.lng,
-        sectoralGroup: m.sectoralGroup,
+        sectoralGroup: m.sectoral_group,
       };
     });
 }
@@ -61,7 +63,13 @@ export function enrichManufacturers(manufacturers: Manufacturer[]): EnrichedManu
 export function resolveMembers(
   def: Pick<
     ClusterDefinition,
-    "regions" | "states" | "lgas" | "wards" | "manufacturerIds" | "focalPoint" | "radiusKm"
+    | "regions"
+    | "states"
+    | "lgas"
+    | "wards"
+    | "manufacturerIds"
+    | "focalPoint"
+    | "radiusKm"
   >,
   enriched: EnrichedManufacturer[],
 ): number[] {
@@ -70,7 +78,8 @@ export function resolveMembers(
   const lgas = new Set(def.lgas);
   const wards = new Set(def.wards);
   const manual = new Set(def.manufacturerIds);
-  const useRadius = !!def.focalPoint && typeof def.radiusKm === "number" && def.radiusKm > 0;
+  const useRadius =
+    !!def.focalPoint && typeof def.radiusKm === "number" && def.radiusKm > 0;
 
   const matched = new Set<number>();
   enriched.forEach((m) => {
@@ -83,7 +92,10 @@ export function resolveMembers(
     ) {
       matched.add(m.id);
     }
-    if (useRadius && distanceKm(def.focalPoint!, { lat: m.lat, lng: m.lng }) <= def.radiusKm!) {
+    if (
+      useRadius &&
+      distanceKm(def.focalPoint!, { lat: m.lat, lng: m.lng }) <= def.radiusKm!
+    ) {
       matched.add(m.id);
     }
   });
@@ -95,7 +107,9 @@ export function resolveMembers(
 // ---------------------------------------------------------------------------
 
 /** Avg Naira spend per period, per manufacturer. */
-export function computeAvgSpendByManufacturer(questionnaires: any[]): Map<number, number> {
+export function computeAvgSpendByManufacturer(
+  questionnaires: any[],
+): Map<number, number> {
   const totals = new Map<number, { sum: number; count: number }>();
   questionnaires.forEach((q) => {
     const spend =
@@ -115,7 +129,9 @@ export function computeAvgSpendByManufacturer(questionnaires: any[]): Map<number
 }
 
 /** Avg kWh consumed per period, per manufacturer. */
-export function computeAvgEnergyByManufacturer(questionnaires: any[]): Map<number, number> {
+export function computeAvgEnergyByManufacturer(
+  questionnaires: any[],
+): Map<number, number> {
   const totals = new Map<number, { sum: number; count: number }>();
   questionnaires.forEach((q) => {
     const consumed =
@@ -142,21 +158,27 @@ export function computeAvgEnergyByManufacturer(questionnaires: any[]): Map<numbe
  * "medium", top third "high". Re-run whenever the cluster list changes so
  * the labels stay relative to the current data.
  */
-export function assignPowerLevels<T extends { id: string; totalEnergyConsumedKwh: number }>(
-  clusters: T[],
-): (T & { powerLevel: PowerUsageLevel })[] {
+export function assignPowerLevels<
+  T extends { id: string; totalEnergyConsumedKwh: number },
+>(clusters: T[]): (T & { powerLevel: PowerUsageLevel })[] {
   if (clusters.length <= 1) {
-    return clusters.map((c) => ({ ...c, powerLevel: "medium" as PowerUsageLevel }));
+    return clusters.map((c) => ({
+      ...c,
+      powerLevel: "medium" as PowerUsageLevel,
+    }));
   }
 
-  const sorted = [...clusters].sort((a, b) => a.totalEnergyConsumedKwh - b.totalEnergyConsumedKwh);
+  const sorted = [...clusters].sort(
+    (a, b) => a.totalEnergyConsumedKwh - b.totalEnergyConsumedKwh,
+  );
   const n = sorted.length;
   const lowCut = Math.floor(n / 3);
   const highCut = Math.floor((2 * n) / 3);
 
   const levelById = new Map<string, PowerUsageLevel>();
   sorted.forEach((c, i) => {
-    const level: PowerUsageLevel = i >= highCut ? "high" : i >= lowCut ? "medium" : "low";
+    const level: PowerUsageLevel =
+      i >= highCut ? "high" : i >= lowCut ? "medium" : "low";
     levelById.set(c.id, level);
   });
 
@@ -195,8 +217,12 @@ export function buildClusterWithStats(
     stateCounts.set(m.state, (stateCounts.get(m.state) ?? 0) + 1);
     regionCounts.set(m.region, (regionCounts.get(m.region) ?? 0) + 1);
   });
-  const topStates = [...stateCounts.entries()].sort((a, b) => b[1] - a[1]).map(([s]) => s);
-  const topRegions = [...regionCounts.entries()].sort((a, b) => b[1] - a[1]).map(([r]) => r);
+  const topStates = [...stateCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([s]) => s);
+  const topRegions = [...regionCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([r]) => r);
 
   return {
     ...def,

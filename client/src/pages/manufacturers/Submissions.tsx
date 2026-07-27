@@ -11,17 +11,17 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-
 export function Submissions() {
-  const { manufacturers, getQuestionnaireByEmail, removeQuestionnaire } = useData();
+  const { manufacturers, getQuestionnaireByEmail, removeQuestionnaire } =
+    useData();
   const [query, _setQuery] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const { user} = useAuth();
-  if(!user){
-    return(<></>)
+  const { user } = useAuth();
+  if (!user) {
+    return <></>;
   }
-  const questionnaires = getQuestionnaireByEmail(user.email)
+  const questionnaires = getQuestionnaireByEmail(user.email);
   //const { user} = useAuth();
 
   const rows = useMemo(() => {
@@ -49,11 +49,11 @@ export function Submissions() {
         return { m: qre, q: m };
       });
   }, [manufacturers, questionnaires, query, startDate, endDate]);
-  //const manufacturer = 
+  //const manufacturer =
   //const powerData = user.role === "manufacturer"?questionnaires.filter((q) => (q.id ==)
   const sanitizeDate = (
     date: Date | string | number | null | undefined,
-    subtractOneDay:boolean= false,
+    subtractOneDay: boolean = false,
   ) => {
     if (!date) return "—";
 
@@ -92,7 +92,10 @@ export function Submissions() {
           </div> */}
 
           <div className="flex items-center gap-2">
-            <label htmlFor="submissions-start-date" className="text-xs text-muted-foreground">
+            <label
+              htmlFor="submissions-start-date"
+              className="text-xs text-muted-foreground"
+            >
               From
             </label>
             <Input
@@ -102,7 +105,10 @@ export function Submissions() {
               onChange={(e) => setStartDate(e.target.value)}
               className="w-auto"
             />
-            <label htmlFor="submissions-end-date" className="text-xs text-muted-foreground">
+            <label
+              htmlFor="submissions-end-date"
+              className="text-xs text-muted-foreground"
+            >
               To
             </label>
             <Input
@@ -114,7 +120,7 @@ export function Submissions() {
               className="w-auto"
             />
           </div>
-          
+
           <div className="text-xs text-muted-foreground ml-auto">
             {rows.length} shown
           </div>
@@ -131,7 +137,9 @@ export function Submissions() {
                 <th className="text-left px-4 py-3">Company</th>
                 <th className="text-left px-4 py-3">Start Date</th>
                 <th className="text-left px-4 py-3">End Date</th>
-                <th className="text-left px-4 py-3">Capacity Utilization (%)</th>
+                <th className="text-left px-4 py-3">
+                  Capacity Utilization (%)
+                </th>
                 <th className="text-right px-4 py-3">Production Value (₦)</th>
                 <th className="text-right px-4 py-3">Raw Material Cost</th>
                 <th className="text-right px-4 py-3">Total Alt. Energy Cost</th>
@@ -153,7 +161,7 @@ export function Submissions() {
               {rows.map(({ q, m }) => (
                 <tr key={q.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3">
-                    <div className="font-medium">{m?.company}</div>
+                    <div className="font-medium">{m?.name}</div>
                     <div className="text-xs text-muted-foreground">
                       {q.submittedBy}
                     </div>
@@ -165,7 +173,7 @@ export function Submissions() {
                     </div> */}
                   </td>
                   <td className="px-4 py-3">
-                    <div>{sanitizeDate(q.endTime,true)}</div>
+                    <div>{sanitizeDate(q.endTime, true)}</div>
                     {/* <Badge variant="secondary" className="font-normal">
                       {q.energyDiesel}
                     </Badge> */}
@@ -180,21 +188,26 @@ export function Submissions() {
                     {formatNaira(q.rawMaterialsCost)}
                   </td>
                   <td className="px-4 py-3 text-right font-mono">
-                    {formatNaira(q.energyDiesel+q.energyGas+q.energyGenerator+q.energyOther)}
+                    {formatNaira(
+                      q.energyDiesel +
+                        q.energyGas +
+                        q.energyGenerator +
+                        q.energyOther,
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right font-mono">
                     {q ? q.totalWorkers.toLocaleString() : "—"}
                   </td>
-                  
+
                   <td className="flex px-4 py-3">
                     <Button
                       variant="ghost"
                       size="icon"
                       className="text-muted-foreground hover:text-foreground"
-                      onClick={() => {
-                      }}
                     >
-                      <Edit className="w-4 h-4" />
+                      <Link to={`/questionnaire/${q.id}`}>
+                        <Edit className="w-4 h-4" />
+                      </Link>
                     </Button>
                     <Button
                       variant="ghost"

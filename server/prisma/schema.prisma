@@ -33,10 +33,11 @@ model Manufacturer {
   sectoral_group      String?
   sub_sector          String?
   address             String?
+  branch              String?
   state               String?
   city                String?
-  latitude            Float?
-  longitude           Float?
+  lat                 Float?
+  lng                 Float?
   registration_number String?
   year_established    Int?
   employee_count      Int?

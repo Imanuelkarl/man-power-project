@@ -1,4 +1,5 @@
-import type { Manufacturer } from "../types/manufacturer.types";
+import type { Manufacturer, ManufacturerUpdateData } from "../types/manufacturer.types";
+import type { Success } from "../types/response.types";
 import api from "../utils/api";
 
 export interface ManufacturerCreateData {
@@ -7,15 +8,6 @@ export interface ManufacturerCreateData {
     password?: string;
     [key: string]: any;
 }
-
-export interface ManufacturerUpdateData {
-    name?: string;
-    email?: string;
-    password?: string;
-    [key: string]: any;
-}
-
-
 
 const manufacturerService = {
     create: async (data: ManufacturerCreateData) => {
@@ -39,8 +31,33 @@ const manufacturerService = {
     },
 
     update: async (id: number, data: ManufacturerUpdateData) => {
-        const response = await api.put<Manufacturer>(`/manufacturers/${id}`, data);
-        return response.data;
+        // map alternative fields to the API schema
+        // const mapped = {
+        //     ...(data as any),
+        // };
+
+        // // whitelist fields that belong to ManufacturerUpdateData to avoid sending unwanted props
+        // const allowedFields: (keyof ManufacturerUpdateData)[] = [
+        //     // common updateable manufacturer fields - adjust if your interface differs
+        //     "name",
+        //     "email",
+        //     "lat",
+        //     "lng",
+        //     "sub_sector",
+        //     "sectoral_group",
+        //     "address",
+        //     "employee_count",
+        //     "city"
+        // ];
+
+        // const uploadData = Object.keys(mapped).reduce((acc, key) => {
+        //     if ((allowedFields as string[]).includes(key)) {
+        //         (acc as any)[key] = (mapped as any)[key];
+        //     }
+        //     return acc;
+        // }, {} as ManufacturerUpdateData);
+        const response = await api.put<Success>(`/manufacturers/${id}`,data);
+        return response.data.data;
     },
 
     delete: async (id: number) => {

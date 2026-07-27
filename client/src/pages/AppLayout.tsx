@@ -22,6 +22,8 @@ import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { ThemeToggle } from "../components/ThemeToggle";
+import { Loader } from "../components/ui/loader";
+import { Toaster } from "sonner";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -34,11 +36,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
 
   const hydrated = useHydrated();
-  console.log(user);
 
   if (!hydrated) return <div className="min-h-screen bg-background" />;
   if (loading) {
-    return <>Loading...</>;
+    return <><Loader isLoading={loading}/></>;
   }
   if (!user) return <Navigate to="/login" />;
 
@@ -90,6 +91,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   return (
     <div className="h-screen flex bg-background text-foreground">
+      < Toaster />
       {sidebarOpen && (
         <button
           type="button"

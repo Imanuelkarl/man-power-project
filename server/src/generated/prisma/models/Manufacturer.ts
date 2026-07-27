@@ -28,16 +28,16 @@ export type AggregateManufacturer = {
 
 export type ManufacturerAvgAggregateOutputType = {
   id: number | null
-  latitude: number | null
-  longitude: number | null
+  lat: number | null
+  lng: number | null
   year_established: number | null
   employee_count: number | null
 }
 
 export type ManufacturerSumAggregateOutputType = {
   id: number | null
-  latitude: number | null
-  longitude: number | null
+  lat: number | null
+  lng: number | null
   year_established: number | null
   employee_count: number | null
 }
@@ -51,8 +51,11 @@ export type ManufacturerMinAggregateOutputType = {
   sectoral_group: string | null
   sub_sector: string | null
   address: string | null
-  latitude: number | null
-  longitude: number | null
+  branch: string | null
+  state: string | null
+  city: string | null
+  lat: number | null
+  lng: number | null
   registration_number: string | null
   year_established: number | null
   employee_count: number | null
@@ -70,8 +73,11 @@ export type ManufacturerMaxAggregateOutputType = {
   sectoral_group: string | null
   sub_sector: string | null
   address: string | null
-  latitude: number | null
-  longitude: number | null
+  branch: string | null
+  state: string | null
+  city: string | null
+  lat: number | null
+  lng: number | null
   registration_number: string | null
   year_established: number | null
   employee_count: number | null
@@ -89,8 +95,11 @@ export type ManufacturerCountAggregateOutputType = {
   sectoral_group: number
   sub_sector: number
   address: number
-  latitude: number
-  longitude: number
+  branch: number
+  state: number
+  city: number
+  lat: number
+  lng: number
   registration_number: number
   year_established: number
   employee_count: number
@@ -103,16 +112,16 @@ export type ManufacturerCountAggregateOutputType = {
 
 export type ManufacturerAvgAggregateInputType = {
   id?: true
-  latitude?: true
-  longitude?: true
+  lat?: true
+  lng?: true
   year_established?: true
   employee_count?: true
 }
 
 export type ManufacturerSumAggregateInputType = {
   id?: true
-  latitude?: true
-  longitude?: true
+  lat?: true
+  lng?: true
   year_established?: true
   employee_count?: true
 }
@@ -126,8 +135,11 @@ export type ManufacturerMinAggregateInputType = {
   sectoral_group?: true
   sub_sector?: true
   address?: true
-  latitude?: true
-  longitude?: true
+  branch?: true
+  state?: true
+  city?: true
+  lat?: true
+  lng?: true
   registration_number?: true
   year_established?: true
   employee_count?: true
@@ -145,8 +157,11 @@ export type ManufacturerMaxAggregateInputType = {
   sectoral_group?: true
   sub_sector?: true
   address?: true
-  latitude?: true
-  longitude?: true
+  branch?: true
+  state?: true
+  city?: true
+  lat?: true
+  lng?: true
   registration_number?: true
   year_established?: true
   employee_count?: true
@@ -164,8 +179,11 @@ export type ManufacturerCountAggregateInputType = {
   sectoral_group?: true
   sub_sector?: true
   address?: true
-  latitude?: true
-  longitude?: true
+  branch?: true
+  state?: true
+  city?: true
+  lat?: true
+  lng?: true
   registration_number?: true
   year_established?: true
   employee_count?: true
@@ -270,8 +288,11 @@ export type ManufacturerGroupByOutputType = {
   sectoral_group: string | null
   sub_sector: string | null
   address: string | null
-  latitude: number | null
-  longitude: number | null
+  branch: string | null
+  state: string | null
+  city: string | null
+  lat: number | null
+  lng: number | null
   registration_number: string | null
   year_established: number | null
   employee_count: number | null
@@ -312,8 +333,11 @@ export type ManufacturerWhereInput = {
   sectoral_group?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
   sub_sector?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
   address?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
-  latitude?: Prisma.FloatNullableFilter<"Manufacturer"> | number | null
-  longitude?: Prisma.FloatNullableFilter<"Manufacturer"> | number | null
+  branch?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
+  state?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
+  city?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
+  lat?: Prisma.FloatNullableFilter<"Manufacturer"> | number | null
+  lng?: Prisma.FloatNullableFilter<"Manufacturer"> | number | null
   registration_number?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
   year_established?: Prisma.IntNullableFilter<"Manufacturer"> | number | null
   employee_count?: Prisma.IntNullableFilter<"Manufacturer"> | number | null
@@ -332,8 +356,11 @@ export type ManufacturerOrderByWithRelationInput = {
   sectoral_group?: Prisma.SortOrderInput | Prisma.SortOrder
   sub_sector?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
-  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
-  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  branch?: Prisma.SortOrderInput | Prisma.SortOrder
+  state?: Prisma.SortOrderInput | Prisma.SortOrder
+  city?: Prisma.SortOrderInput | Prisma.SortOrder
+  lat?: Prisma.SortOrderInput | Prisma.SortOrder
+  lng?: Prisma.SortOrderInput | Prisma.SortOrder
   registration_number?: Prisma.SortOrderInput | Prisma.SortOrder
   year_established?: Prisma.SortOrderInput | Prisma.SortOrder
   employee_count?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -355,8 +382,11 @@ export type ManufacturerWhereUniqueInput = Prisma.AtLeast<{
   sectoral_group?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
   sub_sector?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
   address?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
-  latitude?: Prisma.FloatNullableFilter<"Manufacturer"> | number | null
-  longitude?: Prisma.FloatNullableFilter<"Manufacturer"> | number | null
+  branch?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
+  state?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
+  city?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
+  lat?: Prisma.FloatNullableFilter<"Manufacturer"> | number | null
+  lng?: Prisma.FloatNullableFilter<"Manufacturer"> | number | null
   registration_number?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
   year_established?: Prisma.IntNullableFilter<"Manufacturer"> | number | null
   employee_count?: Prisma.IntNullableFilter<"Manufacturer"> | number | null
@@ -375,8 +405,11 @@ export type ManufacturerOrderByWithAggregationInput = {
   sectoral_group?: Prisma.SortOrderInput | Prisma.SortOrder
   sub_sector?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
-  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
-  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  branch?: Prisma.SortOrderInput | Prisma.SortOrder
+  state?: Prisma.SortOrderInput | Prisma.SortOrder
+  city?: Prisma.SortOrderInput | Prisma.SortOrder
+  lat?: Prisma.SortOrderInput | Prisma.SortOrder
+  lng?: Prisma.SortOrderInput | Prisma.SortOrder
   registration_number?: Prisma.SortOrderInput | Prisma.SortOrder
   year_established?: Prisma.SortOrderInput | Prisma.SortOrder
   employee_count?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -402,8 +435,11 @@ export type ManufacturerScalarWhereWithAggregatesInput = {
   sectoral_group?: Prisma.StringNullableWithAggregatesFilter<"Manufacturer"> | string | null
   sub_sector?: Prisma.StringNullableWithAggregatesFilter<"Manufacturer"> | string | null
   address?: Prisma.StringNullableWithAggregatesFilter<"Manufacturer"> | string | null
-  latitude?: Prisma.FloatNullableWithAggregatesFilter<"Manufacturer"> | number | null
-  longitude?: Prisma.FloatNullableWithAggregatesFilter<"Manufacturer"> | number | null
+  branch?: Prisma.StringNullableWithAggregatesFilter<"Manufacturer"> | string | null
+  state?: Prisma.StringNullableWithAggregatesFilter<"Manufacturer"> | string | null
+  city?: Prisma.StringNullableWithAggregatesFilter<"Manufacturer"> | string | null
+  lat?: Prisma.FloatNullableWithAggregatesFilter<"Manufacturer"> | number | null
+  lng?: Prisma.FloatNullableWithAggregatesFilter<"Manufacturer"> | number | null
   registration_number?: Prisma.StringNullableWithAggregatesFilter<"Manufacturer"> | string | null
   year_established?: Prisma.IntNullableWithAggregatesFilter<"Manufacturer"> | number | null
   employee_count?: Prisma.IntNullableWithAggregatesFilter<"Manufacturer"> | number | null
@@ -420,8 +456,11 @@ export type ManufacturerCreateInput = {
   sectoral_group?: string | null
   sub_sector?: string | null
   address?: string | null
-  latitude?: number | null
-  longitude?: number | null
+  branch?: string | null
+  state?: string | null
+  city?: string | null
+  lat?: number | null
+  lng?: number | null
   registration_number?: string | null
   year_established?: number | null
   employee_count?: number | null
@@ -440,8 +479,11 @@ export type ManufacturerUncheckedCreateInput = {
   sectoral_group?: string | null
   sub_sector?: string | null
   address?: string | null
-  latitude?: number | null
-  longitude?: number | null
+  branch?: string | null
+  state?: string | null
+  city?: string | null
+  lat?: number | null
+  lng?: number | null
   registration_number?: string | null
   year_established?: number | null
   employee_count?: number | null
@@ -459,8 +501,11 @@ export type ManufacturerUpdateInput = {
   sectoral_group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sub_sector?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  branch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   registration_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   year_established?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   employee_count?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -479,8 +524,11 @@ export type ManufacturerUncheckedUpdateInput = {
   sectoral_group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sub_sector?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  branch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   registration_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   year_established?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   employee_count?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -499,8 +547,11 @@ export type ManufacturerCreateManyInput = {
   sectoral_group?: string | null
   sub_sector?: string | null
   address?: string | null
-  latitude?: number | null
-  longitude?: number | null
+  branch?: string | null
+  state?: string | null
+  city?: string | null
+  lat?: number | null
+  lng?: number | null
   registration_number?: string | null
   year_established?: number | null
   employee_count?: number | null
@@ -517,8 +568,11 @@ export type ManufacturerUpdateManyMutationInput = {
   sectoral_group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sub_sector?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  branch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   registration_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   year_established?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   employee_count?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -536,8 +590,11 @@ export type ManufacturerUncheckedUpdateManyInput = {
   sectoral_group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sub_sector?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  branch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   registration_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   year_established?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   employee_count?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -555,8 +612,11 @@ export type ManufacturerCountOrderByAggregateInput = {
   sectoral_group?: Prisma.SortOrder
   sub_sector?: Prisma.SortOrder
   address?: Prisma.SortOrder
-  latitude?: Prisma.SortOrder
-  longitude?: Prisma.SortOrder
+  branch?: Prisma.SortOrder
+  state?: Prisma.SortOrder
+  city?: Prisma.SortOrder
+  lat?: Prisma.SortOrder
+  lng?: Prisma.SortOrder
   registration_number?: Prisma.SortOrder
   year_established?: Prisma.SortOrder
   employee_count?: Prisma.SortOrder
@@ -567,8 +627,8 @@ export type ManufacturerCountOrderByAggregateInput = {
 
 export type ManufacturerAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  latitude?: Prisma.SortOrder
-  longitude?: Prisma.SortOrder
+  lat?: Prisma.SortOrder
+  lng?: Prisma.SortOrder
   year_established?: Prisma.SortOrder
   employee_count?: Prisma.SortOrder
 }
@@ -582,8 +642,11 @@ export type ManufacturerMaxOrderByAggregateInput = {
   sectoral_group?: Prisma.SortOrder
   sub_sector?: Prisma.SortOrder
   address?: Prisma.SortOrder
-  latitude?: Prisma.SortOrder
-  longitude?: Prisma.SortOrder
+  branch?: Prisma.SortOrder
+  state?: Prisma.SortOrder
+  city?: Prisma.SortOrder
+  lat?: Prisma.SortOrder
+  lng?: Prisma.SortOrder
   registration_number?: Prisma.SortOrder
   year_established?: Prisma.SortOrder
   employee_count?: Prisma.SortOrder
@@ -601,8 +664,11 @@ export type ManufacturerMinOrderByAggregateInput = {
   sectoral_group?: Prisma.SortOrder
   sub_sector?: Prisma.SortOrder
   address?: Prisma.SortOrder
-  latitude?: Prisma.SortOrder
-  longitude?: Prisma.SortOrder
+  branch?: Prisma.SortOrder
+  state?: Prisma.SortOrder
+  city?: Prisma.SortOrder
+  lat?: Prisma.SortOrder
+  lng?: Prisma.SortOrder
   registration_number?: Prisma.SortOrder
   year_established?: Prisma.SortOrder
   employee_count?: Prisma.SortOrder
@@ -613,8 +679,8 @@ export type ManufacturerMinOrderByAggregateInput = {
 
 export type ManufacturerSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  latitude?: Prisma.SortOrder
-  longitude?: Prisma.SortOrder
+  lat?: Prisma.SortOrder
+  lng?: Prisma.SortOrder
   year_established?: Prisma.SortOrder
   employee_count?: Prisma.SortOrder
 }
@@ -666,8 +732,11 @@ export type ManufacturerCreateWithoutPowerInfoInput = {
   sectoral_group?: string | null
   sub_sector?: string | null
   address?: string | null
-  latitude?: number | null
-  longitude?: number | null
+  branch?: string | null
+  state?: string | null
+  city?: string | null
+  lat?: number | null
+  lng?: number | null
   registration_number?: string | null
   year_established?: number | null
   employee_count?: number | null
@@ -685,8 +754,11 @@ export type ManufacturerUncheckedCreateWithoutPowerInfoInput = {
   sectoral_group?: string | null
   sub_sector?: string | null
   address?: string | null
-  latitude?: number | null
-  longitude?: number | null
+  branch?: string | null
+  state?: string | null
+  city?: string | null
+  lat?: number | null
+  lng?: number | null
   registration_number?: string | null
   year_established?: number | null
   employee_count?: number | null
@@ -719,8 +791,11 @@ export type ManufacturerUpdateWithoutPowerInfoInput = {
   sectoral_group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sub_sector?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  branch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   registration_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   year_established?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   employee_count?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -738,8 +813,11 @@ export type ManufacturerUncheckedUpdateWithoutPowerInfoInput = {
   sectoral_group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sub_sector?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  branch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   registration_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   year_established?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   employee_count?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -788,8 +866,11 @@ export type ManufacturerSelect<ExtArgs extends runtime.Types.Extensions.Internal
   sectoral_group?: boolean
   sub_sector?: boolean
   address?: boolean
-  latitude?: boolean
-  longitude?: boolean
+  branch?: boolean
+  state?: boolean
+  city?: boolean
+  lat?: boolean
+  lng?: boolean
   registration_number?: boolean
   year_established?: boolean
   employee_count?: boolean
@@ -809,8 +890,11 @@ export type ManufacturerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   sectoral_group?: boolean
   sub_sector?: boolean
   address?: boolean
-  latitude?: boolean
-  longitude?: boolean
+  branch?: boolean
+  state?: boolean
+  city?: boolean
+  lat?: boolean
+  lng?: boolean
   registration_number?: boolean
   year_established?: boolean
   employee_count?: boolean
@@ -828,8 +912,11 @@ export type ManufacturerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   sectoral_group?: boolean
   sub_sector?: boolean
   address?: boolean
-  latitude?: boolean
-  longitude?: boolean
+  branch?: boolean
+  state?: boolean
+  city?: boolean
+  lat?: boolean
+  lng?: boolean
   registration_number?: boolean
   year_established?: boolean
   employee_count?: boolean
@@ -847,8 +934,11 @@ export type ManufacturerSelectScalar = {
   sectoral_group?: boolean
   sub_sector?: boolean
   address?: boolean
-  latitude?: boolean
-  longitude?: boolean
+  branch?: boolean
+  state?: boolean
+  city?: boolean
+  lat?: boolean
+  lng?: boolean
   registration_number?: boolean
   year_established?: boolean
   employee_count?: boolean
@@ -857,7 +947,7 @@ export type ManufacturerSelectScalar = {
   updated_at?: boolean
 }
 
-export type ManufacturerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "contact_person" | "email" | "phone" | "sectoral_group" | "sub_sector" | "address" | "latitude" | "longitude" | "registration_number" | "year_established" | "employee_count" | "is_active" | "created_at" | "updated_at", ExtArgs["result"]["manufacturer"]>
+export type ManufacturerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "contact_person" | "email" | "phone" | "sectoral_group" | "sub_sector" | "address" | "branch" | "state" | "city" | "lat" | "lng" | "registration_number" | "year_established" | "employee_count" | "is_active" | "created_at" | "updated_at", ExtArgs["result"]["manufacturer"]>
 export type ManufacturerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   powerInfo?: boolean | Prisma.Manufacturer$powerInfoArgs<ExtArgs>
   _count?: boolean | Prisma.ManufacturerCountOutputTypeDefaultArgs<ExtArgs>
@@ -879,8 +969,11 @@ export type $ManufacturerPayload<ExtArgs extends runtime.Types.Extensions.Intern
     sectoral_group: string | null
     sub_sector: string | null
     address: string | null
-    latitude: number | null
-    longitude: number | null
+    branch: string | null
+    state: string | null
+    city: string | null
+    lat: number | null
+    lng: number | null
     registration_number: string | null
     year_established: number | null
     employee_count: number | null
@@ -1319,8 +1412,11 @@ export interface ManufacturerFieldRefs {
   readonly sectoral_group: Prisma.FieldRef<"Manufacturer", 'String'>
   readonly sub_sector: Prisma.FieldRef<"Manufacturer", 'String'>
   readonly address: Prisma.FieldRef<"Manufacturer", 'String'>
-  readonly latitude: Prisma.FieldRef<"Manufacturer", 'Float'>
-  readonly longitude: Prisma.FieldRef<"Manufacturer", 'Float'>
+  readonly branch: Prisma.FieldRef<"Manufacturer", 'String'>
+  readonly state: Prisma.FieldRef<"Manufacturer", 'String'>
+  readonly city: Prisma.FieldRef<"Manufacturer", 'String'>
+  readonly lat: Prisma.FieldRef<"Manufacturer", 'Float'>
+  readonly lng: Prisma.FieldRef<"Manufacturer", 'Float'>
   readonly registration_number: Prisma.FieldRef<"Manufacturer", 'String'>
   readonly year_established: Prisma.FieldRef<"Manufacturer", 'Int'>
   readonly employee_count: Prisma.FieldRef<"Manufacturer", 'Int'>

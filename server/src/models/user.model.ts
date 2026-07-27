@@ -59,6 +59,12 @@ export class UserModel {
       data,
     });
   }
+  static async updatePassword(userId: string, data: Partial<Omit<CreateUserInput, 'email'>>): Promise<User> {
+    return prisma.user.update({
+      where: { userId },
+      data,
+    });
+  }
 
   static async delete(id: number): Promise<User> {
     return prisma.user.delete({

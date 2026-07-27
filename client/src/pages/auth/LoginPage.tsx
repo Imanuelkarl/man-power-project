@@ -14,9 +14,10 @@ import { useAuth } from "../../context/AuthContext";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import Navigate, { navigate } from "../../components/navigate";
 import { Link } from "react-router-dom";
+import { Loader } from "../../components/ui/loader";
 
 const LoginPage: React.FC = () => {
-  const { user, login} = useAuth();
+  const { user, login , loading} = useAuth();
   const hydrated = useHydrated();
 
   const [email, setEmail] = useState("");
@@ -36,6 +37,8 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+      
+      <Loader isLoading={loading} message="Logging In..."/>
       <div className="hidden lg:flex flex-col justify-between p-12 bg-sidebar border-r border-sidebar-border relative overflow-hidden">
         <div className="absolute top-4 right-4 z-10">
           <ThemeToggle />

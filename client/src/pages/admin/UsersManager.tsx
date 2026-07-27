@@ -14,7 +14,7 @@ import type { User } from "../../types/user.types";
 
 export function UsersManager() {
   const { users, fetchUsers, addUser, removeUser } = useUsers();
-  const {addManufacturer,manufacturers} = useData()
+  const { addManufacturer, manufacturers } = useData();
   const [query, setQuery] = useState("");
   const [showInvite, setShowInvite] = useState(false);
   const [inviteName, setInviteName] = useState("");
@@ -22,10 +22,9 @@ export function UsersManager() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("");
 
-
-  useEffect(()=>{
+  useEffect(() => {
     fetchUsers();
-  },[users])
+  }, [users]);
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -47,22 +46,22 @@ export function UsersManager() {
         companyName: newUser.companyName,
       });
       addUser(data.user as User & { password: string });
-      if(newUser.role ===  "manufacturer"){
-        const m: Manufacturer= {
+      if (newUser.role === "manufacturer") {
+        const m: Manufacturer = {
           id: manufacturers.length,
           email: newUser.email,
-          company: newUser.companyName || newUser.name,
-          contactPerson: newUser.name,
+          name: newUser.companyName || newUser.name,
+          contact_person: newUser.name,
           phone: "",
           branch: "",
-          sectoralGroup: "",
-          subSector: "",
+          sectoral_group: "",
+          sub_sector: "",
           state: "",
           city: "",
           lat: 0,
           lng: 0,
-          createdAt: ""
-        }
+          createdAt: "",
+        };
         addManufacturer(m);
       }
       toast.success(
@@ -92,7 +91,7 @@ export function UsersManager() {
       ? users
       : Array.isArray(response.data)
         ? response.data
-        : response.data?.users ?? response.users ?? [];
+        : (response.data?.users ?? response.users ?? []);
 
     return userList
       .filter(

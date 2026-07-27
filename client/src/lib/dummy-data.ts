@@ -110,13 +110,13 @@ export function generateManufacturer(
 
   return {
     id,
-    company: companyName,
-    contactPerson: `${first} ${last}`,
+    name: companyName,
+    contact_person: `${first} ${last}`,
     email,
     phone: `+2348${rand(10000000, 99999999)}`,
     branch: loc.city,
-    sectoralGroup: group,
-    subSector: group.split(" ")[0],
+    sectoral_group: group,
+    sub_sector: group.split(" ")[0],
     state: loc.state,
     city: loc.city,
     lat: loc.lat + jitter(),

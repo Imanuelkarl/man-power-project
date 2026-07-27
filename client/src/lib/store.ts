@@ -7,7 +7,10 @@ import {
   login as loginUser,
   signup as signupUser,
 } from "../services/authService";
-import type { Manufacturer } from "../types/manufacturer.types";
+import type {
+  Manufacturer,
+  ManufacturerUpdateData,
+} from "../types/manufacturer.types";
 import type { PowerData } from "../types/powerData.types";
 import { updatePowerData } from "../services/powerDataService";
 
@@ -143,11 +146,22 @@ export const useData = create<DataState>()(
         set((s) => ({ manufacturers: [...s.manufacturers, m] }));
       },
       updateManufacturer: async (id, patch) => {
-        const manufacturer = await manufacturerService.update(id, patch);
+        const manufacturer = await manufacturerService.update(
+          id,
+          patch as ManufacturerUpdateData,
+        );
         set((s) => ({
-          manufacturers: [...s.manufacturers, manufacturer],
+          manufacturers: s.manufacturers.map((m) =>
+            m.id === manufacturer.id ? { ...m, ...patch } : m,
+          ),
         }));
       },
+      // updateManufacturer: async (id, patch) => {
+      //   set((s) => ({
+      //     manufacturers: s.manufacturers.map((m) =>
+      //       m.id === id ? { ...m, ...patch } : m,
+      //     ),
+      //   }))},
       removeManufacturer: (id) =>
         set((s) => ({
           manufacturers: s.manufacturers.filter((m) => m.id !== id),

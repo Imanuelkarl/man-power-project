@@ -118,9 +118,9 @@ export const ClusterMapPage: React.FC = () => {
           id: m.id,
           lat: m.lat,
           lng: m.lng,
-          company: m.company,
+          company: m.name,
           state: m.state,
-          sectoralGroup: m.sectoralGroup,
+          sectoralGroup: m.sectoral_group,
         })),
     [manufacturers],
   );

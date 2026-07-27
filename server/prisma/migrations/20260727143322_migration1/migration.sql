@@ -9,6 +9,7 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "userId" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "password_hash" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'manufacturer',
     "is_active" BOOLEAN NOT NULL DEFAULT true,
@@ -28,8 +29,11 @@ CREATE TABLE "Manufacturer" (
     "sectoral_group" TEXT,
     "sub_sector" TEXT,
     "address" TEXT,
-    "latitude" DOUBLE PRECISION,
-    "longitude" DOUBLE PRECISION,
+    "branch" TEXT,
+    "state" TEXT,
+    "city" TEXT,
+    "lat" DOUBLE PRECISION,
+    "lng" DOUBLE PRECISION,
     "registration_number" TEXT,
     "year_established" INTEGER,
     "employee_count" INTEGER,
@@ -41,10 +45,22 @@ CREATE TABLE "Manufacturer" (
 );
 
 -- CreateTable
+CREATE TABLE "Branch" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Branch_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "PowerData" (
     "id" SERIAL NOT NULL,
     "manufacturer_id" INTEGER NOT NULL,
     "period" TEXT NOT NULL DEFAULT 'H1-2026',
+    "startTime" TIMESTAMP(3),
+    "endTime" TIMESTAMP(3),
     "capacity_utilization" DOUBLE PRECISION,
     "production_value" DOUBLE PRECISION,
     "raw_material_cost" DOUBLE PRECISION,

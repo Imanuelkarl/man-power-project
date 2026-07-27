@@ -9,6 +9,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import Navigate from "../../components/navigate";
 import { formatPower } from "../../lib/format";
+import { useParams } from "react-router-dom";
 
 const num = (v: string) => (v === "" ? 0 : Number(v));
 const currencySymbols: Record<string, string> = {
@@ -57,13 +58,14 @@ export function QuestionnaireForm({
   const [currency, setCurrency] = useState("NGN");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { manufacturers, questionnaires, upsertQuestionnaire } = useData();
+  const { id} = useParams();
   if (!user) return <Navigate to="/login" />;
 
   const existing = useMemo(() => {
     if (user.email) {
       const m = manufacturers.find((x) => x.email === user.email);
       const q = questionnaires.find(
-        (x) => x.manufacturerId === m?.id && x.period === "H1 2026",
+        (x) => x.id === id,
       );
       return { m, q };
     }

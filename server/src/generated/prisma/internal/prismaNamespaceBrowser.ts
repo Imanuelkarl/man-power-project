@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Manufacturer: 'Manufacturer',
+  Branch: 'Branch',
   PowerData: 'PowerData'
 } as const
 
@@ -96,8 +97,11 @@ export const ManufacturerScalarFieldEnum = {
   sectoral_group: 'sectoral_group',
   sub_sector: 'sub_sector',
   address: 'address',
-  latitude: 'latitude',
-  longitude: 'longitude',
+  branch: 'branch',
+  state: 'state',
+  city: 'city',
+  lat: 'lat',
+  lng: 'lng',
   registration_number: 'registration_number',
   year_established: 'year_established',
   employee_count: 'employee_count',
@@ -107,6 +111,16 @@ export const ManufacturerScalarFieldEnum = {
 } as const
 
 export type ManufacturerScalarFieldEnum = (typeof ManufacturerScalarFieldEnum)[keyof typeof ManufacturerScalarFieldEnum]
+
+
+export const BranchScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type BranchScalarFieldEnum = (typeof BranchScalarFieldEnum)[keyof typeof BranchScalarFieldEnum]
 
 
 export const PowerDataScalarFieldEnum = {

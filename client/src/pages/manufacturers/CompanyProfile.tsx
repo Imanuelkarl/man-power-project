@@ -1,9 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  useData,
-  SECTORAL_GROUPS,
-  NIGERIAN_STATES,
-} from "../../lib/store";
+import { useData, SECTORAL_GROUPS, NIGERIAN_STATES } from "../../lib/store";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import {
@@ -40,13 +36,13 @@ function CompanyProfile() {
   }, [manufacturers, user.email]);
 
   const [profile, setProfile] = useState({
-    company: existing.m?.company ?? "",
-    contactPerson: existing.m?.contactPerson ?? user.name ?? "",
+    name: existing.m?.name ?? "",
+    contact_person: existing.m?.contact_person ?? user.name ?? "",
     email: existing.m?.email ?? user.email,
     phone: existing.m?.phone ?? "",
     branch: existing.m?.branch ?? "",
-    sectoralGroup: existing.m?.sectoralGroup ?? SECTORAL_GROUPS[0],
-    subSector: existing.m?.subSector ?? "",
+    sectoral_group: existing.m?.sectoral_group ?? SECTORAL_GROUPS[0],
+    sub_sector: existing.m?.sub_sector ?? "",
     state: existing.m?.state ?? NIGERIAN_STATES[0].state,
     lat: existing.m?.lat?.toString() ?? "",
     lng: existing.m?.lng?.toString() ?? "",
@@ -156,7 +152,7 @@ function CompanyProfile() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      let manufacturerEmail = user.email ;//?? existing.m?.id;
+      let manufacturerEmail = user.email; //?? existing.m?.id;
       const manufacturer = findManufacturerByEmail(manufacturerEmail);
       if (!manufacturer) {
         const loc =
@@ -177,7 +173,6 @@ function CompanyProfile() {
         // link company to user
         user.email = m.email;
       } else {
-        
         console.log(manufacturer);
         if (manufacturer) {
           const loc =
@@ -197,10 +192,10 @@ function CompanyProfile() {
       toast.error("Unable to update company's profile.");
     }
   };
-  const findManufacturerByEmail =(email: string) =>{
-    const manufacturer =manufacturers.find((m)=> m.email === email);
+  const findManufacturerByEmail = (email: string) => {
+    const manufacturer = manufacturers.find((m) => m.email === email);
     return manufacturer;
-  }
+  };
 
   return (
     <div className="p-6 lg:p-10 space-y-6 ">
@@ -211,18 +206,18 @@ function CompanyProfile() {
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Name of Company">
               <Input
-                value={profile.company}
+                value={profile.name}
                 onChange={(e) =>
-                  setProfile({ ...profile, company: e.target.value })
+                  setProfile({ ...profile, name: e.target.value })
                 }
                 required
               />
             </Field>
             <Field label="Contact Person">
               <Input
-                value={profile.contactPerson}
+                value={profile.contact_person}
                 onChange={(e) =>
-                  setProfile({ ...profile, contactPerson: e.target.value })
+                  setProfile({ ...profile, contact_person: e.target.value })
                 }
                 required
               />
@@ -275,9 +270,9 @@ function CompanyProfile() {
             </Field>
             <Field label="Sectoral Group">
               <Select
-                value={profile.sectoralGroup}
+                value={profile.sectoral_group}
                 onValueChange={(v) =>
-                  setProfile({ ...profile, sectoralGroup: v })
+                  setProfile({ ...profile, sectoral_group: v })
                 }
               >
                 <SelectTrigger>
@@ -294,16 +289,18 @@ function CompanyProfile() {
             </Field>
             <Field label="Sub-sector">
               <Input
-                value={profile.subSector}
+                value={profile.sub_sector}
                 onChange={(e) =>
-                  setProfile({ ...profile, subSector: e.target.value })
+                  setProfile({ ...profile, sub_sector: e.target.value })
                 }
               />
             </Field>
             <Field label="Latitude">
               <Input
                 value={profile.lat}
-                onChange={(e) => setProfile({ ...profile, lat: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, lat: e.target.value })
+                }
                 placeholder="Use live capture or map selection"
                 required
               />
@@ -311,7 +308,9 @@ function CompanyProfile() {
             <Field label="Longitude">
               <Input
                 value={profile.lng}
-                onChange={(e) => setProfile({ ...profile, lng: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, lng: e.target.value })
+                }
                 placeholder="Use live capture or map selection"
                 required
               />
@@ -342,7 +341,9 @@ function CompanyProfile() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="w-full max-w-4xl overflow-hidden rounded-2xl bg-background shadow-2xl">
               <div className="flex items-center justify-between border-b px-4 py-3">
-                <h2 className="text-lg font-semibold">Select a location on the map</h2>
+                <h2 className="text-lg font-semibold">
+                  Select a location on the map
+                </h2>
                 <button
                   type="button"
                   className="text-sm text-muted-foreground"

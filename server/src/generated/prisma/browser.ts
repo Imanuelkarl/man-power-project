@@ -28,6 +28,11 @@ export type User = Prisma.UserModel
  */
 export type Manufacturer = Prisma.ManufacturerModel
 /**
+ * Model Branch
+ * 
+ */
+export type Branch = Prisma.BranchModel
+/**
  * Model PowerData
  * 
  */

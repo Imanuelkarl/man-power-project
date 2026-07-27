@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { Input } from "../ui/input";;
+import { Input } from "../ui/input";
 import Field from "../forms/Field";
 import Section from "../forms/Section";
 import type { Manufacturer } from "../../types/manufacturer.types";
@@ -31,13 +31,13 @@ export function CompanyProfile() {
     return { m: undefined, q: undefined };
   }, [manufacturers, questionnaires, user.companyId]);
   const [profile, setProfile] = useState({
-    company: existing.m?.company ?? "",
-    contactPerson: existing.m?.contactPerson ?? user.name,
+    name: existing.m?.name ?? "",
+    contact_person: existing.m?.contact_person ?? user.name,
     email: existing.m?.email ?? user.email,
     phone: existing.m?.phone ?? "",
     branch: existing.m?.branch ?? "",
-    sectoralGroup: existing.m?.sectoralGroup ?? SECTORAL_GROUPS[0],
-    subSector: existing.m?.subSector ?? "",
+    sectoral_group: existing.m?.sectoral_group ?? SECTORAL_GROUPS[0],
+    sub_sector: existing.m?.sub_sector ?? "",
     state: existing.m?.state ?? NIGERIAN_STATES[0].state,
   });
   const handleSubmit = (e: React.FormEvent) => {
@@ -59,7 +59,6 @@ export function CompanyProfile() {
       addManufacturer(m);
       manufacturerId = m.id;
       // link company to user
-      
     }
   };
 
@@ -70,18 +69,18 @@ export function CompanyProfile() {
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Name of Company">
               <Input
-                value={profile.company}
+                value={profile.name}
                 onChange={(e) =>
-                  setProfile({ ...profile, company: e.target.value })
+                  setProfile({ ...profile, name: e.target.value })
                 }
                 required
               />
             </Field>
             <Field label="Contact Person">
               <Input
-                value={profile.contactPerson}
+                value={profile.contact_person}
                 onChange={(e) =>
-                  setProfile({ ...profile, contactPerson: e.target.value })
+                  setProfile({ ...profile, contact_person: e.target.value })
                 }
                 required
               />
@@ -134,9 +133,9 @@ export function CompanyProfile() {
             </Field>
             <Field label="Sectoral Group">
               <Select
-                value={profile.sectoralGroup}
+                value={profile.sectoral_group}
                 onValueChange={(v) =>
-                  setProfile({ ...profile, sectoralGroup: v })
+                  setProfile({ ...profile, sectoral_group: v })
                 }
               >
                 <SelectTrigger>
@@ -153,9 +152,9 @@ export function CompanyProfile() {
             </Field>
             <Field label="Sub-sector">
               <Input
-                value={profile.subSector}
+                value={profile.sub_sector}
                 onChange={(e) =>
-                  setProfile({ ...profile, subSector: e.target.value })
+                  setProfile({ ...profile, sub_sector: e.target.value })
                 }
               />
             </Field>

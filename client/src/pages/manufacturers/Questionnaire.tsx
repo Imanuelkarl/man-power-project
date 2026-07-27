@@ -86,6 +86,12 @@ export function QuestionnaireForm({setStep} : QuestionnaireFormProp) {
     endTime: existing.q?.endTime ?? null,
     capacityUtilization: existing.q?.capacityUtilization ?? 0,
     productionValue: existing.q?.productionValue ?? 0,
+    totalEnergyGenerated: existing.q?.totalEnergyGenerated??0,
+    totalEnergyConsumed: existing.q?.totalEnergyConsumed??0,
+    energyGeneratedByGas: existing.q?.energyGeneratedByGas??0,
+    energyGeneratedByDiesel: existing.q?.energyGeneratedByDiesel??0,
+    energyGeneratedByGenerator: existing.q?.energyGeneratedByGenerator??0,
+    energyGeneratedByOther: existing.q?.energyGeneratedByOther??0,
     rawMaterialsCost: existing.q?.rawMaterialsCost ?? 0,
     rawMaterialsTransport: existing.q?.rawMaterialsTransport ?? 0,
     localSourcing: existing.q?.localSourcing ?? 0,
@@ -137,7 +143,7 @@ export function QuestionnaireForm({setStep} : QuestionnaireFormProp) {
       startTime: form.startTime ?? new Date("2026-01-01"),
       endTime: form.endTime ?? new Date("2026-07-01"),
       submittedAt: new Date().toISOString(),
-      submittedBy: "User"
+      submittedBy: "User",
     };
     upsertQuestionnaire(q);
     toast.success("Questionnaire submitted for H1 2026");

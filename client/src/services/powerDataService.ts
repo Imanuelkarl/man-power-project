@@ -1,13 +1,7 @@
 import api from "../utils/api";
+import { type PowerData as PowerDataPayload} from "../types/powerData.types"
 
-export interface PowerDataPayload {
-  manufacturer_id: string;
-  voltage: number;
-  current: number;
-  frequency: number;
-  power_factor: number;
-  timestamp?: string;
-}
+
 
 export interface PowerDataRecord extends PowerDataPayload {
   id: any;

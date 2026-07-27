@@ -6,6 +6,12 @@ export interface PowerData {
   endTime: Date;
   capacityUtilization: number;
   productionValue: number;
+  totalEnergyGenerated: number;
+  totalEnergyConsumed: number;
+  energyGeneratedByGas?: number;
+  energyGeneratedByDiesel?: number;
+  energyGeneratedByGenerator?:number;
+  energyGeneratedByOther?: number;
   rawMaterialsCost: number;
   rawMaterialsTransport: number;
   localSourcing: number;

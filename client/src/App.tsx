@@ -17,6 +17,7 @@ import { Submissions } from "./pages/manufacturers/Submissions";
 import NewQuestionnairePage from "./pages/QuestionnairePage";
 import { Toaster } from "sonner";
 import CompanyProfile from "./pages/manufacturers/CompanyProfile";
+import { ClusterHubPage } from "./pages/ClusterHubPage";
 
 function App() {
   return (
@@ -101,6 +102,26 @@ function App() {
                   <ProtectedRoute>
                     <AppLayout>
                       <Submissions />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/cluster-hub"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <ClusterHubPage/>
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/cluster-map"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <ClusterMapPage />
                     </AppLayout>
                   </ProtectedRoute>
                 }

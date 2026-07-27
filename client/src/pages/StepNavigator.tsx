@@ -68,12 +68,12 @@ export function StepNavigator({
   return (
     <div
       className={cn(
-        "h-screen flex w-fullWidth p-16 overflow-hidden bg-background text-foreground",
+        "flex h-screen w-full flex-col overflow-hidden bg-background text-foreground p-4 sm:p-6 lg:flex-row lg:p-16",
         className,
       )}
     >
       {/* ---------------- Sidebar: steps list ---------------- */}
-      <div className="w-[280px] shrink-0 border-r border-border px-7 py-8">
+      <div className="w-full shrink-0 overflow-x-auto border-b border-border px-1 py-4 sm:px-3 sm:py-6 lg:w-[280px] lg:overflow-x-visible lg:border-b-0 lg:border-r lg:px-7 lg:py-8">
         {(title || subtitle) && (
           <div className="mb-6">
             {title && <h2 className="text-lg font-semibold">{title}</h2>}
@@ -83,20 +83,20 @@ export function StepNavigator({
           </div>
         )}
 
-        <ol className="relative">
+        <ol className="relative flex min-w-max gap-6 lg:block lg:min-w-0 lg:gap-0">
           {steps.map((step, index) => {
             const status = getStatus(index, currentStep);
             const clickable = isClickable(index, status);
-            const isLast = index === steps.length ;
+            const isLast = index === steps.length - 1;
 
             return (
-              <li key={step.id} className="relative pb-8 last:pb-0">
+              <li key={step.id} className="relative w-44 shrink-0 pb-0 last:pr-0 lg:w-auto lg:pb-8 lg:last:pb-0">
                 {/* connecting line */}
                 {!isLast && (
                   <span
                     aria-hidden
                     className={cn(
-                      "absolute left-[19px] top-10 h-[calc(100%-24px)] w-px",
+                      "absolute left-10 top-5 h-px w-[calc(100%-2.5rem)] lg:left-[19px] lg:top-10 lg:h-[calc(100%-24px)] lg:w-px",
                       status === "completed" ? "bg-primary/60" : "bg-border",
                     )}
                   />
@@ -156,12 +156,12 @@ export function StepNavigator({
       </div>
 
       {/* ---------------- Content pane: active step + children ---------------- */}
-      <div className="flex-1 px-9 py-8 flex flex-col overflow-y-auto">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-1 py-6 sm:px-3 sm:py-8 lg:px-9">
         {onBack && (
           <button
             type="button"
             onClick={onBack}
-            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-fit hover:underline"
+            className="mb-4 inline-flex w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline"
           >
             <ArrowLeft className="h-4 w-4" />
             {backLabel}
@@ -171,7 +171,7 @@ export function StepNavigator({
           <span className="text-xs font-medium uppercase tracking-wide text-primary">
             Step {currentStep + 1}/{steps.length}
           </span>
-          <h1 className="mt-2 text-2xl font-semibold text-foreground">
+          <h1 className="mt-2 text-xl font-semibold text-foreground sm:text-2xl">
             {active?.heading ?? active?.label}
           </h1>
           {active?.description && (

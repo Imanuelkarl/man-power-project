@@ -8,6 +8,7 @@ import {
   FileText,
   LogOut,
   Map,
+  MapPin,
   Menu,
   Settings,
   User,
@@ -20,6 +21,7 @@ import Navigate, { navigate } from "../components/navigate";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { ThemeToggle } from "../components/ThemeToggle";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -62,13 +64,19 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       to: "/manufacturers",
       label: "Manufacturers",
       icon: Users,
-      roles: ["admin","investor"],
+      roles: ["admin", "investor"],
     },
     {
       to: "/clusters",
       label: "Cluster Map",
+      icon: MapPin,
+      roles: ["admin", "investor", "manufacturer"],
+    },
+    {
+      to: "/cluster-hub",
+      label: "Cluster Hub",
       icon: Map,
-      roles: ["admin", "investor"],
+      roles: ["admin", "investor", "manufacturer"],
     },
     {
       to: "/company",
@@ -98,17 +106,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       >
         <div className="p-5 flex items-center justify-between gap-3 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-primary grid place-items-center text-primary-foreground">
-            <Factory className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="font-display font-semibold text-sm leading-none">
-              MAN
+            <div className="w-9 h-9 rounded-lg bg-primary grid place-items-center text-primary-foreground">
+              <Factory className="w-4 h-4" />
             </div>
-            <div className="text-[11px] text-muted-foreground mt-1">
-              Manufacturing Intel
+            <div>
+              <div className="font-display font-semibold text-sm leading-none">
+                MAN
+              </div>
+              <div className="text-[11px] text-muted-foreground mt-1">
+                Manufacturing Intel
+              </div>
             </div>
-          </div>
+            <ThemeToggle/>
           </div>
           <button
             type="button"

@@ -3,56 +3,33 @@ import { persist } from "zustand/middleware";
 import type { User } from "../types/user.types";
 import manufacturerService from "../services/manufacturerService";
 import userService from "../services/userService";
-import { login as loginUser, signup as signupUser } from "../services/authService";
+import {
+  login as loginUser,
+  signup as signupUser,
+} from "../services/authService";
 import type { Manufacturer } from "../types/manufacturer.types";
+import type { PowerData } from "../types/powerData.types";
+import { updatePowerData } from "../services/powerDataService";
 
 export type { Manufacturer };
 
 export type Role = "admin" | "manufacturer" | "investor";
 
-export interface PowerData {
-  id: string;
-  manufacturerId: number;
-  period: string; // e.g. "H1 2026"
-  startTime: Date;
-  endTime: Date;
-  capacityUtilization: number;
-  productionValue: number;
-  rawMaterialsCost: number;
-  rawMaterialsTransport: number;
-  localSourcing: number;
-  unsoldGoods: number;
-  newHires: number;
-  totalWorkers: number;
-  workersLeft: number;
-  interestRate: number;
-  exchangeRate: number;
-  investLandBuildings: number;
-  investPlant: number;
-  investFurniture: number;
-  investVehicles: number;
-  investInProgress: number;
-  electricityHours: number;
-  powerOutages: number;
-  energyDiesel: number;
-  energyGas: number;
-  energyGenerator: number;
-  energyOther: number;
-  nigeriaFirstComment: string;
-  submittedAt: string;
-  submittedBy: string;
-}
+export type { PowerData };
 
 // -------------------- Auth --------------------
 interface AuthState {
   user: User | null;
-  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
   register: (
     name: string,
     email: string,
     password: string,
-    companyId?: string,
+    companyName?: string,
   ) => Promise<{ ok: boolean; error?: string }>;
 }
 
@@ -62,7 +39,7 @@ export const useAuth = create<AuthState>()(
       user: null,
       login: async (email, password) => {
         try {
-          const { user } = await loginUser({email, password});
+          const { user } = await loginUser({ email, password });
           set({ user });
           return { ok: true };
         } catch {
@@ -70,13 +47,13 @@ export const useAuth = create<AuthState>()(
         }
       },
       logout: () => set({ user: null }),
-      register: async (name, email, password, companyId) => {
+      register: async (name, email, password, companyName) => {
         try {
           const { user } = await signupUser({
             name,
             email,
             password,
-            companyName: companyId,
+            companyName: companyName,
           });
           set({ user });
           return { ok: true };
@@ -95,7 +72,7 @@ interface UsersState {
   loading: boolean;
   fetchUsers: () => Promise<void>;
   addUser: (u: User) => void;
-  removeUser: (id: number) => void;
+  removeUser: (id: number) => Promise<void>;
   updatePassword: (id: number, password: string) => Promise<void>;
 }
 
@@ -114,8 +91,10 @@ export const useUsers = create<UsersState>()(
         }
       },
       addUser: (u) => set((s) => ({ users: [...s.users, u] })),
-      removeUser: (id) =>
-        set((s) => ({ users: s.users.filter((x) => x.id !== id) })),
+      removeUser: async (id) => {
+        await userService.delete(id);
+        set((s) => ({ users: s.users.filter((x) => x.id !== id) }));
+      },
       updatePassword: async (id, password) => {
         await userService.update(id, { password });
       },
@@ -128,14 +107,17 @@ export const useUsers = create<UsersState>()(
 interface DataState {
   manufacturers: Manufacturer[];
   questionnaires: PowerData[];
+  loadingManufacturers: boolean;
+  fetchManufacturers: () => Promise<void>;
   addManufacturer: (m: Manufacturer) => void;
   updateManufacturer: (
     id: number,
     patch: Partial<Manufacturer>,
   ) => Promise<void>;
   removeManufacturer: (id: number) => void;
-  addQuestionnaire: (q: PowerData) => void;
+  addQuestionnaire: (q: PowerData) => Promise<void>;
   getQuestionnaireByEmail: (email: string) => PowerData[];
+  updateQuestionnaire: (id: string, patch: Partial<PowerData>) => Promise<void>;
   upsertQuestionnaire: (q: PowerData) => void;
   removeQuestionnaire: (id: string) => void;
   clearAll: () => void;
@@ -147,6 +129,16 @@ export const useData = create<DataState>()(
     (set): DataState => ({
       manufacturers: [],
       questionnaires: [],
+      loadingManufacturers: false,
+      fetchManufacturers: async () => {
+        set({ loadingManufacturers: true });
+        try {
+          const manufacturers = await userService.findAll();
+          set({ manufacturers, loadingManufacturers: false });
+        } catch {
+          set({ loadingManufacturers: false });
+        }
+      },
       addManufacturer: (m) => {
         set((s) => ({ manufacturers: [...s.manufacturers, m] }));
       },
@@ -163,8 +155,9 @@ export const useData = create<DataState>()(
             (q) => q.manufacturerId !== id,
           ),
         })),
-      addQuestionnaire: (q) =>
-        set((s) => ({ questionnaires: [...s.questionnaires, q] })),
+      addQuestionnaire: async (q) => {
+        set((s) => ({ questionnaires: [...s.questionnaires, q] }));
+      },
       getQuestionnaireByEmail: (email): PowerData[] => {
         const manufacturer = useData
           .getState()
@@ -176,9 +169,13 @@ export const useData = create<DataState>()(
 
         return useData
           .getState()
-          .questionnaires.filter(
-            (q) => q.manufacturerId === manufacturer.id,
-          );
+          .questionnaires.filter((q) => q.manufacturerId === manufacturer.id);
+      },
+      updateQuestionnaire: async (id, patch) => {
+        const manufacturer = await updatePowerData(id, patch);
+        set((s) => ({
+          questionnaires: [...s.questionnaires, manufacturer],
+        }));
       },
       removeQuestionnaire: (id) =>
         set((s) => ({

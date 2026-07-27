@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useUsers } from "../../lib/store";
+import { useData, useUsers, type Manufacturer } from "../../lib/store";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -14,6 +14,7 @@ import type { User } from "../../types/user.types";
 
 export function UsersManager() {
   const { users, fetchUsers, addUser, removeUser } = useUsers();
+  const {addManufacturer,manufacturers} = useData()
   const [query, setQuery] = useState("");
   const [showInvite, setShowInvite] = useState(false);
   const [inviteName, setInviteName] = useState("");
@@ -46,6 +47,24 @@ export function UsersManager() {
         companyName: newUser.companyName,
       });
       addUser(data.user as User & { password: string });
+      if(newUser.role ===  "manufacturer"){
+        const m: Manufacturer= {
+          id: manufacturers.length,
+          email: newUser.email,
+          company: newUser.companyName || newUser.name,
+          contactPerson: newUser.name,
+          phone: "",
+          branch: "",
+          sectoralGroup: "",
+          subSector: "",
+          state: "",
+          city: "",
+          lat: 0,
+          lng: 0,
+          createdAt: ""
+        }
+        addManufacturer(m);
+      }
       toast.success(
         `Invite created for ${inviteName} <${inviteEmail}>${inviteRole ? ` as ${inviteRole}` : ""}`,
       );

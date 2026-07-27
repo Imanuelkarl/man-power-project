@@ -4,6 +4,7 @@ import * as authService from "../services/authService";
 import manufacturerService, { } from "../services/manufacturerService";
 import * as powerDataService from "../services/powerDataService";
 import type { Manufacturer } from "../types/manufacturer.types";
+import type { PowerData } from "../types/powerData.types";
 
 type User = {
   id: number;
@@ -24,7 +25,7 @@ type State = {
   logout: () => Promise<void>;
   fetchManufacturers: () => Promise<void>;
   fetchPowerData: (manufacturerId?: string) => Promise<void>;
-  createPowerData: (payload: powerDataService.PowerDataPayload) => Promise<void>;
+  createPowerData: (payload: PowerData) => Promise<void>;
   addManufacturer: (manufacturer: Manufacturer) => void;
   updateManufacturer: (manufacturer: Manufacturer) => void;
   removeManufacturer: (id: number) => void;

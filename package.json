@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/Imanuelkarl/man-power-project#readme",
   "devDependencies": {
-    "concurrently": "^10.0.3"
+    "concurrently": "^10.0.3",
+    "vitest": "^4.1.10"
   }
 }

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useData } from "../lib/store";
-import { clusterManufacturers } from "../lib/clusters";
+//import { clusterManufacturers } from "../lib/clusters";
 import { Card } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -8,7 +8,7 @@ import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGri
 import { Building2, Layers, TrendingUp, Zap, Download, FileText, FileSpreadsheet } from "lucide-react";
 import { exportCSV, exportExcel, exportPDF } from "../lib/exports";
 import { PageHeader } from "../components/page-header";
-import { formatNaira } from "../lib/format";
+import { formatNaira, formatPower } from "../lib/format";
 
 
 
@@ -17,7 +17,7 @@ const COLORS = ["oklch(0.68 0.16 150)", "oklch(0.78 0.15 75)", "oklch(0.65 0.18 
 export const DashboardPage: React.FC = () => {
   const { manufacturers, questionnaires } = useData();
 
-  const clusters = useMemo(() => clusterManufacturers(manufacturers), [manufacturers]);
+  //const clusters = useMemo(() => clusterManufacturers(manufacturers), [manufacturers]);
 
   const byState = useMemo(() => {
     const map = new Map<string, number>();
@@ -34,7 +34,7 @@ export const DashboardPage: React.FC = () => {
   const avgCapacity = questionnaires.length
     ? (questionnaires.reduce((s, q) => s + q.capacityUtilization, 0) / questionnaires.length).toFixed(1)
     : "—";
-  //const totalProduction = questionnaires.reduce((s, q) => s + q.productionValue, 0);
+  const totalLoad = questionnaires.reduce((s, q) => s + q.totalEnergyConsumed, 0);
   const totalEnergy = questionnaires.reduce((s, q) => s + q.energyDiesel + q.energyGas + q.energyGenerator + q.energyOther, 0);
 
   const recent = [...questionnaires].sort((a, b) => (a.submittedAt < b.submittedAt ? 1 : -1)).slice(0, 6);
@@ -61,7 +61,7 @@ export const DashboardPage: React.FC = () => {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Metric icon={Building2} label="Manufacturers" value={manufacturers.length.toLocaleString()} accent="primary" />
-        <Metric icon={Layers} label="Clusters identified" value={clusters.length.toLocaleString()} accent="energy" />
+        <Metric icon={Layers} label="Total Power Consumed" value={formatPower(totalLoad)} accent="energy" />
         <Metric icon={TrendingUp} label="Avg. capacity utilization" value={`${avgCapacity}%`} />
         <Metric icon={Zap} label="Alt. energy spend" value={formatNaira(totalEnergy)} accent="energy" />
       </div>

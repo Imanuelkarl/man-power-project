@@ -319,7 +319,7 @@ function CompanyProfile() {
             <Field label="Location capture">
               <div className="flex flex-col gap-2 grid sm:grid-cols-2">
                 <Button type="button" onClick={captureCurrentLocation}>
-                  Capture live location
+                  Capture Company location
                 </Button>
                 <Button type="button" onClick={openMapModal}>
                   Select location on map

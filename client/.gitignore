@@ -30,3 +30,6 @@ src/router.ts
 *.njsproj
 *.sln
 *.sw?
+/src/pages/ClusterHubPage.test.tsx
+/src/lib/store.live.ts
+/src/lib/store.test.ts

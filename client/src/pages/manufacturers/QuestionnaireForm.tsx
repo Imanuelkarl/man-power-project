@@ -88,6 +88,12 @@ export function QuestionnaireForm({
     workersLeft: existing.q?.workersLeft ?? 0,
     interestRate: existing.q?.interestRate ?? 0,
     exchangeRate: existing.q?.exchangeRate ?? 0,
+    totalEnergyGenerated: existing.q?.totalEnergyGenerated??0,
+    totalEnergyConsumed: existing.q?.totalEnergyConsumed??0,
+    energyGeneratedByGas: existing.q?.energyGeneratedByGas??0,
+    energyGeneratedByDiesel: existing.q?.energyGeneratedByDiesel??0,
+    energyGeneratedByGenerator: existing.q?.energyGeneratedByGenerator??0,
+    energyGeneratedByOther: existing.q?.energyGeneratedByOther??0,
     investLandBuildings: existing.q?.investLandBuildings ?? 0,
     investPlant: existing.q?.investPlant ?? 0,
     investFurniture: existing.q?.investFurniture ?? 0,
@@ -197,19 +203,19 @@ export function QuestionnaireForm({
                 <NumField
                   label={`2. Estimated production value (${currencySymbols[currency]})`}
                   value={form.productionValue}
-                  
+
                   onChange={(v) => setForm({ ...form, productionValue: v })}
                 />
                 <NumField
                   label={`3. Cost of raw materials used (${currencySymbols[currency]})`}
                   value={form.rawMaterialsCost}
-                  
+
                   onChange={(v) => setForm({ ...form, rawMaterialsCost: v })}
                 />
                 <NumField
                   label={`4. Transport cost of raw materials (${currencySymbols[currency]})`}
                   value={form.rawMaterialsTransport}
-                  
+
                   onChange={(v) =>
                     setForm({ ...form, rawMaterialsTransport: v })
                   }
@@ -222,7 +228,7 @@ export function QuestionnaireForm({
                 <NumField
                   label={`6. Value of unsold finished goods (${currencySymbols[currency]})`}
                   value={form.unsoldGoods}
-                  
+
                   onChange={(v) => setForm({ ...form, unsoldGoods: v })}
                 />
                 <NumField
@@ -389,7 +395,8 @@ export function QuestionnaireForm({
                         Production Value:
                       </span>{" "}
                       <span className="ml-2">
-                        {currencySymbols[currency]}{form.productionValue.toLocaleString()}
+                        {currencySymbols[currency]}
+                        {form.productionValue.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -435,7 +442,8 @@ export function QuestionnaireForm({
                         Land & Buildings:
                       </span>{" "}
                       <span className="ml-2">
-                        {currencySymbols[currency]}{form.investLandBuildings.toLocaleString()}
+                        {currencySymbols[currency]}
+                        {form.investLandBuildings.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -443,7 +451,8 @@ export function QuestionnaireForm({
                         Plant & Machinery:
                       </span>{" "}
                       <span className="ml-2">
-                        {currencySymbols[currency]}{form.investPlant.toLocaleString()}
+                        {currencySymbols[currency]}
+                        {form.investPlant.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -451,7 +460,8 @@ export function QuestionnaireForm({
                         Furniture & Equipment:
                       </span>{" "}
                       <span className="ml-2">
-                        {currencySymbols[currency]}{form.investFurniture.toLocaleString()}
+                        {currencySymbols[currency]}
+                        {form.investFurniture.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -459,7 +469,8 @@ export function QuestionnaireForm({
                         Motor Vehicle:
                       </span>{" "}
                       <span className="ml-2">
-                        {currencySymbols[currency]}{form.investVehicles.toLocaleString()}
+                        {currencySymbols[currency]}
+                        {form.investVehicles.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -467,7 +478,8 @@ export function QuestionnaireForm({
                         Assets in Progress:
                       </span>{" "}
                       <span className="ml-2">
-                        {currencySymbols[currency]}{form.investInProgress.toLocaleString()}
+                        {currencySymbols[currency]}
+                        {form.investInProgress.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -497,7 +509,8 @@ export function QuestionnaireForm({
                         Diesel Spending:
                       </span>{" "}
                       <span className="ml-2">
-                        {currencySymbols[currency]}{form.energyDiesel.toLocaleString()}
+                        {currencySymbols[currency]}
+                        {form.energyDiesel.toLocaleString()}
                       </span>
                     </div>
                     <div>
@@ -505,7 +518,8 @@ export function QuestionnaireForm({
                         Gas Spending:
                       </span>{" "}
                       <span className="ml-2">
-                        {currencySymbols[currency]}{form.energyGas.toLocaleString()}
+                        {currencySymbols[currency]}
+                        {form.energyGas.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -521,8 +535,6 @@ export function QuestionnaireForm({
                   )}
                 </div>
               </div>
-
-
             </div>
           )}
 
@@ -557,8 +569,6 @@ export function QuestionnaireForm({
           )}
         </form>
       )}
-
-      
 
       {showConfirmDialog && (
         <ConfirmDialog
@@ -636,7 +646,7 @@ function ConfirmDialog({
             all information is accurate before confirming.
           </p>
         </div>
-        
+
         <div className="flex gap-3 justify-end pt-4">
           <Button variant="outline" onClick={onCancel}>
             Cancel

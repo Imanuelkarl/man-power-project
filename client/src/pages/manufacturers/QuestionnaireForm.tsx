@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import Navigate from "../../components/navigate";
+import { formatPower } from "../../lib/format";
 
 const num = (v: string) => (v === "" ? 0 : Number(v));
 const currencySymbols: Record<string, string> = {
@@ -33,9 +34,10 @@ export const QUESTIONNAIRE_STEPS = {
   INDICES: 1,
   INVESTMENT: 2,
   ENERGY: 3,
-  REVIEW: 4,
+  ENERGY_GENERATION: 4,
+  REVIEW: 5,
 } as const;
-export const QUESTIONNAIRE_STEP_COUNT = 5;
+export const QUESTIONNAIRE_STEP_COUNT = 6;
 
 interface QuestionnaireFormProps {
   currentStep: number;
@@ -88,12 +90,12 @@ export function QuestionnaireForm({
     workersLeft: existing.q?.workersLeft ?? 0,
     interestRate: existing.q?.interestRate ?? 0,
     exchangeRate: existing.q?.exchangeRate ?? 0,
-    totalEnergyGenerated: existing.q?.totalEnergyGenerated??0,
-    totalEnergyConsumed: existing.q?.totalEnergyConsumed??0,
-    energyGeneratedByGas: existing.q?.energyGeneratedByGas??0,
-    energyGeneratedByDiesel: existing.q?.energyGeneratedByDiesel??0,
-    energyGeneratedByGenerator: existing.q?.energyGeneratedByGenerator??0,
-    energyGeneratedByOther: existing.q?.energyGeneratedByOther??0,
+    totalEnergyGenerated: existing.q?.totalEnergyGenerated ?? 0,
+    totalEnergyConsumed: existing.q?.totalEnergyConsumed ?? 0,
+    energyGeneratedByGas: existing.q?.energyGeneratedByGas ?? 0,
+    energyGeneratedByDiesel: existing.q?.energyGeneratedByDiesel ?? 0,
+    energyGeneratedByGenerator: existing.q?.energyGeneratedByGenerator ?? 0,
+    energyGeneratedByOther: existing.q?.energyGeneratedByOther ?? 0,
     investLandBuildings: existing.q?.investLandBuildings ?? 0,
     investPlant: existing.q?.investPlant ?? 0,
     investFurniture: existing.q?.investFurniture ?? 0,
@@ -317,13 +319,11 @@ export function QuestionnaireForm({
                   <NumField
                     label="Diesel"
                     value={form.energyDiesel}
-                    currency={currencySymbols[currency]}
                     onChange={(v) => setForm({ ...form, energyDiesel: v })}
                   />
                   <NumField
                     label="Gas"
                     value={form.energyGas}
-                    currency={currencySymbols[currency]}
                     onChange={(v) => setForm({ ...form, energyGas: v })}
                   />
                   <NumField
@@ -349,6 +349,57 @@ export function QuestionnaireForm({
                   }
                 />
               </Field>
+            </div>
+          )}
+          {currentStep === QUESTIONNAIRE_STEPS.ENERGY_GENERATION && (
+            <div className="space-y-5">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <NumField
+                  label="16. Total Power Generated(W)"
+                  value={form.totalEnergyGenerated}
+                  onChange={(v) => setForm({ ...form, electricityHours: v })}
+                />
+                <NumField
+                  label="17. Energy Consumed (W)"
+                  value={form.totalEnergyConsumed}
+                  onChange={(v) => setForm({ ...form, powerOutages: v })}
+                />
+              </div>
+              <div className="pt-2">
+                <div className="text-sm font-medium mb-3">
+                  18. Alternative energy expenditure (₦)
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+                  <NumField
+                    label="Energy From Diesel"
+                    value={form.energyGeneratedByDiesel}
+                    onChange={(v) =>
+                      setForm({ ...form, energyGeneratedByDiesel: v })
+                    }
+                  />
+                  <NumField
+                    label="Energy From Gas"
+                    value={form.energyGeneratedByGas}
+                    onChange={(v) =>
+                      setForm({ ...form, energyGeneratedByGas: v })
+                    }
+                  />
+                  <NumField
+                    label="Energy From Generator maint. & parts"
+                    value={form.energyGeneratedByGenerator}
+                    onChange={(v) =>
+                      setForm({ ...form, energyGeneratedByGenerator: v })
+                    }
+                  />
+                  <NumField
+                    label="Energy From Others"
+                    value={form.energyGeneratedByOther}
+                    onChange={(v) =>
+                      setForm({ ...form, energyGeneratedByOther: v })
+                    }
+                  />
+                </div>
+              </div>
             </div>
           )}
           {currentStep === QUESTIONNAIRE_STEPS.REVIEW && (
@@ -534,6 +585,44 @@ export function QuestionnaireForm({
                     </div>
                   )}
                 </div>
+                <div className="space-y-2">
+                  <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                    Energy (Section 13-15)
+                  </h4>
+                  <div className="grid gap-3 sm:grid-cols-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">
+                        Total Power Generated
+                      </span>{" "}
+                      <span className="ml-2">
+                        {formatPower(form.totalEnergyGenerated)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">
+                        Total Power Used for Production:
+                      </span>{" "}
+                      <span className="ml-2">{formatPower(form.totalEnergyConsumed)}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">
+                        Diesel Power:
+                      </span>{" "}
+                      <span className="ml-2">
+                        {formatPower(form.energyGeneratedByDiesel)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">
+                        Gas Power:
+                      </span>{" "}
+                      <span className="ml-2">
+                        {formatPower(form.energyGeneratedByGas)}
+                      </span>
+                    </div>
+                  </div>
+                  
+                </div>
               </div>
             </div>
           )}
@@ -543,7 +632,7 @@ export function QuestionnaireForm({
               <ArrowLeft className="w-4 h-4 mr-2" /> Back
             </Button>
 
-            {currentStep === QUESTIONNAIRE_STEPS.ENERGY ? (
+            {currentStep === QUESTIONNAIRE_STEPS.ENERGY_GENERATION ? (
               <Button type="button" size="lg" onClick={goNext}>
                 Review <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -562,7 +651,7 @@ export function QuestionnaireForm({
             )}
           </div>
 
-          {currentStep === QUESTIONNAIRE_STEPS.ENERGY && (
+          {currentStep === QUESTIONNAIRE_STEPS.ENERGY_GENERATION && (
             <p className="text-xs text-muted-foreground text-right">
               Data is stored locally for this MVP. Nothing leaves your browser.
             </p>

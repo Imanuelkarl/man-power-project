@@ -15,9 +15,7 @@ import {
   NIGERIA_REGIONS,
   getAllStates,
   getLgasForState,
-  getWardsForStateLga,
   lgaKey,
-  wardKey,
 } from "../../lib/nigeria-geo-data";
 import { resolveMembers, newClusterId } from "../../lib/cluster-utils";
 import type {
@@ -252,7 +250,6 @@ const GEO_TYPE_CHOICES: { value: ClusterGeoType; label: string; hint: string }[]
   { value: "region", label: "Region", hint: "Merge one or more geopolitical zones" },
   { value: "state", label: "State", hint: "Merge one or more states" },
   { value: "lga", label: "LGA", hint: "Merge one or more LGAs, across states" },
-  { value: "ward", label: "Ward", hint: "Merge one or more wards, across LGAs" },
   { value: "radius", label: "Radius", hint: "Everyone within a distance of a chosen point" },
   { value: "custom", label: "Custom", hint: "Mix regions, states, LGAs and wards freely" },
 ];
@@ -507,30 +504,20 @@ export function ClusterCreateForm({
   const [regions, setRegions] = useState<string[]>([]);
   const [states, setStates] = useState<string[]>([]);
   const [lgas, setLgas] = useState<string[]>([]);
-  const [wards, setWards] = useState<string[]>([]);
+  const [wards, _setWards] = useState<string[]>([]);
   const [focalPoint, setFocalPoint] = useState<ClusterFocalPoint | null>(null);
   const [radiusKm, setRadiusKm] = useState<number>(25);
 
   // Scopes just for browsing the LGA/ward dropdowns — not part of the
   // saved selection themselves.
   const [scopeState, setScopeState] = useState("");
-  const [scopeLga, setScopeLga] = useState("");
+  const [_scopeLga, setScopeLga] = useState("");
 
   const allRegions = [...NIGERIA_REGIONS];
   const allStates = useMemo(() => getAllStates(), []);
   const lgaOptionsForScope = useMemo(
     () => (scopeState ? getLgasForState(scopeState).map((l) => ({ key: lgaKey(scopeState, l), label: l })) : []),
     [scopeState],
-  );
-  const wardOptionsForScope = useMemo(
-    () =>
-      scopeState && scopeLga
-        ? getWardsForStateLga(scopeState, scopeLga).map((w) => ({
-            key: wardKey(scopeState, scopeLga, w),
-            label: w,
-          }))
-        : [],
-    [scopeState, scopeLga],
   );
 
   const toggle = (list: string[], setList: (v: string[]) => void, value: string) => {
@@ -640,7 +627,7 @@ export function ClusterCreateForm({
         </div>
       )}
 
-      {(showLgas || showWards) && (
+      {(showLgas ) && (
         <div className="space-y-3 border-t border-border pt-3">
           <div className="text-xs font-medium text-muted-foreground">Browse by state{showWards ? " and LGA" : ""}</div>
           <div className="flex flex-wrap gap-2">
@@ -659,21 +646,7 @@ export function ClusterCreateForm({
                 </option>
               ))}
             </select>
-            {showWards && (
-              <select
-                className="h-9 rounded-md border border-border bg-background px-2 text-sm disabled:opacity-50"
-                value={scopeLga}
-                onChange={(e) => setScopeLga(e.target.value)}
-                disabled={!scopeState}
-              >
-                <option value="">Select an LGA…</option>
-                {getLgasForState(scopeState).map((l) => (
-                  <option key={l} value={l}>
-                    {l}
-                  </option>
-                ))}
-              </select>
-            )}
+            
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
@@ -685,14 +658,7 @@ export function ClusterCreateForm({
                 onToggle={(v) => toggle(lgas, setLgas, v)}
               />
             )}
-            {showWards && (
-              <PickerList
-                label={scopeLga ? `Wards in ${scopeLga}` : "Wards (pick a state + LGA above)"}
-                options={wardOptionsForScope}
-                selected={wards}
-                onToggle={(v) => toggle(wards, setWards, v)}
-              />
-            )}
+            
           </div>
 
           {showLgas && lgas.length > 0 && (
@@ -701,12 +667,7 @@ export function ClusterCreateForm({
               onRemove={(key) => setLgas((prev) => prev.filter((k) => k !== key))}
             />
           )}
-          {showWards && wards.length > 0 && (
-            <SelectedChips
-              items={wards.map((key) => ({ key, label: key.split("::").join(" — ") }))}
-              onRemove={(key) => setWards((prev) => prev.filter((k) => k !== key))}
-            />
-          )}
+          
         </div>
       )}
 

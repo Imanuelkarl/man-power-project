@@ -3,10 +3,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Card } from "../../components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-} from "../../components/ui/tabs";
+import { Tabs, TabsContent } from "../../components/ui/tabs";
 import { Factory } from "lucide-react";
 import { toast } from "sonner";
 import { useHydrated } from "../../hooks/use-hydrated";
@@ -17,7 +14,7 @@ import { Link } from "react-router-dom";
 import { Loader } from "../../components/ui/loader";
 
 const LoginPage: React.FC = () => {
-  const { user, login , loading} = useAuth();
+  const { user, login, loading } = useAuth();
   const hydrated = useHydrated();
 
   const [email, setEmail] = useState("");
@@ -37,8 +34,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
-      
-      <Loader isLoading={loading} message="Logging In..."/>
+      <Loader isLoading={loading} message="Logging In..." />
       <div className="hidden lg:flex flex-col justify-between p-12 bg-sidebar border-r border-sidebar-border relative overflow-hidden">
         <div className="absolute top-4 right-4 z-10">
           <ThemeToggle />
@@ -59,12 +55,14 @@ const LoginPage: React.FC = () => {
         </div>
         <div className="relative space-y-4 max-w-md">
           <h1 className="font-display text-4xl font-semibold leading-tight">
-            Economic review, <span className="text-primary">reimagined.</span>
+            Connecting Manufacturing Data with Smarter Decisions, Powering
+            Smarter Manufacturing <span className="text-primary">Through Data Intelligence</span>,
+            {/* <span className="text-primary">reimagined.</span> */}
           </h1>
           <p className="text-muted-foreground">
-            Submit the H1 2026 MAN questionnaire digitally, watch manufacturing
-            clusters emerge across Nigeria on an interactive map, and export the
-            whole review in a click.
+            A secure digital platform that transforms manufacturing operational
+            and energy data into actionable intelligence for industry,
+            government and investors.
           </p>
         </div>
         <div className="relative text-xs text-muted-foreground">
@@ -74,16 +72,16 @@ const LoginPage: React.FC = () => {
 
       <div className="flex items-center justify-center p-6 sm:p-12">
         <Card className="w-full max-w-md p-8 space-y-6">
-          <div className="space-y-1">
+          <div className="flex-col space-y-1 items-center ">
             <h2 className="font-display text-2xl font-semibold">
               Welcome back
             </h2>
-            <p className="text-sm text-muted-foreground">
+            {/* <p className="text-sm text-muted-foreground">
               Admin demo:{" "}
               <span className="font-mono text-foreground">
                 admin@man.org.ng / admin123
               </span>
-            </p>
+            </p> */}
           </div>
           <Tabs defaultValue="login">
             <TabsContent value="login" className="pt-4">
@@ -112,18 +110,15 @@ const LoginPage: React.FC = () => {
                   <Label
                     className="text-sm text-muted-foreground hover:underline cursor-pointer"
                     htmlFor="r1"
-                  ><Link
-                  to="/forgot-password"
-                >
-                  Forgot password?
-                </Link></Label>
+                  >
+                    <Link to="/forgot-password">Forgot password?</Link>
+                  </Label>
                 </div>
                 <Button type="submit" className="w-full">
                   Sign in
                 </Button>
               </form>
             </TabsContent>
-           
           </Tabs>
         </Card>
       </div>

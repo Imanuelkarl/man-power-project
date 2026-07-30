@@ -15,7 +15,7 @@ export type CreateUserInput = {
 export class UserModel {
   static findByUserId(userId: any) {
     return prisma.user.findUnique({
-      where: { userId },
+      where: {userId: userId },
     });
   }
  

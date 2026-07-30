@@ -90,8 +90,8 @@ export class AuthService {
     } as UserResponse;
   }
 
-  static verifyResetToken(token: string): { userId: number } {
-    return jwt.verify(token, JWT_SECRET) as { userId: number };
+  static verifyResetToken(token: string): { userId: string, id:number } {
+    return jwt.verify(token, JWT_SECRET) as { userId: string, id:number};
   }
 
   static async signup(input: SignupInput): Promise<AuthPayload> {
@@ -178,8 +178,10 @@ export class AuthService {
     token: string,
     password: string,
   ): Promise<User> {
+    console.log(token);
     const payload = this.verifyResetToken(token);
-    const user = await UserModel.findByUserId(payload.userId);
+    console.log(payload);
+    const user = await UserModel.findById(payload.id);
     if (!user) {
       throw new Error("Invalid reset token");
     }

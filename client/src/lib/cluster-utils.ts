@@ -19,6 +19,7 @@ import type {
 } from "../types/cluster.types";
 import { findOfficialLga, lgaKey, regionForState } from "./nigeria-geo-data";
 import { distanceKm } from "./geo-hull";
+import { existInLGA } from "./location_finder";
 
 // ---------------------------------------------------------------------------
 // Enrichment
@@ -75,33 +76,48 @@ export function resolveMembers(
 ): number[] {
   const regions = new Set(def.regions);
   const states = new Set(def.states);
-  const lgas = new Set(def.lgas);
   const wards = new Set(def.wards);
   const manual = new Set(def.manufacturerIds);
+
   const useRadius =
-    !!def.focalPoint && typeof def.radiusKm === "number" && def.radiusKm > 0;
+    !!def.focalPoint &&
+    typeof def.radiusKm === "number" &&
+    def.radiusKm > 0;
 
   const matched = new Set<number>();
-  enriched.forEach((m) => {
+
+  for (const m of enriched) {
+    let inLga = false;
+
+    
+      for (const lga of def.lgas) {
+        if (existInLGA(lga, m)) {
+          inLga = true;
+          break;
+        }
+      }
+    
+
     if (
       regions.has(m.region) ||
       states.has(m.state) ||
-      (m.lga && lgas.has(m.lga)) ||
+      inLga ||
       (m.ward && wards.has(m.ward)) ||
       manual.has(m.id)
     ) {
       matched.add(m.id);
     }
+
     if (
       useRadius &&
       distanceKm(def.focalPoint!, { lat: m.lat, lng: m.lng }) <= def.radiusKm!
     ) {
       matched.add(m.id);
     }
-  });
+  }
+
   return [...matched];
 }
-
 // ---------------------------------------------------------------------------
 // Energy metrics
 // ---------------------------------------------------------------------------

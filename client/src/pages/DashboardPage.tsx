@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useData } from "../lib/store";
 //import { clusterManufacturers } from "../lib/clusters";
 import { Card } from "../components/ui/card";
@@ -29,6 +29,7 @@ import {
 import { exportCSV, exportExcel, exportPDF } from "../lib/exports";
 import { PageHeader } from "../components/page-header";
 import { formatNaira, formatPower } from "../lib/format";
+import { findLGA } from "../lib/location_finder";
 
 const COLORS = [
   "oklch(0.68 0.16 150)",
@@ -42,7 +43,12 @@ export const DashboardPage: React.FC = () => {
   const { manufacturers, questionnaires } = useData();
 
   //const clusters = useMemo(() => clusterManufacturers(manufacturers), [manufacturers]);
-
+  useEffect(() => {
+    const load = async () => {
+      console.log(await findLGA(9.007601, 7.45846));
+    };
+    load();
+  }, []);
   const byState = useMemo(() => {
     const map = new Map<string, number>();
     manufacturers.forEach((m) => map.set(m.state, (map.get(m.state) ?? 0) + 1));

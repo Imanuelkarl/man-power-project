@@ -17,6 +17,7 @@ import { formatNaira } from "../lib/format";
 import { PowerLevelBadge } from "../components/cluster/cluster-widgets";
 import { footprintFor } from "../lib/geo-hull";
 import type { ClusterWithStats, EnrichedManufacturer } from "../types/cluster.types";
+import type { GeoJSON as GeoJSONType } from "geojson";
 
 const NIGERIA_CENTER = { lat: 9.082, lng: 8.6753 };
 const MAP_CONTAINER_STYLE = { width: "100%", height: "100%" };
@@ -57,12 +58,33 @@ export const ClusterMapPage: React.FC<ClusterMapPageProps> = ({
 }) => {
   const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [geoJson, setGeoJSON] = useState<GeoJSONType | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const { isLoaded } = useJsApiLoader({
     id: "cluster-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
   });
+  useEffect(()=>{
+    console.log("Fetching geoJSON data");
+    fetch("/geo/nga_admin2.geojson")
+    .then((res) => res.json())
+    .then((data) => {console.log(data);setGeoJSON(data);})
+    .catch((error) => console.error(error));
+  },[]);
+
+  // When geoJson is available and the map is ready, add it to the map's data layer.
+  useEffect(() => {
+    if (!geoJson || !mapRef.current) return;
+    try {
+      // Clear any existing features then add new GeoJSON
+      mapRef.current.data && mapRef.current.data.forEach((f) => mapRef.current!.data!.remove(f));
+      mapRef.current.data?.addGeoJson(geoJson as any);
+      mapRef.current.data.setStyle({ fillColor: "#eee", strokeColor: "#bbb", strokeWeight: 1 });
+    } catch (e) {
+      console.error("Failed to add GeoJSON to map:", e);
+    }
+  }, [geoJson]);
 
   // Members to plot: the selected cluster's companies, or everyone who
   // belongs to at least one cluster when no single cluster is selected.
@@ -196,6 +218,7 @@ export const ClusterMapPage: React.FC<ClusterMapPageProps> = ({
                 />
               );
             })}
+            {/* GeoJSON is added to the map data layer via effect when loaded. */}
 
             {points.map((m) => {
               const color = POWER_COLOR[idToLevel.get(m.id) ?? "medium"];

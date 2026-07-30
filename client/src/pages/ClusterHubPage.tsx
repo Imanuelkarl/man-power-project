@@ -26,6 +26,7 @@ import type {
   ClusterWithStats,
 } from "../types/cluster.types";
 import { DEFAULT_CLUSTER_FILTERS } from "../types/cluster.types";
+import { loadGeoJSON } from "../lib/location_finder";
 
 type View = "hub" | "map";
 
@@ -40,6 +41,7 @@ export const ClusterHubPage: React.FC = () => {
   const [filters, setFilters] = useState<ClusterFilters>(DEFAULT_CLUSTER_FILTERS);
 
   useEffect(() => {
+    loadGeoJSON();
     clusterStore.getClusters().then((saved) => {
       setDefs(saved);
       setLoaded(true);

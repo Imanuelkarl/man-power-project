@@ -152,6 +152,7 @@ export class AuthController {
         message: "Password reset successful",
       });
     } catch (error) {
+      console.error("Password reset failed",error);
       res.status(500).json({
         success: false,
         message: "Password reset failed",

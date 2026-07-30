@@ -71,13 +71,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       to: "/clusters",
       label: "Cluster Map",
       icon: MapPin,
-      roles: ["admin", "investor", "manufacturer"],
+      roles: ["admin", "investor"],
     },
     {
       to: "/cluster-hub",
       label: "Cluster Hub",
       icon: Map,
-      roles: ["admin", "investor", "manufacturer"],
+      roles: ["admin", "investor"],
     },
     {
       to: "/company",

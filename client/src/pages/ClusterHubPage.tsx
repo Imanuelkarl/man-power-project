@@ -1,4 +1,4 @@
-
+// src/pages/ClusterHubPage.tsx (updated)
 
 import { useEffect, useMemo, useState } from "react";
 import { useData } from "../lib/store";
@@ -10,6 +10,7 @@ import {
   ClusterCreateForm,
   ClusterFilterBar,
 } from "../components/cluster/cluster-widgets";
+import { ClusterExportDialog } from "../components/cluster/ClusterExportDialog";
 import {
   assignPowerLevels,
   buildClusterWithStats,
@@ -38,6 +39,7 @@ export const ClusterHubPage: React.FC = () => {
   const [defs, setDefs] = useState<ClusterDefinition[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const [filters, setFilters] = useState<ClusterFilters>(DEFAULT_CLUSTER_FILTERS);
 
   useEffect(() => {
@@ -75,7 +77,6 @@ export const ClusterHubPage: React.FC = () => {
       if (filters.region !== "all" && !c.topRegions.includes(filters.region)) return false;
       if (filters.state !== "all" && !c.topStates.includes(filters.state)) return false;
       if (filters.lga !== "all" && !c.lgas.includes(filters.lga) && filters.lga !== "all") {
-        // only meaningful for lga/custom clusters that explicitly include this LGA
         if (!c.lgas.includes(filters.lga)) return false;
       }
       return true;
@@ -97,8 +98,6 @@ export const ClusterHubPage: React.FC = () => {
     );
   }, [enriched]);
 
-  
-
   const handleCreate = async (def: ClusterDefinition) => {
     await clusterStore.saveCluster(def);
     setDefs((prev) => [...prev, def]);
@@ -109,6 +108,10 @@ export const ClusterHubPage: React.FC = () => {
     await clusterStore.deleteCluster(id);
     setDefs((prev) => prev.filter((d) => d.id !== id));
   };
+  // const handleExport = async (id: string) => {
+  //   console.log(id);
+  //   setShowExportDialog(true);
+  // }
 
   const openOnMap = (id: string) => {
     setActiveClusterId(id);
@@ -136,44 +139,22 @@ export const ClusterHubPage: React.FC = () => {
         title="Manufacturing Clusters"
         subtitle="Group companies by state, LGA, ward or region — or merge any mix of them — and track power usage per cluster"
         actions={
-          <Button size="sm" onClick={() => setShowCreateForm((v) => !v)}>
-            <Plus className="w-4 h-4 mr-2" /> New cluster
-          </Button>
+          <div className="flex gap-2">
+            {/* <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowExportDialog(true)}
+              disabled={clusters.length === 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button> */}
+            <Button size="sm" onClick={() => setShowCreateForm((v) => !v)}>
+              <Plus className="w-4 h-4 mr-2" /> New cluster
+            </Button>
+          </div>
         }
       />
-
-      {/* <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatHighlightCard
-          icon={Layers}
-          label="Saved clusters"
-          value={String(clusters.length)}
-          sub={`${unclusteredCount} companies not yet clustered`}
-        />
-        <StatHighlightCard
-          icon={TrendingUp}
-          label="Most power spent"
-          value={mostSpendCluster ? formatNaira(mostSpendCluster.totalEnergySpendNaira) : "—"}
-          sub={mostSpendCluster ? `${mostSpendCluster.name} · total` : "No clusters yet"}
-        />
-        <StatHighlightCard
-          icon={Zap}
-          label="Most energy used"
-          value={
-            mostEnergyCluster
-              ? `${mostEnergyCluster.totalEnergyConsumedKwh.toLocaleString(undefined, {
-                  maximumFractionDigits: 0,
-                })} kWh`
-              : "—"
-          }
-          sub={mostEnergyCluster ? `${mostEnergyCluster.name} · total` : "No clusters yet"}
-        />
-        <StatHighlightCard
-          icon={Building2}
-          label="Companies mapped"
-          value={String(enriched.length)}
-          sub="With usable coordinates"
-        />
-      </div> */}
 
       {showCreateForm && (
         <ClusterCreateForm
@@ -192,7 +173,10 @@ export const ClusterHubPage: React.FC = () => {
       />
 
       {clusters.length > 0 && (
-        <div className="flex justify-end">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-muted-foreground">
+            Showing {filteredClusters.length} of {clusters.length} clusters
+          </span>
           <Button variant="outline" size="sm" onClick={() => { setActiveClusterId(null); setView("map"); }}>
             View all clusters on map
           </Button>
@@ -201,7 +185,7 @@ export const ClusterHubPage: React.FC = () => {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredClusters.map((cluster) => (
-          <ClusterCard key={cluster.id} cluster={cluster} onView={openOnMap} onDelete={handleDelete} />
+          <ClusterCard key={cluster.id} cluster={cluster} onView={openOnMap} onDelete={handleDelete}  />
         ))}
         {loaded && filteredClusters.length === 0 && (
           <div className="col-span-full text-sm text-muted-foreground text-center py-16 border border-dashed border-border rounded-lg">
@@ -211,6 +195,15 @@ export const ClusterHubPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Export Dialog */}
+      <ClusterExportDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        clusters={clusters}
+        manufacturers={manufacturers}
+        questionnaires={questionnaires}
+      />
     </div>
   );
 };

@@ -170,13 +170,13 @@ export const ClusterExportDialog: React.FC<ClusterExportDialogProps> = ({
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 min-h-0">
-              <TabsList className="grid grid-cols-5 mb-3">
+              <TabsList className="gap-2 grid grid-cols-4 mb-3 h-auto overflow-x-auto">
                 <TabsTrigger value="all">All</TabsTrigger>
                 {Object.entries(PARAMETER_CATEGORIES).map(([key, label]) => {
                   const { selected, total } = getCategoryCount(key);
                   return (
                     <TabsTrigger key={key} value={key} className="relative">
-                      {label}
+                      <span className="w-40 text-wrap">{label}</span>
                       <Badge variant="secondary" className="ml-1 text-xs">
                         {selected}/{total}
                       </Badge>

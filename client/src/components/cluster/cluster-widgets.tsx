@@ -9,7 +9,17 @@ import { Card } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { MapPin, Plus, X, Search, Trash2, Eye, Crosshair, Map as MapIcon } from "lucide-react";
+import {
+  MapPin,
+  Plus,
+  X,
+  Search,
+  Trash2,
+  Eye,
+  Crosshair,
+  Map as MapIcon,
+  Download,
+} from "lucide-react";
 import { formatNaira } from "../../lib/format";
 import {
   NIGERIA_REGIONS,
@@ -32,7 +42,10 @@ import type {
 // Power level badge
 // ---------------------------------------------------------------------------
 
-const POWER_LEVEL_STYLE: Record<PowerUsageLevel, { color: string; label: string }> = {
+const POWER_LEVEL_STYLE: Record<
+  PowerUsageLevel,
+  { color: string; label: string }
+> = {
   high: { color: "oklch(0.65 0.21 25)", label: "High power" },
   medium: { color: "oklch(0.78 0.15 75)", label: "Medium power" },
   low: { color: "oklch(0.68 0.16 150)", label: "Low power" },
@@ -46,7 +59,10 @@ export function PowerLevelBadge({ level }: { level: PowerUsageLevel }) {
       className="gap-1"
       style={{ color: style.color, borderColor: style.color }}
     >
-      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: style.color }} />
+      <span
+        className="w-1.5 h-1.5 rounded-full"
+        style={{ backgroundColor: style.color }}
+      />
       {style.label}
     </Badge>
   );
@@ -74,7 +90,11 @@ export function StatHighlightCard({
         {label}
       </div>
       <div className="font-display font-semibold text-lg truncate">{value}</div>
-      {sub && <div className="text-xs text-muted-foreground mt-0.5 truncate">{sub}</div>}
+      {sub && (
+        <div className="text-xs text-muted-foreground mt-0.5 truncate">
+          {sub}
+        </div>
+      )}
     </Card>
   );
 }
@@ -93,12 +113,13 @@ const GEO_TYPE_OPTIONS: { value: ClusterGeoType | "all"; label: string }[] = [
   { value: "custom", label: "Custom" },
 ];
 
-const POWER_LEVEL_OPTIONS: { value: PowerUsageLevel | "all"; label: string }[] = [
-  { value: "all", label: "All power levels" },
-  { value: "high", label: "High" },
-  { value: "medium", label: "Medium" },
-  { value: "low", label: "Low" },
-];
+const POWER_LEVEL_OPTIONS: { value: PowerUsageLevel | "all"; label: string }[] =
+  [
+    { value: "all", label: "All power levels" },
+    { value: "high", label: "High" },
+    { value: "medium", label: "Medium" },
+    { value: "low", label: "Low" },
+  ];
 
 export function ClusterFilterBar({
   filters,
@@ -112,8 +133,10 @@ export function ClusterFilterBar({
   states: string[];
   lgas: { key: string; label: string }[];
 }) {
-  const set = <K extends keyof ClusterFilters>(key: K, value: ClusterFilters[K]) =>
-    onChange({ ...filters, [key]: value });
+  const set = <K extends keyof ClusterFilters>(
+    key: K,
+    value: ClusterFilters[K],
+  ) => onChange({ ...filters, [key]: value });
 
   return (
     <Card className="p-3 flex flex-wrap items-center gap-2">
@@ -130,7 +153,9 @@ export function ClusterFilterBar({
       <select
         className="h-9 rounded-md border border-border bg-background px-2 text-sm"
         value={filters.geoType}
-        onChange={(e) => set("geoType", e.target.value as ClusterGeoType | "all")}
+        onChange={(e) =>
+          set("geoType", e.target.value as ClusterGeoType | "all")
+        }
       >
         {GEO_TYPE_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
@@ -165,11 +190,12 @@ export function ClusterFilterBar({
         ))}
       </select>
 
-
       <select
         className="h-9 rounded-md border border-border bg-background px-2 text-sm"
         value={filters.powerLevel}
-        onChange={(e) => set("powerLevel", e.target.value as PowerUsageLevel | "all")}
+        onChange={(e) =>
+          set("powerLevel", e.target.value as PowerUsageLevel | "all")
+        }
       >
         {POWER_LEVEL_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
@@ -189,19 +215,25 @@ export function ClusterCard({
   cluster,
   onView,
   onDelete,
+  onExport,
 }: {
   cluster: ClusterWithStats;
   onView: (id: string) => void;
   onDelete: (id: string) => void;
+  onExport?: (id: string) => void;
 }) {
   return (
     <Card className="p-4 space-y-3">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <div className="font-display font-semibold text-sm">{cluster.name}</div>
+          <div className="font-display font-semibold text-sm">
+            {cluster.name}
+          </div>
           <div className="text-xs text-muted-foreground capitalize">
             {cluster.geoType} cluster
-            {cluster.geoType === "radius" && cluster.radiusKm ? ` · ${cluster.radiusKm}km` : ""}
+            {cluster.geoType === "radius" && cluster.radiusKm
+              ? ` · ${cluster.radiusKm}km`
+              : ""}
           </div>
         </div>
         <PowerLevelBadge level={cluster.powerLevel} />
@@ -210,21 +242,28 @@ export function ClusterCard({
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <MapPin className="w-3.5 h-3.5" />
         {cluster.topStates.slice(0, 3).join(", ") || "No companies yet"}
-        {cluster.topStates.length > 3 && ` +${cluster.topStates.length - 3} more`}
+        {cluster.topStates.length > 3 &&
+          ` +${cluster.topStates.length - 3} more`}
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-center">
         <div>
-          <div className="text-sm font-mono font-medium">{cluster.manufacturerCount}</div>
+          <div className="text-sm font-mono font-medium">
+            {cluster.manufacturerCount}
+          </div>
           <div className="text-[10px] text-muted-foreground">Companies</div>
         </div>
         <div>
-          <div className="text-sm font-mono font-medium">{formatNaira(cluster.totalEnergySpendNaira)}</div>
+          <div className="text-sm font-mono font-medium">
+            {formatNaira(cluster.totalEnergySpendNaira)}
+          </div>
           <div className="text-[10px] text-muted-foreground">Total spend</div>
         </div>
         <div>
           <div className="text-sm font-mono font-medium">
-            {cluster.totalEnergyConsumedKwh.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            {cluster.totalEnergyConsumedKwh.toLocaleString(undefined, {
+              maximumFractionDigits: 0,
+            })}
           </div>
           <div className="text-[10px] text-muted-foreground">Total kWh</div>
         </div>
@@ -234,7 +273,21 @@ export function ClusterCard({
         <Button size="sm" className="flex-1" onClick={() => onView(cluster.id)}>
           <Eye className="w-3.5 h-3.5 mr-1.5" /> View on map
         </Button>
-        <Button size="sm" variant="outline" onClick={() => onDelete(cluster.id)}>
+        {onExport && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onExport(cluster.id)}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+        )}
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onDelete(cluster.id)}
+        >
           <Trash2 className="w-3.5 h-3.5" />
         </Button>
       </div>
@@ -246,12 +299,28 @@ export function ClusterCard({
 // Shared bits for the create form
 // ---------------------------------------------------------------------------
 
-const GEO_TYPE_CHOICES: { value: ClusterGeoType; label: string; hint: string }[] = [
-  { value: "region", label: "Region", hint: "Merge one or more geopolitical zones" },
+const GEO_TYPE_CHOICES: {
+  value: ClusterGeoType;
+  label: string;
+  hint: string;
+}[] = [
+  {
+    value: "region",
+    label: "Region",
+    hint: "Merge one or more geopolitical zones",
+  },
   { value: "state", label: "State", hint: "Merge one or more states" },
   { value: "lga", label: "LGA", hint: "Merge one or more LGAs, across states" },
-  { value: "radius", label: "Radius", hint: "Everyone within a distance of a chosen point" },
-  { value: "custom", label: "Custom", hint: "Mix regions, states, LGAs and wards freely" },
+  {
+    value: "radius",
+    label: "Radius",
+    hint: "Everyone within a distance of a chosen point",
+  },
+  {
+    value: "custom",
+    label: "Custom",
+    hint: "Mix regions, states, LGAs and wards freely",
+  },
 ];
 
 function PickerList({
@@ -267,10 +336,14 @@ function PickerList({
 }) {
   return (
     <div>
-      <div className="text-xs font-medium text-muted-foreground mb-1.5">{label}</div>
+      <div className="text-xs font-medium text-muted-foreground mb-1.5">
+        {label}
+      </div>
       <div className="border border-border rounded-md max-h-40 overflow-y-auto divide-y divide-border">
         {options.length === 0 && (
-          <div className="px-2.5 py-3 text-xs text-muted-foreground">No options available</div>
+          <div className="px-2.5 py-3 text-xs text-muted-foreground">
+            No options available
+          </div>
         )}
         {options.map((opt) => {
           const isOn = selected.includes(opt.key);
@@ -293,7 +366,9 @@ function PickerList({
         })}
       </div>
       {selected.length > 0 && (
-        <div className="text-[10px] text-muted-foreground mt-1">{selected.length} selected</div>
+        <div className="text-[10px] text-muted-foreground mt-1">
+          {selected.length} selected
+        </div>
       )}
     </div>
   );
@@ -348,13 +423,14 @@ function FocalPointMapModal({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
   });
   const [pending, setPending] = useState<ClusterFocalPoint | null>(null);
-  
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
       <Card className="w-full max-w-3xl p-0 overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <div className="font-display font-semibold text-sm">Click a point on the map</div>
+          <div className="font-display font-semibold text-sm">
+            Click a point on the map
+          </div>
           <Button size="sm" variant="ghost" onClick={onClose}>
             <X className="w-4 h-4" />
           </Button>
@@ -369,10 +445,18 @@ function FocalPointMapModal({
               mapContainerStyle={{ width: "100%", height: "100%" }}
               center={NIGERIA_CENTER}
               zoom={6}
-              options={{ streetViewControl: false, fullscreenControl: false, mapTypeControl: false }}
+              options={{
+                streetViewControl: false,
+                fullscreenControl: false,
+                mapTypeControl: false,
+              }}
               onClick={(e) => {
                 if (!e.latLng) return;
-                setPending({ lat: e.latLng.lat(), lng: e.latLng.lng(), label: "Custom point" });
+                setPending({
+                  lat: e.latLng.lat(),
+                  lng: e.latLng.lng(),
+                  label: "Custom point",
+                });
               }}
             >
               {enriched.map((m) => (
@@ -394,9 +478,15 @@ function FocalPointMapModal({
         </div>
         <div className="flex items-center justify-between px-4 py-3 border-t border-border">
           <div className="text-xs text-muted-foreground">
-            {pending ? "Point selected — confirm to use it." : "Click anywhere on the map to drop a point."}
+            {pending
+              ? "Point selected — confirm to use it."
+              : "Click anywhere on the map to drop a point."}
           </div>
-          <Button size="sm" disabled={!pending} onClick={() => pending && onPick(pending)}>
+          <Button
+            size="sm"
+            disabled={!pending}
+            onClick={() => pending && onPick(pending)}
+          >
             Use this point
           </Button>
         </div>
@@ -416,17 +506,21 @@ function FocalPointPicker({
 }) {
   const [query, setQuery] = useState("");
   const [showMap, setShowMap] = useState(false);
-  const [showList,setShowList] = useState(false);
+  const [showList, setShowList] = useState(false);
 
   const matches = useMemo(() => {
     //if (!query.trim()) return [];
     const q = query.trim().toLowerCase();
-    return enriched.filter((m) => m.company.toLowerCase().includes(q)).slice(0, 8);
+    return enriched
+      .filter((m) => m.company.toLowerCase().includes(q))
+      .slice(0, 8);
   }, [query, enriched]);
 
   return (
     <div className="space-y-2">
-      <div className="text-xs font-medium text-muted-foreground">Focal point</div>
+      <div className="text-xs font-medium text-muted-foreground">
+        Focal point
+      </div>
 
       {value ? (
         <div className="flex items-center justify-between border border-border rounded-md px-3 py-2 text-sm">
@@ -445,13 +539,13 @@ function FocalPointPicker({
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onFocus={() =>setShowList(true)}
+              onFocus={() => setShowList(true)}
               onBlur={() => setShowList(false)}
               placeholder="Search a company to center on…"
               className="pl-8 h-9"
             />
           </div>
-          {(matches.length > 0&& showList) && (
+          {matches.length > 0 && showList && (
             <div className="border border-border rounded-md max-h-36 overflow-y-auto divide-y divide-border">
               {matches.map((m) => (
                 <button
@@ -461,7 +555,8 @@ function FocalPointPicker({
                   }
                   className="w-full text-left px-2.5 py-1.5 text-xs hover:bg-muted/50 truncate"
                 >
-                  {m.company} <span className="text-muted-foreground">· {m.state}</span>
+                  {m.company}{" "}
+                  <span className="text-muted-foreground">· {m.state}</span>
                 </button>
               ))}
             </div>
@@ -516,19 +611,39 @@ export function ClusterCreateForm({
   const allRegions = [...NIGERIA_REGIONS];
   const allStates = useMemo(() => getAllStates(), []);
   const lgaOptionsForScope = useMemo(
-    () => (scopeState ? getLgasForState(scopeState).map((l) => ({ key: lgaKey(scopeState, l), label: l })) : []),
+    () =>
+      scopeState
+        ? getLgasForState(scopeState).map((l) => ({
+            key: lgaKey(scopeState, l),
+            label: l,
+          }))
+        : [],
     [scopeState],
   );
 
-  const toggle = (list: string[], setList: (v: string[]) => void, value: string) => {
-    setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
+  const toggle = (
+    list: string[],
+    setList: (v: string[]) => void,
+    value: string,
+  ) => {
+    setList(
+      list.includes(value) ? list.filter((v) => v !== value) : [...list, value],
+    );
   };
 
   const previewCount = useMemo(() => {
     if (geoType === "radius") {
       if (!focalPoint || !radiusKm) return 0;
       return resolveMembers(
-        { regions: [], states: [], lgas: [], wards: [], manufacturerIds: [], focalPoint, radiusKm },
+        {
+          regions: [],
+          states: [],
+          lgas: [],
+          wards: [],
+          manufacturerIds: [],
+          focalPoint,
+          radiusKm,
+        },
         enriched,
       ).length;
     }
@@ -555,7 +670,7 @@ export function ClusterCreateForm({
       lgas: geoType === "custom" || geoType === "lga" ? lgas : [],
       wards: geoType === "custom" || geoType === "ward" ? wards : [],
       manufacturerIds: [],
-      focalPoint: geoType === "radius" ? focalPoint ?? undefined : undefined,
+      focalPoint: geoType === "radius" ? (focalPoint ?? undefined) : undefined,
       radiusKm: geoType === "radius" ? radiusKm : undefined,
       createdAt: now,
       updatedAt: now,
@@ -584,7 +699,9 @@ export function ClusterCreateForm({
       />
 
       <div>
-        <div className="text-xs font-medium text-muted-foreground mb-2">Built from</div>
+        <div className="text-xs font-medium text-muted-foreground mb-2">
+          Built from
+        </div>
         <div className="flex flex-wrap gap-2">
           {GEO_TYPE_CHOICES.map((choice) => (
             <button
@@ -627,9 +744,11 @@ export function ClusterCreateForm({
         </div>
       )}
 
-      {(showLgas ) && (
+      {showLgas && (
         <div className="space-y-3 border-t border-border pt-3">
-          <div className="text-xs font-medium text-muted-foreground">Browse by state{showWards ? " and LGA" : ""}</div>
+          <div className="text-xs font-medium text-muted-foreground">
+            Browse by state{showWards ? " and LGA" : ""}
+          </div>
           <div className="flex flex-wrap gap-2">
             <select
               className="h-9 rounded-md border border-border bg-background px-2 text-sm"
@@ -646,36 +765,48 @@ export function ClusterCreateForm({
                 </option>
               ))}
             </select>
-            
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {showLgas && (
               <PickerList
-                label={scopeState ? `LGAs in ${scopeState}` : "LGAs (pick a state above)"}
+                label={
+                  scopeState
+                    ? `LGAs in ${scopeState}`
+                    : "LGAs (pick a state above)"
+                }
                 options={lgaOptionsForScope}
                 selected={lgas}
                 onToggle={(v) => toggle(lgas, setLgas, v)}
               />
             )}
-            
           </div>
 
           {showLgas && lgas.length > 0 && (
             <SelectedChips
-              items={lgas.map((key) => ({ key, label: key.split("::").join(" — ") }))}
-              onRemove={(key) => setLgas((prev) => prev.filter((k) => k !== key))}
+              items={lgas.map((key) => ({
+                key,
+                label: key.split("::").join(" — "),
+              }))}
+              onRemove={(key) =>
+                setLgas((prev) => prev.filter((k) => k !== key))
+              }
             />
           )}
-          
         </div>
       )}
 
       {showRadius && (
         <div className="space-y-3 border-t border-border pt-3">
-          <FocalPointPicker enriched={enriched} value={focalPoint} onChange={setFocalPoint} />
+          <FocalPointPicker
+            enriched={enriched}
+            value={focalPoint}
+            onChange={setFocalPoint}
+          />
           <div>
-            <label className="text-xs font-medium text-muted-foreground">Radius (km)</label>
+            <label className="text-xs font-medium text-muted-foreground">
+              Radius (km)
+            </label>
             <Input
               type="number"
               min={1}
@@ -689,8 +820,10 @@ export function ClusterCreateForm({
 
       <div className="flex items-center justify-between pt-2 border-t border-border">
         <div className="text-xs text-muted-foreground">
-          <span className="font-mono font-medium text-foreground">{previewCount}</span> companies
-          match this selection
+          <span className="font-mono font-medium text-foreground">
+            {previewCount}
+          </span>{" "}
+          companies match this selection
         </div>
         <Button size="sm" disabled={!canSave} onClick={handleSave}>
           <Plus className="w-3.5 h-3.5 mr-1.5" /> Save cluster

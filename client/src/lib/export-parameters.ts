@@ -339,10 +339,9 @@ export const EXPORT_PARAMETERS: ExportParameter[] = [
 
 // Group parameters by category for UI
 export const PARAMETER_CATEGORIES = {
-  cluster: 'Cluster Information',
+  cluster: 'Cluster',
   manufacturer: 'Company Information',
-  questionnaire: 'Questionnaire Data',
-  derived: 'Derived Statistics'
+  questionnaire: 'Power Data',
 };
 
 export const getParametersByCategory = (category: string) => {

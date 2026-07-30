@@ -5,7 +5,6 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AppLayout } from "./pages/AppLayout";
-import { DashboardPage } from "./pages/DashboardPage";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { ForgotPasswordPage } from "./pages/auth/ResetPassword";
 import { InvitePage } from "./pages/auth/UpdatePassword";
@@ -18,6 +17,7 @@ import NewQuestionnairePage from "./pages/QuestionnairePage";
 import CompanyProfile from "./pages/manufacturers/CompanyProfile";
 import { ClusterHubPage } from "./pages/ClusterHubPage";
 import { Toaster } from "sonner";
+import DashBoardSelector from "./pages/DashBoardSelector";
 
 function App() {
   return (
@@ -32,7 +32,7 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <AppLayout>
-                        <DashboardPage />
+                        <DashBoardSelector/>
                       </AppLayout>
                     </ProtectedRoute>
                   }
@@ -42,7 +42,7 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <AppLayout>
-                        <DashboardPage />
+                        <DashBoardSelector/>
                       </AppLayout>
                     </ProtectedRoute>
                   }
@@ -52,7 +52,7 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <AppLayout>
-                        <DashboardPage />
+                        <DashBoardSelector />
                       </AppLayout>
                     </ProtectedRoute>
                   }
@@ -72,7 +72,7 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <AppLayout>
-                        <DashboardPage />
+                        <DashBoardSelector/>
                       </AppLayout>
                     </ProtectedRoute>
                   }

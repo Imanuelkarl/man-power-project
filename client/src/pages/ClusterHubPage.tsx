@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useData } from "../lib/store";
 import { Button } from "../components/ui/button";
 import { PageHeader } from "../components/page-header";
-import { Plus } from "lucide-react";
+import { Plus, Download } from "lucide-react";
 import {
   ClusterCard,
   ClusterCreateForm,
@@ -40,7 +40,9 @@ export const ClusterHubPage: React.FC = () => {
   const [loaded, setLoaded] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
-  const [filters, setFilters] = useState<ClusterFilters>(DEFAULT_CLUSTER_FILTERS);
+  const [filters, setFilters] = useState<ClusterFilters>(
+    DEFAULT_CLUSTER_FILTERS,
+  );
 
   useEffect(() => {
     loadGeoJSON();
@@ -50,7 +52,10 @@ export const ClusterHubPage: React.FC = () => {
     });
   }, []);
 
-  const enriched = useMemo(() => enrichManufacturers(manufacturers), [manufacturers]);
+  const enriched = useMemo(
+    () => enrichManufacturers(manufacturers),
+    [manufacturers],
+  );
   const avgSpendByManufacturer = useMemo(
     () => computeAvgSpendByManufacturer(questionnaires),
     [questionnaires],
@@ -62,21 +67,37 @@ export const ClusterHubPage: React.FC = () => {
 
   const clusters: ClusterWithStats[] = useMemo(() => {
     const withoutLevel = defs.map((def) =>
-      buildClusterWithStats(def, enriched, avgSpendByManufacturer, avgEnergyByManufacturer),
+      buildClusterWithStats(
+        def,
+        enriched,
+        avgSpendByManufacturer,
+        avgEnergyByManufacturer,
+      ),
     );
     return assignPowerLevels(withoutLevel);
   }, [defs, enriched, avgSpendByManufacturer, avgEnergyByManufacturer]);
-
+  const [exportClusters, setExportClusters] = useState<any>(clusters);
   const filteredClusters = useMemo(() => {
     return clusters.filter((c) => {
-      if (filters.search && !c.name.toLowerCase().includes(filters.search.toLowerCase())) {
+      if (
+        filters.search &&
+        !c.name.toLowerCase().includes(filters.search.toLowerCase())
+      ) {
         return false;
       }
-      if (filters.geoType !== "all" && c.geoType !== filters.geoType) return false;
-      if (filters.powerLevel !== "all" && c.powerLevel !== filters.powerLevel) return false;
-      if (filters.region !== "all" && !c.topRegions.includes(filters.region)) return false;
-      if (filters.state !== "all" && !c.topStates.includes(filters.state)) return false;
-      if (filters.lga !== "all" && !c.lgas.includes(filters.lga) && filters.lga !== "all") {
+      if (filters.geoType !== "all" && c.geoType !== filters.geoType)
+        return false;
+      if (filters.powerLevel !== "all" && c.powerLevel !== filters.powerLevel)
+        return false;
+      if (filters.region !== "all" && !c.topRegions.includes(filters.region))
+        return false;
+      if (filters.state !== "all" && !c.topStates.includes(filters.state))
+        return false;
+      if (
+        filters.lga !== "all" &&
+        !c.lgas.includes(filters.lga) &&
+        filters.lga !== "all"
+      ) {
         if (!c.lgas.includes(filters.lga)) return false;
       }
       return true;
@@ -93,9 +114,9 @@ export const ClusterHubPage: React.FC = () => {
       const [state, lga] = m.lga.split("::");
       seen.set(m.lga, `${state} — ${lga}`);
     });
-    return [...seen.entries()].map(([key, label]) => ({ key, label })).sort((a, b) =>
-      a.label.localeCompare(b.label),
-    );
+    return [...seen.entries()]
+      .map(([key, label]) => ({ key, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
   }, [enriched]);
 
   const handleCreate = async (def: ClusterDefinition) => {
@@ -108,10 +129,11 @@ export const ClusterHubPage: React.FC = () => {
     await clusterStore.deleteCluster(id);
     setDefs((prev) => prev.filter((d) => d.id !== id));
   };
-  // const handleExport = async (id: string) => {
-  //   console.log(id);
-  //   setShowExportDialog(true);
-  // }
+  const handleExport = async (id: string) => {
+    console.log(id);
+    setExportClusters(clusters.filter((c) => c.id === id));
+    setShowExportDialog(true);
+  };
 
   const openOnMap = (id: string) => {
     setActiveClusterId(id);
@@ -119,7 +141,8 @@ export const ClusterHubPage: React.FC = () => {
   };
 
   if (view === "map") {
-    const activeCluster = clusters.find((c) => c.id === activeClusterId) ?? null;
+    const activeCluster =
+      clusters.find((c) => c.id === activeClusterId) ?? null;
     return (
       <div className="p-6 lg:p-10 space-y-6 max-w-[1600px]">
         <ClusterMapPage
@@ -140,15 +163,18 @@ export const ClusterHubPage: React.FC = () => {
         subtitle="Group companies by state, LGA, ward or region — or merge any mix of them — and track power usage per cluster"
         actions={
           <div className="flex gap-2">
-            {/* <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setShowExportDialog(true)}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setExportClusters(clusters);
+                setShowExportDialog(true);
+              }}
               disabled={clusters.length === 0}
             >
               <Download className="w-4 h-4 mr-2" />
               Export
-            </Button> */}
+            </Button>
             <Button size="sm" onClick={() => setShowCreateForm((v) => !v)}>
               <Plus className="w-4 h-4 mr-2" /> New cluster
             </Button>
@@ -177,7 +203,14 @@ export const ClusterHubPage: React.FC = () => {
           <span className="text-sm text-muted-foreground">
             Showing {filteredClusters.length} of {clusters.length} clusters
           </span>
-          <Button variant="outline" size="sm" onClick={() => { setActiveClusterId(null); setView("map"); }}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setActiveClusterId(null);
+              setView("map");
+            }}
+          >
             View all clusters on map
           </Button>
         </div>
@@ -185,7 +218,13 @@ export const ClusterHubPage: React.FC = () => {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredClusters.map((cluster) => (
-          <ClusterCard key={cluster.id} cluster={cluster} onView={openOnMap} onDelete={handleDelete}  />
+          <ClusterCard
+            key={cluster.id}
+            cluster={cluster}
+            onView={openOnMap}
+            onDelete={handleDelete}
+            onExport={handleExport}
+          />
         ))}
         {loaded && filteredClusters.length === 0 && (
           <div className="col-span-full text-sm text-muted-foreground text-center py-16 border border-dashed border-border rounded-lg">
@@ -200,7 +239,7 @@ export const ClusterHubPage: React.FC = () => {
       <ClusterExportDialog
         open={showExportDialog}
         onOpenChange={setShowExportDialog}
-        clusters={clusters}
+        clusters={exportClusters}
         manufacturers={manufacturers}
         questionnaires={questionnaires}
       />

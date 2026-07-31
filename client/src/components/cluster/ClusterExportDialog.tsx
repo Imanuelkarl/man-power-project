@@ -21,7 +21,7 @@ import { Search, Download, FileSpreadsheet, FileText, File } from "lucide-react"
 import type { ClusterWithStats } from "../../types/cluster.types";
 import type { Manufacturer } from "../../types/manufacturer.types";
 import type { PowerData } from "../../types/powerData.types";
-import { EXPORT_PARAMETERS, PARAMETER_CATEGORIES } from "../../lib/export-parameters";
+import { BASIC_PARAMETERS, EXPORT_PARAMETERS, PARAMETER_CATEGORIES } from "../../lib/export-parameters";
 import { exportClustersExcel, exportClustersCSV, exportClustersPDF } from "../../lib/cluster-export";
 
 interface ClusterExportDialogProps {
@@ -45,7 +45,7 @@ export const ClusterExportDialog: React.FC<ClusterExportDialogProps> = ({
 }) => {
   const [format, setFormat] = useState<ExportFormat>("excel");
   const [selectedParams, setSelectedParams] = useState<string[]>(
-    EXPORT_PARAMETERS.slice(0, 10).map(p => p.id)
+    BASIC_PARAMETERS//EXPORT_PARAMETERS.slice(0, 10).map(p => p.id)
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
@@ -170,7 +170,7 @@ export const ClusterExportDialog: React.FC<ClusterExportDialogProps> = ({
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 min-h-0">
-              <TabsList className="gap-2 grid grid-cols-4 mb-3 h-auto overflow-x-auto">
+              <TabsList className="gap-2 grid grid-cols-3 mb-3 h-auto overflow-x-auto">
                 <TabsTrigger value="all">All</TabsTrigger>
                 {Object.entries(PARAMETER_CATEGORIES).map(([key, label]) => {
                   const { selected, total } = getCategoryCount(key);

@@ -444,7 +444,7 @@ function FocalPointMapModal({
             <GoogleMap
               mapContainerStyle={{ width: "100%", height: "100%" }}
               center={NIGERIA_CENTER}
-              zoom={6}
+              zoom={12}
               options={{
                 streetViewControl: false,
                 fullscreenControl: false,
@@ -540,7 +540,7 @@ function FocalPointPicker({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setShowList(true)}
-              onBlur={() => setShowList(false)}
+              
               placeholder="Search a company to center on…"
               className="pl-8 h-9"
             />

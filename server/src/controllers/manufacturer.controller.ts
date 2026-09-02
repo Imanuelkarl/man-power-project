@@ -74,6 +74,41 @@ export class ManufacturerController {
       });
     }
   }
+  static async findByManId(req: Request, res: Response): Promise<void> {
+    try {
+      const { manId } = req.params;
+      if (!manId || Array.isArray(manId)) {
+        res.status(400).json({
+          success: false,
+          message: "Manufacturer ID is required",
+        });
+        return;
+      }
+
+      const manufacturer = await ManufacturerService.findByManId(manId);
+
+      if (!manufacturer) {
+        res.status(404).json({
+          success: false,
+          message: "Manufacturer not found",
+        });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Manufacturer retrieved successfully",
+        data: manufacturer,
+      });
+    } catch (error) {
+      console.error("Error fetching manufacturer:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch manufacturer",
+        error,
+      });
+    }
+  }
 
   /**
    * Get manufacturer by email

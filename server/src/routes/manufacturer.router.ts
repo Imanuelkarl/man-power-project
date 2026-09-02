@@ -11,8 +11,11 @@ manufacturerRouter.post('/', verifyToken, adminOnly, ManufacturerController.crea
 // Get all manufacturers
 manufacturerRouter.get('/', verifyToken, ManufacturerController.findAll);
 
+//Get manufacturer by manId
+manufacturerRouter.get('/:manId', verifyToken, ManufacturerController.findByManId);
+
 // Get manufacturer by ID
-manufacturerRouter.get('/:id', verifyToken, ManufacturerController.findById);
+manufacturerRouter.get('/id/:id', verifyToken, ManufacturerController.findById);
 
 // Get manufacturer by email
 manufacturerRouter.get('/email/:email', verifyToken, ManufacturerController.findByEmail);

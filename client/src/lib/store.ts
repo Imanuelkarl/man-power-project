@@ -112,6 +112,8 @@ interface DataState {
   manufacturers: Manufacturer[];
   questionnaires: PowerData[];
   loadingManufacturers: boolean;
+  loadingQuestionnaires: boolean;
+  questionnairesHydrated: boolean;
   manufacturersHydrated: boolean;
   fetchManufacturers: () => Promise<void>;
   addManufacturer: (m: ManufacturerCreateData) => Promise<Manufacturer>;
@@ -143,6 +145,8 @@ export const useData = create<DataState>()(
       manufacturers: [],
       questionnaires: [],
       loadingManufacturers: false,
+      loadingQuestionnaires: false,
+      questionnairesHydrated: false,
       manufacturersHydrated: false,
       fetchManufacturers: async () => {
         set({ loadingManufacturers: true });
@@ -188,12 +192,13 @@ export const useData = create<DataState>()(
           ),
         })),
       fetchQuestionnaires: async () => {
-        set({ loadingManufacturers: true });
+        set({ loadingQuestionnaires: true });
         try {
           const questionnaires = await powerDataService.getPowerData();
-          set({ questionnaires, loadingManufacturers: false });
+          set({ questionnaires, loadingQuestionnaires: false });
+          set({ questionnairesHydrated: true });
         } catch {
-          set({ loadingManufacturers: false });
+          set({ loadingQuestionnaires: false });
         }
       },
       fetchQuestionnaireForManufacturer: async (manufacturerId) => {
@@ -260,6 +265,8 @@ export const useData = create<DataState>()(
         set({
           manufacturers: [],
           questionnaires: [],
+          loadingQuestionnaires: false,
+          questionnairesHydrated: false,
           manufacturersHydrated: false,
         }),
       bulkSet: (m, q) =>
@@ -272,6 +279,25 @@ export const useData = create<DataState>()(
     { name: "man.data" },
   ),
 );
+
+export const clearClientStores = () => {
+  useAuth.setState({ user: null });
+  useUsers.setState({ users: [], loading: false });
+  useData.setState({
+    manufacturers: [],
+    questionnaires: [],
+    loadingManufacturers: false,
+    manufacturersHydrated: false,
+  });
+
+  void useAuth.persist.clearStorage();
+  void useUsers.persist.clearStorage();
+  void useData.persist.clearStorage();
+  localStorage.removeItem("zustand_live_store");
+  localStorage.removeItem("token");
+  localStorage.removeItem("man.user");
+  localStorage.removeItem("test_clusters_v1");
+};
 
 // -------------------- Invites & Password Resets --------------------
 

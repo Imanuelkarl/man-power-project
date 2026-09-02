@@ -1,8 +1,7 @@
 import { User } from "../generated/prisma/client.js";
 import { CreateUserInput, UserModel } from "../models/user.model.js";
 import { UserResponse } from "../types/user.types.js";
-
-
+import bcrypt from "bcrypt";
 
 export type UpdateUserInput = Partial<Omit<CreateUserInput, "password_hash">>;
 
@@ -37,9 +36,15 @@ export class UserService {
 
   static async update(
     id: number,
-    data: UpdateUserInput,
+    data: UpdateUserInput & { temporaryPassword?: string },
   ): Promise<UserResponse> {
-    const user = await UserModel.update(id, data);
+    const { temporaryPassword, ...updates } = data;
+    const user = await UserModel.update(id, {
+      ...updates,
+      ...(temporaryPassword
+        ? { password_hash: await bcrypt.hash(temporaryPassword, 10) }
+        : {}),
+    });
     return this.sanitizeUser(user);
   }
 

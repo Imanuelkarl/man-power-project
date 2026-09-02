@@ -13,20 +13,22 @@ export const ForgotPasswordPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [devLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
-      
       const r = await authService.requestPasswordReset(email);
-      if(r.status){
+      if (r.status) {
         setSubmitted(true);
         toast.success("An email has been sent with a password reset link.");
       }
-      
     } catch (error) {
       toast.error(`Error sending request link +${error}`);
-      console.error("Error sending request link",error);
+      console.error("Error sending request link", error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -68,8 +70,8 @@ export const ForgotPasswordPage = () => {
                 placeholder="you@company.com"
               />
             </div>
-            <Button type="submit" className="w-full">
-              Send reset link
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting ? "Sending reset link..." : "Send reset link"}
             </Button>
           </form>
         ) : (

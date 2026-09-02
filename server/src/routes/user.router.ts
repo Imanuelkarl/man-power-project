@@ -18,9 +18,9 @@ userRouter.get("/email/:email", verifyToken, UserController.findByEmail);
 userRouter.get("/:id", verifyToken, UserController.findById);
 
 // Update a user
-userRouter.put("/:id", verifyToken, UserController.update);
+userRouter.put("/:id", verifyToken, adminOnly, UserController.update);
 
 // Delete a user
-userRouter.delete("/:id", verifyToken, UserController.delete);
+userRouter.delete("/:id", verifyToken, adminOnly, UserController.delete);
 
 export default userRouter;

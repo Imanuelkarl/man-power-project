@@ -30,6 +30,7 @@ import { exportCSV, exportExcel, exportPDF } from "../lib/exports";
 import { PageHeader } from "../components/page-header";
 import { formatNaira, formatPower } from "../lib/format";
 import { findLGA } from "../lib/location_finder";
+import { Skeleton } from "../components/ui/skeleton";
 
 const COLORS = [
   "oklch(0.68 0.16 150)",
@@ -40,9 +41,24 @@ const COLORS = [
 ];
 
 export const DashboardPage: React.FC = () => {
-  const { manufacturers, questionnaires } = useData();
+  const {
+    manufacturers,
+    questionnaires,
+    fetchQuestionnaires,
+    loadingManufacturers,
+    loadingQuestionnaires,
+    questionnairesHydrated,
+  } = useData();
 
   //const clusters = useMemo(() => clusterManufacturers(manufacturers), [manufacturers]);
+  useEffect(() => {
+    if (!questionnairesHydrated && !loadingQuestionnaires) {
+      void fetchQuestionnaires();
+    }
+  }, [fetchQuestionnaires, loadingQuestionnaires, questionnairesHydrated]);
+
+  const chartsLoading = loadingManufacturers || loadingQuestionnaires;
+
   useEffect(() => {
     const load = async () => {
       console.log(await findLGA(9.007601, 7.45846));
@@ -158,61 +174,69 @@ export const DashboardPage: React.FC = () => {
             <Badge variant="secondary">Top 10</Badge>
           </div>
           <div className="h-64">
-            <ResponsiveContainer>
-              <BarChart data={byState}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="var(--color-border)"
-                />
-                <XAxis
-                  dataKey="state"
-                  stroke="var(--color-muted-foreground)"
-                  fontSize={11}
-                />
-                <YAxis stroke="var(--color-muted-foreground)" fontSize={11} />
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--color-card)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: 8,
-                  }}
-                />
-                <Bar
-                  dataKey="count"
-                  fill="oklch(0.68 0.16 150)"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            {chartsLoading ? (
+              <ChartSkeleton />
+            ) : (
+              <ResponsiveContainer>
+                <BarChart data={byState}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--color-border)"
+                  />
+                  <XAxis
+                    dataKey="state"
+                    stroke="var(--color-muted-foreground)"
+                    fontSize={11}
+                  />
+                  <YAxis stroke="var(--color-muted-foreground)" fontSize={11} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--color-card)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: 8,
+                    }}
+                  />
+                  <Bar
+                    dataKey="count"
+                    fill="oklch(0.68 0.16 150)"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </Card>
         <Card className="p-5">
           <h3 className="font-display font-semibold mb-4">Sectoral spread</h3>
           <div className="h-64">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={bySector}
-                  dataKey="count"
-                  nameKey="sector"
-                  innerRadius={45}
-                  outerRadius={80}
-                  paddingAngle={3}
-                >
-                  {bySector.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--color-card)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: 8,
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-              </PieChart>
-            </ResponsiveContainer>
+            {chartsLoading ? (
+              <ChartSkeleton />
+            ) : (
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={bySector}
+                    dataKey="count"
+                    nameKey="sector"
+                    innerRadius={45}
+                    outerRadius={80}
+                    paddingAngle={3}
+                  >
+                    {bySector.map((_, i) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--color-card)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: 8,
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </Card>
       </div>
@@ -224,7 +248,17 @@ export const DashboardPage: React.FC = () => {
             Production value · H1 2026
           </div>
         </div>
-        {recent.length === 0 ? (
+        {chartsLoading ? (
+          <div className="space-y-3 py-2">
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10 shrink-0" />
+                <Skeleton className="h-10 flex-1" />
+                <Skeleton className="h-10 w-24" />
+              </div>
+            ))}
+          </div>
+        ) : recent.length === 0 ? (
           <div className="text-sm text-muted-foreground py-8 text-center">
             No questionnaires yet. Generate dummy data from the Admin page to
             see this dashboard light up.
@@ -263,6 +297,20 @@ export const DashboardPage: React.FC = () => {
     </div>
   );
 };
+
+function ChartSkeleton() {
+  return (
+    <div className="h-full flex items-end gap-3 px-6 pb-4">
+      {[45, 70, 35, 85, 58, 76, 42].map((height, index) => (
+        <Skeleton
+          key={index}
+          className="flex-1 rounded-t-md rounded-b-none"
+          style={{ height: `${height}%` }}
+        />
+      ))}
+    </div>
+  );
+}
 
 function Metric({
   icon: Icon,

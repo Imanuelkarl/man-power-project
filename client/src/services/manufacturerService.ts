@@ -35,15 +35,21 @@ const manufacturerService = {
   },
 
   findById: async (id: number) => {
-    const response = await api.get<Manufacturer>(`/manufacturers/${id}`);
-    return response.data;
+    const response = await api.get<Manufacturer>(`/manufacturers/id/${id}`);
+    return normalizeManufacturer(response.data);
   },
 
   findByEmail: async (email: string) => {
     const response = await api.get<Manufacturer>(
       `/manufacturers/email/${email}`,
     );
-    return response.data;
+    return normalizeManufacturer(response.data);
+  },
+  findByManId: async (manId: string) => {
+    const response = await api.get<Manufacturer>(
+      `/manufacturers/${manId}`,
+    );
+    return normalizeManufacturer(response.data);
   },
 
   update: async (id: number, data: ManufacturerUpdateData) => {
@@ -83,5 +89,14 @@ const manufacturerService = {
     return response.data;
   },
 };
+
+function normalizeManufacturer(
+  manufacturer: Manufacturer & { created_at?: string },
+): Manufacturer {
+  return {
+    ...manufacturer,
+    createdAt: manufacturer.createdAt ?? manufacturer.created_at,
+  };
+}
 
 export default manufacturerService;

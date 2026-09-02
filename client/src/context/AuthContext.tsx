@@ -14,6 +14,9 @@ import {
 import { navigate } from "../components/navigate";
 import api from "../utils/api";
 import type { User } from "../types/user.types";
+import { clearClientStores } from "../lib/store";
+import { useData } from "../lib/store";
+import manufacturerService from "../services/manufacturerService";
 
 type AuthContextType = {
   user: User | null;
@@ -39,11 +42,53 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const loadManufacturerForUser = async (authenticatedUser: User) => {
+    if (authenticatedUser.role !== "manufacturer") return authenticatedUser;
+
+    try {
+      const manufacturer = await manufacturerService.findByManId(
+        authenticatedUser.manufacturerId
+          ? authenticatedUser.manufacturerId
+          : "",
+      );
+      useData.setState((state) => ({
+        manufacturers: [
+          ...state.manufacturers.filter(
+            (item) => item.manId !== manufacturer.manId,
+          ),
+          manufacturer,
+        ],
+        manufacturersHydrated: true,
+      }));
+      return {
+        ...authenticatedUser,
+        manufacturerId: manufacturer.manId,
+        companyId: manufacturer.manId,
+        companyName: manufacturer.name,
+      };
+    } catch (error) {
+      console.error("Unable to load manufacturer profile", error);
+      return authenticatedUser;
+    }
+  };
+
+  const loadDashboardDataForUser = async (authenticatedUser: User) => {
+    if (authenticatedUser.role === "manufacturer") {
+      return loadManufacturerForUser(authenticatedUser);
+    }
+
+    await Promise.all([
+      useData.getState().fetchManufacturers(),
+      useData.getState().fetchQuestionnaires(),
+    ]);
+    return authenticatedUser;
+  };
+
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
       const data = await loginService({ email, password });
-      setUser(data.user);
+      setUser(await loadDashboardDataForUser(data.user));
     } catch (error) {
       console.error("Error logging in user", error);
     } finally {
@@ -56,7 +101,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const fetchUser = async () => {
       try {
         const response = await api.get("/auth/verify-token");
-        setUser(response.data.user);
+        setUser(await loadDashboardDataForUser(response.data.user));
       } catch (e) {
       } finally {
         setLoading(false);
@@ -76,9 +121,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = async () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    await logoutService();
+    try {
+      await logoutService();
+    } finally {
+      clearClientStores();
+      setUser(null);
+    }
   };
 
   const resetPassword = async (email: string) => {

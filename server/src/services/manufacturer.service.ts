@@ -42,6 +42,13 @@ export class ManufacturerService {
     }
     return this.sanitizeManufacturer(manufacturer);
   }
+  static async findByManId(manId: string): Promise<ManufacturerResponse | null> {
+    const manufacturer = await ManufacturerModel.findByManId(manId);
+    if (!manufacturer) {
+      return null;
+    }
+    return this.sanitizeManufacturer(manufacturer);
+  }
 
   static async findByEmail(
     email: string,

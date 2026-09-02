@@ -5,16 +5,20 @@ import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { PageHeader } from "../../components/page-header";
-import { Search, Trash2, Mail } from "lucide-react";
+import { Edit, Search, Trash2, Mail } from "lucide-react";
 import { Label } from "../../components/ui/label";
 import { toast } from "sonner";
 import { Select } from "../../components/ui/selector";
+import { PasswordInput } from "../../components/ui/password-input";
 import authService from "../../services/authService";
+import userService from "../../services/userService";
 import type { User } from "../../types/user.types";
+import { useAuth } from "../../context/AuthContext";
 
 export function UsersManager() {
   const { users, fetchUsers, addUser, removeUser } = useUsers();
   const { manufacturers, fetchManufacturers } = useData();
+  const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [showInvite, setShowInvite] = useState(false);
   const [inviteName, setInviteName] = useState("");
@@ -22,6 +26,12 @@ export function UsersManager() {
   const [inviteCompanyName, setInviteCompanyName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editName, setEditName] = useState("");
+  const [temporaryPassword, setTemporaryPassword] = useState("");
+  const [editActive, setEditActive] = useState(false);
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -29,6 +39,7 @@ export function UsersManager() {
   }, [fetchManufacturers, fetchUsers]);
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       if (
         inviteRole === "manufacturer" &&
@@ -60,8 +71,9 @@ export function UsersManager() {
         error instanceof Error ? error.message : "Unable to create user.",
       );
       return;
+    } finally {
+      setSubmitting(false);
     }
-
     setInviteName("");
     setInviteEmail("");
     setInviteRole("");
@@ -81,6 +93,37 @@ export function UsersManager() {
       result += charset[randomIndex];
     }
     return result;
+  };
+
+  const openEdit = (user: User) => {
+    setEditingUser(user);
+    setEditName(user.name);
+    setTemporaryPassword("");
+    setEditActive(Boolean(user.is_active));
+  };
+
+  const handleEdit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!editingUser) return;
+    setEditSubmitting(true);
+    try {
+      const updated = await userService.update(editingUser.id, {
+        name: editName.trim(),
+        is_active: editActive,
+        ...(temporaryPassword ? { temporaryPassword } : {}),
+      });
+      await fetchUsers();
+      setEditingUser(null);
+      toast.success("User information updated");
+      if (temporaryPassword) toast.success("Temporary password assigned");
+      return updated;
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to update user.",
+      );
+    } finally {
+      setEditSubmitting(false);
+    }
   };
 
   const rows = useMemo(() => {
@@ -177,7 +220,8 @@ export function UsersManager() {
                   >
                     <option>--SELECT ROLE--</option>
                     <option value={"manufacturer"}>Manufacturer</option>
-                    <option value={"investor"}>Investor</option>
+                    {/* <option value={"investor"}>Investor</option> */}
+                    <option value={"admin"}>Admin</option>
                   </Select>
                 </div>
                 {inviteRole && inviteRole === "manufacturer" && (
@@ -216,8 +260,84 @@ export function UsersManager() {
                   </>
                 )}
                 <div className="flex items-end justify-end">
-                  <Button type="submit">
-                    <Mail className="w-4 h-4 mr-2" /> Create invite
+                  <Button type="submit" disabled={submitting}>
+                    <Mail className="w-4 h-4 mr-2" />
+                    {submitting ? "Creating invite..." : "Create invite"}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {editingUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => setEditingUser(null)}
+            />
+            <div className="relative z-10 w-full max-w-md rounded bg-background p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-lg font-medium">Edit user</div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setEditingUser(null)}
+                >
+                  Close
+                </Button>
+              </div>
+              <form onSubmit={handleEdit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-user-name">Name</Label>
+                  <Input
+                    id="edit-user-name"
+                    required
+                    value={editName}
+                    onChange={(event) => setEditName(event.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-user-password">Temporary password</Label>
+                  <PasswordInput
+                    id="edit-user-password"
+                    minLength={6}
+                    value={temporaryPassword}
+                    onChange={(event) =>
+                      setTemporaryPassword(event.target.value)
+                    }
+                    placeholder="Leave blank to keep current password"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setTemporaryPassword(genSecurePass())}
+                  >
+                    Generate password
+                  </Button>
+                </div>
+                <label
+                  className="flex items-center gap-2 text-sm"
+                  htmlFor="edit-user-active"
+                >
+                  <input
+                    id="edit-user-active"
+                    type="checkbox"
+                    checked={editActive}
+                    onChange={(event) => setEditActive(event.target.checked)}
+                  />
+                  Activate account
+                </label>
+                <div className="flex justify-end gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEditingUser(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={editSubmitting}>
+                    {editSubmitting ? "Saving changes..." : "Save changes"}
                   </Button>
                 </div>
               </form>
@@ -250,6 +370,11 @@ export function UsersManager() {
                 <tr key={m.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3">
                     <div className="font-medium">{m.name}</div>
+                    {(user?.id ===m.id)&&(
+                      <div className="text-xs text-primary">
+                        (You)
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-xs text-muted-foreground">
@@ -270,7 +395,15 @@ export function UsersManager() {
                     </Badge>
                   </td>
 
-                  <td className="px-4 py-3">
+                  <td className="flex px-4 py-3">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Edit ${m.name}`}
+                      onClick={() => openEdit(m)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"

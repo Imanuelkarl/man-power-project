@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
+import { PasswordInput } from "../../components/ui/password-input";
 import { Label } from "../../components/ui/label";
 import { Card } from "../../components/ui/card";
 import { Factory } from "lucide-react";
@@ -17,6 +17,7 @@ export function InvitePage() {
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +29,7 @@ export function InvitePage() {
       toast.error("Invite token cannot be null");
       return;
     }
+    setSubmitting(true);
     try {
       // const r = token
       //   ? consumeInvite(token, password)
@@ -37,18 +39,19 @@ export function InvitePage() {
 
       const response = await authService.resetPassword(token, password);
       console.log("Reset password response:", response);
-      if(response.status){
+      if (response.status) {
         toast.success("Password reset successful. Logging you in...");
-        const res =await login({email:response.data.user.email, password});
+        const res = await login({ email: response.data.user.email, password });
         localStorage.setItem("token", res.token);
         localStorage.setItem("man.user", JSON.stringify(res.user));
         console.log("Login successful:", res);
         navigate("/");
       }
-    
-    } catch (error:any) {
-      toast.error( "Failed to accept invite "+error.message);
+    } catch (error: any) {
+      toast.error("Failed to accept invite " + error.message);
       console.error(error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -71,9 +74,8 @@ export function InvitePage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="iv-1">Choose a password</Label>
-            <Input
+            <PasswordInput
               id="iv-1"
-              type="password"
               required
               minLength={6}
               value={password}
@@ -82,17 +84,16 @@ export function InvitePage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="iv-2">Confirm password</Label>
-            <Input
+            <PasswordInput
               id="iv-2"
-              type="password"
               required
               minLength={6}
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
             />
           </div>
-          <Button type="submit" className="w-full">
-            Activate account
+          <Button type="submit" className="w-full" disabled={submitting}>
+            {submitting ? "Activating account..." : "Activate account"}
           </Button>
         </form>
       </Card>

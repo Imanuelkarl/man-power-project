@@ -110,6 +110,7 @@ export function generateManufacturer(
 
   return {
     id,
+    manId: `MAN-${id}`,
     name: companyName,
     contact_person: `${first} ${last}`,
     email,
@@ -130,8 +131,8 @@ export function generateQuestionnaire(
   period = "H1 2026",
 ): PowerData {
   return {
-    id: `q-${slug()}`,
-    manufacturerId,
+    id: rand(1, 1_000_000_000),
+    manufacturerId: `MAN-${manufacturerId}`,
     period,
     startTime: new Date("2026-01-01"),
     endTime: new Date("2026-07-01"),

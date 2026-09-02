@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const fetchUser = async () => {
       try {
         const response = await api.get("/auth/verify-token");
-        setUser(response.data.data.user);
+        setUser(response.data.user);
       } catch (e) {
       } finally {
         setLoading(false);

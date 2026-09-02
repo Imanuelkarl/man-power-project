@@ -1,24 +1,34 @@
 export interface Manufacturer {
   id: number;
+  manId: string;
   name: string;
-  contact_person: string;
+  contact_person?: string;
   email: string;
-  phone: string;
-  branch: string;
-  sectoral_group: string;
-  sub_sector: string;
-  state: string;
-  city: string;
-  lat: number;
-  lng: number;
-  createdAt: string;
+  phone?: string;
+  branch?: string;
+  sectoral_group?: string;
+  sub_sector?: string;
+  state?: string;
+  city?: string;
+  lat?: number;
+  lng?: number;
+  createdAt?: string;
 }
 
 export interface ManufacturerCreateData {
+  manId?: string;
   name: string;
-  email: string;
+  email?: string;
   password?: string;
-  [key: string]: any;
+  contact_person?: string;
+  phone?: string;
+  branch?: string;
+  sectoral_group?: string;
+  sub_sector?: string;
+  state?: string;
+  city?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface ManufacturerUpdateData {

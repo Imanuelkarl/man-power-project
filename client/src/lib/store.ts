@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User } from "../types/user.types";
 import manufacturerService from "../services/manufacturerService";
+import powerDataService from "../services/powerDataService";
 import userService from "../services/userService";
 import {
   login as loginUser,
@@ -9,10 +10,10 @@ import {
 } from "../services/authService";
 import type {
   Manufacturer,
+  ManufacturerCreateData,
   ManufacturerUpdateData,
 } from "../types/manufacturer.types";
 import type { PowerData } from "../types/powerData.types";
-import { updatePowerData } from "../services/powerDataService";
 
 export type { Manufacturer };
 
@@ -111,18 +112,27 @@ interface DataState {
   manufacturers: Manufacturer[];
   questionnaires: PowerData[];
   loadingManufacturers: boolean;
+  manufacturersHydrated: boolean;
   fetchManufacturers: () => Promise<void>;
-  addManufacturer: (m: Manufacturer) => void;
+  addManufacturer: (m: ManufacturerCreateData) => Promise<Manufacturer>;
   updateManufacturer: (
     id: number,
     patch: Partial<Manufacturer>,
   ) => Promise<void>;
   removeManufacturer: (id: number) => void;
+  fetchQuestionnaires: () => Promise<void>;
+  fetchQuestionnaireForManufacturer: (
+    manufacturerId: string,
+  ) => Promise<PowerData[]>;
+  createQuestionnaire: (q: Omit<PowerData, "id">) => Promise<PowerData>;
   addQuestionnaire: (q: PowerData) => Promise<void>;
   getQuestionnaireByEmail: (email: string) => PowerData[];
-  updateQuestionnaire: (id: string, patch: Partial<PowerData>) => Promise<void>;
+  updateQuestionnaire: (
+    id: number,
+    patch: Partial<PowerData>,
+  ) => Promise<PowerData>;
   upsertQuestionnaire: (q: PowerData) => void;
-  removeQuestionnaire: (id: string) => void;
+  removeQuestionnaire: (id: number) => void;
   clearAll: () => void;
   bulkSet: (m: Manufacturer[], q: PowerData[]) => void;
 }
@@ -133,17 +143,25 @@ export const useData = create<DataState>()(
       manufacturers: [],
       questionnaires: [],
       loadingManufacturers: false,
+      manufacturersHydrated: false,
       fetchManufacturers: async () => {
         set({ loadingManufacturers: true });
         try {
-          const manufacturers = await userService.findAll();
-          set({ manufacturers, loadingManufacturers: false });
+          const manufacturers = await manufacturerService.findAll();
+          set({
+            manufacturers,
+            loadingManufacturers: false,
+            manufacturersHydrated: true,
+          });
         } catch {
           set({ loadingManufacturers: false });
         }
       },
-      addManufacturer: (m) => {
-        set((s) => ({ manufacturers: [...s.manufacturers, m] }));
+      addManufacturer: async (m) => {
+        const manufacturer = await manufacturerService.create(m);
+        // Ensure the manufacturer has an ID
+        set((s) => ({ manufacturers: [...s.manufacturers, manufacturer] }));
+        return manufacturer;
       },
       updateManufacturer: async (id, patch) => {
         const manufacturer = await manufacturerService.update(
@@ -166,11 +184,38 @@ export const useData = create<DataState>()(
         set((s) => ({
           manufacturers: s.manufacturers.filter((m) => m.id !== id),
           questionnaires: s.questionnaires.filter(
-            (q) => q.manufacturerId !== id,
+            (q) => q.manufacturerId !== String(id),
           ),
         })),
+      fetchQuestionnaires: async () => {
+        set({ loadingManufacturers: true });
+        try {
+          const questionnaires = await powerDataService.getPowerData();
+          set({ questionnaires, loadingManufacturers: false });
+        } catch {
+          set({ loadingManufacturers: false });
+        }
+      },
+      fetchQuestionnaireForManufacturer: async (manufacturerId) => {
+        set({ loadingManufacturers: true });
+        try {
+          const questionnaires =
+            await powerDataService.getPowerDataByManufacturer(manufacturerId);
+          set({ questionnaires, loadingManufacturers: false });
+        } catch {
+          set({ loadingManufacturers: false });
+        }
+        return useData
+          .getState()
+          .questionnaires.filter((q) => q.manufacturerId === manufacturerId);
+      },
       addQuestionnaire: async (q) => {
         set((s) => ({ questionnaires: [...s.questionnaires, q] }));
+      },
+      createQuestionnaire: async (q) => {
+        const questionnaire = await powerDataService.createPowerData(q);
+        set((s) => ({ questionnaires: [...s.questionnaires, questionnaire] }));
+        return questionnaire;
       },
       getQuestionnaireByEmail: (email): PowerData[] => {
         const manufacturer = useData
@@ -183,13 +228,18 @@ export const useData = create<DataState>()(
 
         return useData
           .getState()
-          .questionnaires.filter((q) => q.manufacturerId === manufacturer.id);
+          .questionnaires.filter(
+            (q) => q.manufacturerId === manufacturer.manId,
+          );
       },
       updateQuestionnaire: async (id, patch) => {
-        const manufacturer = await updatePowerData(id, patch);
+        const questionnaire = await powerDataService.updatePowerData(id, patch);
         set((s) => ({
-          questionnaires: [...s.questionnaires, manufacturer],
+          questionnaires: s.questionnaires.map((q) =>
+            q.id === id ? questionnaire : q,
+          ),
         }));
+        return questionnaire;
       },
       removeQuestionnaire: (id) =>
         set((s) => ({
@@ -206,8 +256,18 @@ export const useData = create<DataState>()(
           copy[idx] = q;
           return { questionnaires: copy };
         }),
-      clearAll: () => set({ manufacturers: [], questionnaires: [] }),
-      bulkSet: (m, q) => set({ manufacturers: m, questionnaires: q }),
+      clearAll: () =>
+        set({
+          manufacturers: [],
+          questionnaires: [],
+          manufacturersHydrated: false,
+        }),
+      bulkSet: (m, q) =>
+        set({
+          manufacturers: m,
+          questionnaires: q,
+          manufacturersHydrated: false,
+        }),
     }),
     { name: "man.data" },
   ),

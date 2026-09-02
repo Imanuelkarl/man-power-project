@@ -13,19 +13,21 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  userId        String   @unique
-  email         String   @unique
-  name          String
-  password_hash String
-  role          Role     @default(manufacturer)
-  is_active     Boolean  @default(true)
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  userId         String   @unique
+  email          String   @unique
+  name           String
+  password_hash  String
+  role           Role     @default(manufacturer)
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  manufacturerId String?
 }
 
 model Manufacturer {
   id                  Int      @id @default(autoincrement())
+  manId               String   @unique
   name                String
   contact_person      String?
   email               String?
@@ -57,7 +59,8 @@ model Branch {
 
 model PowerData {
   id              Int       @id @default(autoincrement())
-  manufacturer_id Int
+  data_id         String    @unique
+  manufacturer_id String
   period          String    @default("H1-2026")
   startTime       DateTime?
   endTime         DateTime?
@@ -98,11 +101,11 @@ model PowerData {
   // Metadata
   status       ResponseStatus @default(draft)
   submitted_at DateTime?
-  submitted_by Int?
+  submitted_by String?
   created_at   DateTime       @default(now())
   updated_at   DateTime       @updatedAt
 
-  manufacturer Manufacturer @relation(fields: [manufacturer_id], references: [id], onDelete: Cascade)
+  manufacturer Manufacturer @relation(fields: [manufacturer_id], references: [manId], onDelete: Cascade)
 }
 
 enum Role {

@@ -44,6 +44,7 @@ export type ManufacturerSumAggregateOutputType = {
 
 export type ManufacturerMinAggregateOutputType = {
   id: number | null
+  manId: string | null
   name: string | null
   contact_person: string | null
   email: string | null
@@ -66,6 +67,7 @@ export type ManufacturerMinAggregateOutputType = {
 
 export type ManufacturerMaxAggregateOutputType = {
   id: number | null
+  manId: string | null
   name: string | null
   contact_person: string | null
   email: string | null
@@ -88,6 +90,7 @@ export type ManufacturerMaxAggregateOutputType = {
 
 export type ManufacturerCountAggregateOutputType = {
   id: number
+  manId: number
   name: number
   contact_person: number
   email: number
@@ -128,6 +131,7 @@ export type ManufacturerSumAggregateInputType = {
 
 export type ManufacturerMinAggregateInputType = {
   id?: true
+  manId?: true
   name?: true
   contact_person?: true
   email?: true
@@ -150,6 +154,7 @@ export type ManufacturerMinAggregateInputType = {
 
 export type ManufacturerMaxAggregateInputType = {
   id?: true
+  manId?: true
   name?: true
   contact_person?: true
   email?: true
@@ -172,6 +177,7 @@ export type ManufacturerMaxAggregateInputType = {
 
 export type ManufacturerCountAggregateInputType = {
   id?: true
+  manId?: true
   name?: true
   contact_person?: true
   email?: true
@@ -281,6 +287,7 @@ export type ManufacturerGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type ManufacturerGroupByOutputType = {
   id: number
+  manId: string
   name: string
   contact_person: string | null
   email: string | null
@@ -326,6 +333,7 @@ export type ManufacturerWhereInput = {
   OR?: Prisma.ManufacturerWhereInput[]
   NOT?: Prisma.ManufacturerWhereInput | Prisma.ManufacturerWhereInput[]
   id?: Prisma.IntFilter<"Manufacturer"> | number
+  manId?: Prisma.StringFilter<"Manufacturer"> | string
   name?: Prisma.StringFilter<"Manufacturer"> | string
   contact_person?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
   email?: Prisma.StringNullableFilter<"Manufacturer"> | string | null
@@ -349,6 +357,7 @@ export type ManufacturerWhereInput = {
 
 export type ManufacturerOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  manId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   contact_person?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -372,6 +381,7 @@ export type ManufacturerOrderByWithRelationInput = {
 
 export type ManufacturerWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  manId?: string
   AND?: Prisma.ManufacturerWhereInput | Prisma.ManufacturerWhereInput[]
   OR?: Prisma.ManufacturerWhereInput[]
   NOT?: Prisma.ManufacturerWhereInput | Prisma.ManufacturerWhereInput[]
@@ -394,10 +404,11 @@ export type ManufacturerWhereUniqueInput = Prisma.AtLeast<{
   created_at?: Prisma.DateTimeFilter<"Manufacturer"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Manufacturer"> | Date | string
   powerInfo?: Prisma.PowerDataListRelationFilter
-}, "id">
+}, "id" | "manId">
 
 export type ManufacturerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  manId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   contact_person?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -428,6 +439,7 @@ export type ManufacturerScalarWhereWithAggregatesInput = {
   OR?: Prisma.ManufacturerScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ManufacturerScalarWhereWithAggregatesInput | Prisma.ManufacturerScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Manufacturer"> | number
+  manId?: Prisma.StringWithAggregatesFilter<"Manufacturer"> | string
   name?: Prisma.StringWithAggregatesFilter<"Manufacturer"> | string
   contact_person?: Prisma.StringNullableWithAggregatesFilter<"Manufacturer"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"Manufacturer"> | string | null
@@ -449,6 +461,7 @@ export type ManufacturerScalarWhereWithAggregatesInput = {
 }
 
 export type ManufacturerCreateInput = {
+  manId: string
   name: string
   contact_person?: string | null
   email?: string | null
@@ -472,6 +485,7 @@ export type ManufacturerCreateInput = {
 
 export type ManufacturerUncheckedCreateInput = {
   id?: number
+  manId: string
   name: string
   contact_person?: string | null
   email?: string | null
@@ -494,6 +508,7 @@ export type ManufacturerUncheckedCreateInput = {
 }
 
 export type ManufacturerUpdateInput = {
+  manId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   contact_person?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -517,6 +532,7 @@ export type ManufacturerUpdateInput = {
 
 export type ManufacturerUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  manId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   contact_person?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -540,6 +556,7 @@ export type ManufacturerUncheckedUpdateInput = {
 
 export type ManufacturerCreateManyInput = {
   id?: number
+  manId: string
   name: string
   contact_person?: string | null
   email?: string | null
@@ -561,6 +578,7 @@ export type ManufacturerCreateManyInput = {
 }
 
 export type ManufacturerUpdateManyMutationInput = {
+  manId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   contact_person?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -583,6 +601,7 @@ export type ManufacturerUpdateManyMutationInput = {
 
 export type ManufacturerUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  manId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   contact_person?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -605,6 +624,7 @@ export type ManufacturerUncheckedUpdateManyInput = {
 
 export type ManufacturerCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  manId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   contact_person?: Prisma.SortOrder
   email?: Prisma.SortOrder
@@ -635,6 +655,7 @@ export type ManufacturerAvgOrderByAggregateInput = {
 
 export type ManufacturerMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  manId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   contact_person?: Prisma.SortOrder
   email?: Prisma.SortOrder
@@ -657,6 +678,7 @@ export type ManufacturerMaxOrderByAggregateInput = {
 
 export type ManufacturerMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  manId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   contact_person?: Prisma.SortOrder
   email?: Prisma.SortOrder
@@ -690,10 +712,6 @@ export type ManufacturerScalarRelationFilter = {
   isNot?: Prisma.ManufacturerWhereInput
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type NullableFloatFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
@@ -725,6 +743,7 @@ export type ManufacturerUpdateOneRequiredWithoutPowerInfoNestedInput = {
 }
 
 export type ManufacturerCreateWithoutPowerInfoInput = {
+  manId: string
   name: string
   contact_person?: string | null
   email?: string | null
@@ -747,6 +766,7 @@ export type ManufacturerCreateWithoutPowerInfoInput = {
 
 export type ManufacturerUncheckedCreateWithoutPowerInfoInput = {
   id?: number
+  manId: string
   name: string
   contact_person?: string | null
   email?: string | null
@@ -784,6 +804,7 @@ export type ManufacturerUpdateToOneWithWhereWithoutPowerInfoInput = {
 }
 
 export type ManufacturerUpdateWithoutPowerInfoInput = {
+  manId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   contact_person?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -806,6 +827,7 @@ export type ManufacturerUpdateWithoutPowerInfoInput = {
 
 export type ManufacturerUncheckedUpdateWithoutPowerInfoInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  manId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   contact_person?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -859,6 +881,7 @@ export type ManufacturerCountOutputTypeCountPowerInfoArgs<ExtArgs extends runtim
 
 export type ManufacturerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  manId?: boolean
   name?: boolean
   contact_person?: boolean
   email?: boolean
@@ -883,6 +906,7 @@ export type ManufacturerSelect<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type ManufacturerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  manId?: boolean
   name?: boolean
   contact_person?: boolean
   email?: boolean
@@ -905,6 +929,7 @@ export type ManufacturerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
 
 export type ManufacturerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  manId?: boolean
   name?: boolean
   contact_person?: boolean
   email?: boolean
@@ -927,6 +952,7 @@ export type ManufacturerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
 
 export type ManufacturerSelectScalar = {
   id?: boolean
+  manId?: boolean
   name?: boolean
   contact_person?: boolean
   email?: boolean
@@ -947,7 +973,7 @@ export type ManufacturerSelectScalar = {
   updated_at?: boolean
 }
 
-export type ManufacturerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "contact_person" | "email" | "phone" | "sectoral_group" | "sub_sector" | "address" | "branch" | "state" | "city" | "lat" | "lng" | "registration_number" | "year_established" | "employee_count" | "is_active" | "created_at" | "updated_at", ExtArgs["result"]["manufacturer"]>
+export type ManufacturerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "manId" | "name" | "contact_person" | "email" | "phone" | "sectoral_group" | "sub_sector" | "address" | "branch" | "state" | "city" | "lat" | "lng" | "registration_number" | "year_established" | "employee_count" | "is_active" | "created_at" | "updated_at", ExtArgs["result"]["manufacturer"]>
 export type ManufacturerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   powerInfo?: boolean | Prisma.Manufacturer$powerInfoArgs<ExtArgs>
   _count?: boolean | Prisma.ManufacturerCountOutputTypeDefaultArgs<ExtArgs>
@@ -962,6 +988,7 @@ export type $ManufacturerPayload<ExtArgs extends runtime.Types.Extensions.Intern
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    manId: string
     name: string
     contact_person: string | null
     email: string | null
@@ -1405,6 +1432,7 @@ export interface Prisma__ManufacturerClient<T, Null = never, ExtArgs extends run
  */
 export interface ManufacturerFieldRefs {
   readonly id: Prisma.FieldRef<"Manufacturer", 'Int'>
+  readonly manId: Prisma.FieldRef<"Manufacturer", 'String'>
   readonly name: Prisma.FieldRef<"Manufacturer", 'String'>
   readonly contact_person: Prisma.FieldRef<"Manufacturer", 'String'>
   readonly email: Prisma.FieldRef<"Manufacturer", 'String'>

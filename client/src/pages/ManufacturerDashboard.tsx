@@ -42,7 +42,7 @@ const COLORS = [
 ];
 
 interface ManufacturerDashboardProps {
-  manufacturerId?: number; // Optional: if not provided, will use from auth
+  manufacturerId?: string; // Optional: if not provided, will use from auth
 }
 
 export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
@@ -61,13 +61,18 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
   // Get the manufacturer data
   const manufacturer = useMemo(() => {
-    return manufacturers.find((m) => m.email === targetManufacturerId);
+    return manufacturers.find(
+      (m) =>
+        m.manId === targetManufacturerId || m.email === targetManufacturerId,
+    );
   }, [manufacturers, targetManufacturerId]);
 
   // Filter questionnaires for this manufacturer
   const manufacturerData = useMemo(() => {
     if (!targetManufacturerId) return [];
-    return questionnaires.filter((q) => q.manufacturerId === manufacturer?.id);
+    return questionnaires.filter(
+      (q) => q.manufacturerId === manufacturer?.manId,
+    );
   }, [questionnaires, targetManufacturerId]);
 
   // Calculate metrics

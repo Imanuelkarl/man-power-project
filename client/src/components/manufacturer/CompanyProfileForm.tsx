@@ -24,7 +24,7 @@ export function CompanyProfile() {
     if (user.companyId) {
       const m = manufacturers.find((x) => x.email === user.email);
       const q = questionnaires.find(
-        (x) => x.manufacturerId === m?.id && x.period === "H1 2026",
+        (x) => x.manufacturerId === m?.manId && x.period === "H1 2026",
       );
       return { m, q };
     }
@@ -49,15 +49,16 @@ export function CompanyProfile() {
         NIGERIAN_STATES[0];
       const jitter = () => (Math.random() - 0.5) * 0.08;
       const m: Manufacturer = {
-        id: manufacturerId as number,
+        id: Number(manufacturerId),
+        manId: `MAN-${manufacturerId}`,
         ...profile,
         city: loc.city,
         lat: loc.lat + jitter(),
         lng: loc.lng + jitter(),
         createdAt: new Date().toISOString(),
       };
-      addManufacturer(m);
-      manufacturerId = m.id;
+      void addManufacturer(m);
+      manufacturerId = m.manId;
       // link company to user
     }
   };

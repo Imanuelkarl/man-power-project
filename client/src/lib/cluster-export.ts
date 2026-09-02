@@ -7,7 +7,7 @@ import autoTable from "jspdf-autotable";
 import type { PowerData } from "../types/powerData.types";
 import type { Manufacturer } from "../types/manufacturer.types";
 import type { ClusterWithStats } from "../types/cluster.types";
-import type {  ExportDataContext } from "../types/export.types";
+import type { ExportDataContext } from "../types/export.types";
 import { getParameterById } from "./export-parameters";
 
 interface ExportRow {
@@ -18,32 +18,35 @@ export function buildExportRows(
   clusters: ClusterWithStats[],
   manufacturers: Manufacturer[],
   questionnaires: PowerData[],
-  selectedParameters: string[]
+  selectedParameters: string[],
 ): ExportRow[] {
   const rows: ExportRow[] = [];
-  const manufacturerMap = new Map(manufacturers.map(m => [m.id, m]));
-  const questionnaireMap = new Map<number, PowerData[]>();
-  
+  const manufacturerMap = new Map(manufacturers.map((m) => [m.id, m]));
+  const questionnaireMap = new Map<string, PowerData[]>();
+
   // Group questionnaires by manufacturerId
-  questionnaires.forEach(q => {
+  questionnaires.forEach((q) => {
     if (!questionnaireMap.has(q.manufacturerId)) {
       questionnaireMap.set(q.manufacturerId, []);
     }
     questionnaireMap.get(q.manufacturerId)!.push(q);
   });
 
-  clusters.forEach(cluster => {
+  clusters.forEach((cluster) => {
     // Get all manufacturers in this cluster
     const clusterManufacturers = cluster.manufacturerIds
-      .map(id => manufacturerMap.get(id))
+      .map((id) => manufacturerMap.get(id))
       .filter((m): m is Manufacturer => m !== undefined);
 
     // For each manufacturer, get their latest questionnaire data
-    clusterManufacturers.forEach(manufacturer => {
-      const qs = questionnaireMap.get(manufacturer.id) || [];
-      const latestQ = qs.length > 0 ? qs.reduce((a, b) => 
-        new Date(a.submittedAt) > new Date(b.submittedAt) ? a : b
-      ) : null;
+    clusterManufacturers.forEach((manufacturer) => {
+      const qs = questionnaireMap.get(manufacturer.manId) || [];
+      const latestQ =
+        qs.length > 0
+          ? qs.reduce((a, b) =>
+              new Date(a.submittedAt) > new Date(b.submittedAt) ? a : b,
+            )
+          : null;
 
       const context: ExportDataContext = {
         manufacturer,
@@ -53,24 +56,24 @@ export function buildExportRows(
           companyCount: clusterManufacturers.length,
           totalEnergySpend: cluster.totalEnergySpendNaira,
           totalEnergyConsumed: cluster.totalEnergyConsumedKwh,
-          avgCapacityUtilization: cluster.avgEnergyConsumedKwh
-        }
+          avgCapacityUtilization: cluster.avgEnergyConsumedKwh,
+        },
       };
 
       const row: ExportRow = {
         _clusterId: cluster.id,
         _clusterName: cluster.name,
-        _manufacturerId: manufacturer.id
+        _manufacturerId: manufacturer.id,
       };
 
-      selectedParameters.forEach(paramId => {
+      selectedParameters.forEach((paramId) => {
         const param = getParameterById(paramId);
         if (param) {
           let value = param.getValue(context);
           if (param.format && value !== undefined && value !== null) {
             value = param.format(value);
           }
-          row[paramId] = value ?? '-';
+          row[paramId] = value ?? "-";
         }
       });
 
@@ -86,12 +89,17 @@ export function exportClustersExcel(
   manufacturers: Manufacturer[],
   questionnaires: PowerData[],
   selectedParameters: string[],
-  filename?: string
+  filename?: string,
 ) {
-  const rows = buildExportRows(clusters, manufacturers, questionnaires, selectedParameters);
-  
+  const rows = buildExportRows(
+    clusters,
+    manufacturers,
+    questionnaires,
+    selectedParameters,
+  );
+
   // Remove internal fields
-  const exportRows = rows.map(row => {
+  const exportRows = rows.map((row) => {
     const { _clusterId, _clusterName, _manufacturerId, ...rest } = row;
     return rest;
   });
@@ -99,12 +107,12 @@ export function exportClustersExcel(
   const ws = XLSX.utils.json_to_sheet(exportRows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Cluster Data");
-  
+
   // Auto-size columns
-  const colWidths = Object.keys(exportRows[0] || {}).map(key => ({
-    wch: Math.max(key.length, 20)
+  const colWidths = Object.keys(exportRows[0] || {}).map((key) => ({
+    wch: Math.max(key.length, 20),
   }));
-  ws['!cols'] = colWidths;
+  ws["!cols"] = colWidths;
 
   const fileName = filename || `Cluster-Export-${Date.now()}.xlsx`;
   XLSX.writeFile(wb, fileName);
@@ -115,12 +123,17 @@ export function exportClustersCSV(
   manufacturers: Manufacturer[],
   questionnaires: PowerData[],
   selectedParameters: string[],
-  filename?: string
+  filename?: string,
 ) {
-  const rows = buildExportRows(clusters, manufacturers, questionnaires, selectedParameters);
-  
+  const rows = buildExportRows(
+    clusters,
+    manufacturers,
+    questionnaires,
+    selectedParameters,
+  );
+
   // Remove internal fields
-  const exportRows = rows.map(row => {
+  const exportRows = rows.map((row) => {
     const { _clusterId, _clusterName, _manufacturerId, ...rest } = row;
     return rest;
   });
@@ -142,12 +155,17 @@ export function exportClustersPDF(
   manufacturers: Manufacturer[],
   questionnaires: PowerData[],
   selectedParameters: string[],
-  filename?: string
+  filename?: string,
 ) {
-  const rows = buildExportRows(clusters, manufacturers, questionnaires, selectedParameters);
-  
+  const rows = buildExportRows(
+    clusters,
+    manufacturers,
+    questionnaires,
+    selectedParameters,
+  );
+
   // Remove internal fields
-  const exportRows = rows.map(row => {
+  const exportRows = rows.map((row) => {
     const { _clusterId, _clusterName, _manufacturerId, ...rest } = row;
     return rest;
   });
@@ -160,7 +178,7 @@ export function exportClustersPDF(
   doc.text(`Total Companies: ${exportRows.length}`, 14, 28);
 
   const cols = exportRows.length ? Object.keys(exportRows[0]) : [];
-  const paramLabels = cols.map(colId => {
+  const paramLabels = cols.map((colId) => {
     const param = getParameterById(colId);
     return param?.label || colId;
   });
@@ -168,18 +186,18 @@ export function exportClustersPDF(
   autoTable(doc, {
     startY: 32,
     head: [paramLabels],
-    body: exportRows.map(row => cols.map(col => row[col] || '-')),
+    body: exportRows.map((row) => cols.map((col) => row[col] || "-")),
     styles: { fontSize: 7, cellPadding: 1.5 },
     headStyles: { fillColor: [16, 122, 74] },
     columnStyles: {
-      ...(cols.reduce((acc, col, idx) => {
+      ...cols.reduce((acc, col, idx) => {
         // Make text columns wider
-        if (['company_name', 'cluster_name'].includes(col)) {
+        if (["company_name", "cluster_name"].includes(col)) {
           acc[idx] = { cellWidth: 30 };
         }
         return acc;
-      }, {} as any))
-    }
+      }, {} as any),
+    },
   });
 
   const fileName = filename || `Cluster-Export-${Date.now()}.pdf`;

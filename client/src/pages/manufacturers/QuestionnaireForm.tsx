@@ -57,20 +57,28 @@ export function QuestionnaireForm({
   const [year, setYear] = useState(new Date().getFullYear());
   const [currency, setCurrency] = useState("NGN");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const { manufacturers, questionnaires, upsertQuestionnaire } = useData();
-  const { id} = useParams();
-  if (!user) return <Navigate to="/login" />;
+  const [saving, setSaving] = useState(false);
+  const {
+    manufacturers,
+    questionnaires,
+    fetchQuestionnaires,
+    createQuestionnaire,
+    updateQuestionnaire,
+  } = useData();
+  const { id } = useParams();
+
+  useEffect(() => {
+    void fetchQuestionnaires();
+  }, [fetchQuestionnaires]);
 
   const existing = useMemo(() => {
-    if (user.email) {
+    if (user?.email) {
       const m = manufacturers.find((x) => x.email === user.email);
-      const q = questionnaires.find(
-        (x) => x.id === id,
-      );
+      const q = questionnaires.find((x) => String(x.id) === id);
       return { m, q };
     }
     return { m: undefined, q: undefined };
-  }, [manufacturers, questionnaires, user.email]);
+  }, [manufacturers, questionnaires, user?.email]);
 
   useEffect(() => {
     setStartMonth(getMonthFromDate(startTime));
@@ -112,33 +120,60 @@ export function QuestionnaireForm({
     nigeriaFirstComment: existing.q?.nigeriaFirstComment ?? "",
   });
 
+  const saveQuestionnaire = async (status: "draft" | "submitted") => {
+    if (!user) return;
+    const manufacturerId = existing.m?.manId;
+    if (!manufacturerId) {
+      toast.error(
+        "Complete your company profile in Settings before saving questionnaire data.",
+      );
+      return;
+    }
+
+    const payload: Omit<PowerData, "id"> = {
+      manufacturerId,
+      period: "H1 2026",
+      ...form,
+      startTime: form.startTime ?? new Date("2026-01-01"),
+      endTime: form.endTime ?? new Date("2026-07-01"),
+      status,
+      submittedAt: status === "submitted" ? new Date().toISOString() : "",
+      submittedBy: String(user.id),
+    };
+
+    setSaving(true);
+    try {
+      if (existing.q?.id !== undefined) {
+        await updateQuestionnaire(existing.q.id, payload);
+      } else {
+        await createQuestionnaire(payload);
+      }
+      toast.success(
+        status === "submitted"
+          ? existing.q?.status === "draft"
+            ? "Questionnaire submitted for H1 2026"
+            : existing.q?.id !== undefined
+              ? "Questionnaire updated"
+              : "Questionnaire submitted for H1 2026"
+          : "Questionnaire saved as draft",
+      );
+      setShowConfirmDialog(false);
+      if (status === "submitted") setStep(QUESTIONNAIRE_STEPS.WELCOME);
+    } catch {
+      toast.error("Unable to save questionnaire data. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (currentStep === QUESTIONNAIRE_STEPS.REVIEW) {
-      const manufacturerId = existing.m?.id;
-      if (!manufacturerId) {
-        toast.error(
-          "Complete your company profile in Settings before submitting.",
-        );
-        return;
-      }
-
-      const q: PowerData = {
-        id: existing.q?.id ?? `q-${Date.now()}`,
-        manufacturerId,
-        period: "H1 2026",
-        ...form,
-        startTime: form.startTime ?? new Date("2026-01-01"),
-        endTime: form.endTime ?? new Date("2026-07-01"),
-        submittedAt: new Date().toISOString(),
-        submittedBy: user.name,
-      };
-      upsertQuestionnaire(q);
-      toast.success("Questionnaire submitted for H1 2026");
-      setShowConfirmDialog(false);
-      setStep(QUESTIONNAIRE_STEPS.WELCOME);
+      void saveQuestionnaire("submitted");
     }
   };
+
+  if (!user) return <Navigate to="/login" />;
 
   const goNext = () =>
     setStep(Math.min(currentStep + 1, QUESTIONNAIRE_STEP_COUNT - 1));
@@ -359,12 +394,14 @@ export function QuestionnaireForm({
                 <NumField
                   label="16. Total Power Generated(W)"
                   value={form.totalEnergyGenerated}
-                  onChange={(v) => setForm({ ...form, electricityHours: v })}
+                  onChange={(v) =>
+                    setForm({ ...form, totalEnergyGenerated: v })
+                  }
                 />
                 <NumField
                   label="17. Energy Consumed (W)"
                   value={form.totalEnergyConsumed}
-                  onChange={(v) => setForm({ ...form, powerOutages: v })}
+                  onChange={(v) => setForm({ ...form, totalEnergyConsumed: v })}
                 />
               </div>
               <div className="pt-2">
@@ -604,7 +641,9 @@ export function QuestionnaireForm({
                       <span className="text-muted-foreground">
                         Total Power Used for Production:
                       </span>{" "}
-                      <span className="ml-2">{formatPower(form.totalEnergyConsumed)}</span>
+                      <span className="ml-2">
+                        {formatPower(form.totalEnergyConsumed)}
+                      </span>
                     </div>
                     <div>
                       <span className="text-muted-foreground">
@@ -615,15 +654,12 @@ export function QuestionnaireForm({
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">
-                        Gas Power:
-                      </span>{" "}
+                      <span className="text-muted-foreground">Gas Power:</span>{" "}
                       <span className="ml-2">
                         {formatPower(form.energyGeneratedByGas)}
                       </span>
                     </div>
                   </div>
-                  
                 </div>
               </div>
             </div>
@@ -639,13 +675,29 @@ export function QuestionnaireForm({
                 Review <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : currentStep === QUESTIONNAIRE_STEPS.REVIEW ? (
-              <Button
-                type="button"
-                size="lg"
-                onClick={() => setShowConfirmDialog(true)}
-              >
-                <CheckCircle2 className="w-4 h-4 mr-2" /> Submit questionnaire
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={saving}
+                  onClick={() => void saveQuestionnaire("draft")}
+                >
+                  Save as draft
+                </Button>
+                <Button
+                  type="button"
+                  size="lg"
+                  disabled={saving}
+                  onClick={() => setShowConfirmDialog(true)}
+                >
+                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                  {existing.q?.id !== undefined
+                    ? existing.q.status === "draft"
+                      ? "Save & submit"
+                      : "Update questionnaire"
+                    : "Submit questionnaire"}
+                </Button>
+              </div>
             ) : (
               <Button type="button" size="lg" onClick={goNext}>
                 Next <ArrowRight className="w-4 h-4 ml-2" />
@@ -655,7 +707,7 @@ export function QuestionnaireForm({
 
           {currentStep === QUESTIONNAIRE_STEPS.ENERGY_GENERATION && (
             <p className="text-xs text-muted-foreground text-right">
-              Data is stored locally for this MVP. Nothing leaves your browser.
+              Drafts and submitted questionnaires are saved to the server.
             </p>
           )}
         </form>
@@ -744,7 +796,7 @@ function ConfirmDialog({
           </Button>
           <Button
             onClick={(e) => {
-              onConfirm(e as any);
+              onConfirm(e);
             }}
           >
             <CheckCircle2 className="w-4 h-4 mr-2" /> Yes, Submit

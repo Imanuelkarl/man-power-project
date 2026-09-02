@@ -116,11 +116,11 @@ export const ClusterMapPage: React.FC = () => {
         )
         .map((m: Manufacturer) => ({
           id: m.id,
-          lat: m.lat,
-          lng: m.lng,
+          lat: m.lat ?? 0,
+          lng: m.lng ?? 0,
           company: m.name,
-          state: m.state,
-          sectoralGroup: m.sectoral_group,
+          state: m.state ?? "",
+          sectoralGroup: m.sectoral_group ?? "",
         })),
     [manufacturers],
   );

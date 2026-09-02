@@ -1,8 +1,9 @@
-import { PowerData } from '../generated/prisma/client.js';
-import prisma from '../services/prisma.service.js';
+import { randomUUID } from "crypto";
+import { PowerData } from "../generated/prisma/client.js";
+import prisma from "../services/prisma.service.js";
 
 export type CreatePowerDataInput = {
-  manufacturer_id: number;
+  manufacturer_id: string;
   period?: string;
   startTime: Date;
   endTime: Date;
@@ -31,9 +32,9 @@ export type CreatePowerDataInput = {
   energy_other_source?: string | null;
   nigeria_first_policy_comment?: string | null;
   additional_comments?: string | null;
-  status?: 'draft' | 'submitted';
+  status?: "draft" | "submitted";
   submitted_at?: Date | null;
-  submitted_by?: number | null;
+  submitted_by?: string | null;
 };
 
 export class PowerDataModel {
@@ -44,11 +45,12 @@ export class PowerDataModel {
   }
 
   static async create(data: CreatePowerDataInput): Promise<PowerData> {
-    console.log('Creating power data with data:', data);
+    console.log("Creating power data with data:", data);
     return prisma.powerData.create({
       data: {
+        data_id: randomUUID(),
         manufacturer_id: data.manufacturer_id,
-        period: data.period ?? 'H1-2026',
+        period: data.period ?? "H1-2026",
         startTime: data.startTime,
         endTime: data.endTime,
         capacity_utilization: data.capacity_utilization ?? null,
@@ -66,7 +68,8 @@ export class PowerDataModel {
         investment_plant_machinery: data.investment_plant_machinery ?? null,
         investment_furniture: data.investment_furniture ?? null,
         investment_motor_vehicles: data.investment_motor_vehicles ?? null,
-        investment_assets_in_progress: data.investment_assets_in_progress ?? null,
+        investment_assets_in_progress:
+          data.investment_assets_in_progress ?? null,
         avg_grid_hours: data.avg_grid_hours ?? null,
         avg_power_outages: data.avg_power_outages ?? null,
         energy_diesel_cost: data.energy_diesel_cost ?? null,
@@ -76,7 +79,7 @@ export class PowerDataModel {
         energy_other_source: data.energy_other_source ?? null,
         nigeria_first_policy_comment: data.nigeria_first_policy_comment ?? null,
         additional_comments: data.additional_comments ?? null,
-        status: data.status ?? 'draft',
+        status: data.status ?? "draft",
         submitted_at: data.submitted_at ?? null,
         submitted_by: data.submitted_by ?? null,
       },
@@ -89,7 +92,9 @@ export class PowerDataModel {
     });
   }
 
-  static async findByManufacturerId(manufacturer_id: number): Promise<PowerData[]> {
+  static async findByManufacturerId(
+    manufacturer_id: string,
+  ): Promise<PowerData[]> {
     return prisma.powerData.findMany({
       where: { manufacturer_id },
     });
@@ -101,7 +106,7 @@ export class PowerDataModel {
 
   static async update(
     id: number,
-    data: Partial<CreatePowerDataInput>
+    data: Partial<CreatePowerDataInput>,
   ): Promise<PowerData> {
     const updateData = { ...data };
     delete updateData.manufacturer_id;

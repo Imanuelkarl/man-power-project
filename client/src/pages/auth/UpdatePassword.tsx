@@ -7,7 +7,7 @@ import { Factory } from "lucide-react";
 import { toast } from "sonner";
 import { useHydrated } from "../../hooks/use-hydrated";
 import { useNavigate, useParams } from "react-router-dom";
-import authService from "../../services/authService";
+import authService, { login } from "../../services/authService";
 
 export function InvitePage() {
   const { token } = useParams();
@@ -36,12 +36,18 @@ export function InvitePage() {
       // if (!r.ok) return toast.error(r.error ?? "Failed to accept invite");
 
       const response = await authService.resetPassword(token, password);
-      //if (response.data) login(invite.email, password);
-      if (response.data) {
-        toast.success("Welcome to MAN Manufacturing Intelligence");
-        navigate("/login");
+      console.log("Reset password response:", response);
+      if(response.status){
+        toast.success("Password reset successful. Logging you in...");
+        const res =await login({email:response.data.user.email, password});
+        localStorage.setItem("token", res.token);
+        localStorage.setItem("man.user", JSON.stringify(res.user));
+        console.log("Login successful:", res);
+        navigate("/");
       }
-    } catch (error) {
+    
+    } catch (error:any) {
+      toast.error( "Failed to accept invite "+error.message);
       console.error(error);
     }
   };

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useData, useUsers, type Manufacturer } from "../../lib/store";
+import { useData, useUsers } from "../../lib/store";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -14,71 +14,73 @@ import type { User } from "../../types/user.types";
 
 export function UsersManager() {
   const { users, fetchUsers, addUser, removeUser } = useUsers();
-  const { addManufacturer, manufacturers } = useData();
+  const { manufacturers, fetchManufacturers } = useData();
   const [query, setQuery] = useState("");
   const [showInvite, setShowInvite] = useState(false);
   const [inviteName, setInviteName] = useState("");
+  const [manufacturerId, setManufacturerId] = useState("");
   const [inviteCompanyName, setInviteCompanyName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("");
 
   useEffect(() => {
     fetchUsers();
-  }, [users]);
+    void fetchManufacturers();
+  }, [fetchManufacturers, fetchUsers]);
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const newUser: User & { password: string } = {
-      id: users.length,
-      name: inviteName,
-      role: inviteRole as User["role"],
-      companyName: inviteCompanyName,
-      email: inviteEmail,
-      is_active: true,
-      password: genSecurePass(),
-    };
     try {
+      if (
+        inviteRole === "manufacturer" &&
+        !manufacturerId &&
+        !inviteCompanyName.trim()
+      ) {
+        throw new Error(
+          "Select an existing manufacturer or enter a new company name.",
+        );
+      }
       const data = await authService.signup({
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role as "manufacturer" | "investor",
-        password: newUser.password,
-        companyName: newUser.companyName,
+        name: inviteName.trim(),
+        email: inviteEmail.trim(),
+        role: inviteRole as User["role"],
+        password: genSecurePass(),
+        companyName:
+          manufacturerId === "new" ? inviteCompanyName.trim() : undefined,
+        manufacturerId:
+          manufacturerId && manufacturerId !== "new"
+            ? manufacturerId
+            : undefined,
       });
       addUser(data.user as User & { password: string });
-      if (newUser.role === "manufacturer") {
-        const m: Manufacturer = {
-          id: manufacturers.length,
-          email: newUser.email,
-          name: newUser.companyName || newUser.name,
-          contact_person: newUser.name,
-          phone: "",
-          branch: "",
-          sectoral_group: "",
-          sub_sector: "",
-          state: "",
-          city: "",
-          lat: 0,
-          lng: 0,
-          createdAt: "",
-        };
-        addManufacturer(m);
-      }
       toast.success(
         `Invite created for ${inviteName} <${inviteEmail}>${inviteRole ? ` as ${inviteRole}` : ""}`,
       );
     } catch (error) {
-      console.error("Error uploading user", error);
+      toast.error(
+        error instanceof Error ? error.message : "Unable to create user.",
+      );
+      return;
     }
 
     setInviteName("");
     setInviteEmail("");
     setInviteRole("");
     setInviteCompanyName("");
+    setManufacturerId("");
     setShowInvite(false);
   };
   const genSecurePass = () => {
-    return "RandomPass";
+    return randomString(12);
+  };
+  const randomString = (length: number) => {
+    const charset =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charset.length);
+      result += charset[randomIndex];
+    }
+    return result;
   };
 
   const rows = useMemo(() => {
@@ -170,6 +172,7 @@ export function UsersManager() {
                 <div className="space-y-2">
                   <Select
                     id="inv-role"
+                    value={inviteRole}
                     onChange={(e) => setInviteRole(e.target.value)}
                   >
                     <option>--SELECT ROLE--</option>
@@ -178,15 +181,39 @@ export function UsersManager() {
                   </Select>
                 </div>
                 {inviteRole && inviteRole === "manufacturer" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="inv-com-name">Company Name</Label>
-                    <Input
-                      id="inv-com-name"
-                      required
-                      value={inviteCompanyName}
-                      onChange={(e) => setInviteCompanyName(e.target.value)}
-                    />
-                  </div>
+                  <>
+                    <div className="space-y-2 sm:col-span-2">
+                      <Label htmlFor="inv-manufacturer">Manufacturer</Label>
+                      <Select
+                        id="inv-manufacturer"
+                        value={manufacturerId}
+                        onChange={(e) => setManufacturerId(e.target.value)}
+                        required
+                      >
+                        <option value="">-- SELECT MANUFACTURER --</option>
+                        {manufacturers.map((manufacturer) => (
+                          <option
+                            key={manufacturer.manId}
+                            value={manufacturer.manId}
+                          >
+                            {manufacturer.name}
+                          </option>
+                        ))}
+                        <option value="new">+ Create new manufacturer</option>
+                      </Select>
+                    </div>
+                    {manufacturerId === "new" && (
+                      <div className="space-y-2 sm:col-span-2">
+                        <Label htmlFor="inv-com-name">New company name</Label>
+                        <Input
+                          id="inv-com-name"
+                          required
+                          value={inviteCompanyName}
+                          onChange={(e) => setInviteCompanyName(e.target.value)}
+                        />
+                      </div>
+                    )}
+                  </>
                 )}
                 <div className="flex items-end justify-end">
                   <Button type="submit">

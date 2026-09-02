@@ -51,7 +51,10 @@ export const DashboardPage: React.FC = () => {
   }, []);
   const byState = useMemo(() => {
     const map = new Map<string, number>();
-    manufacturers.forEach((m) => map.set(m.state, (map.get(m.state) ?? 0) + 1));
+    console.log("Manufacturers data:", manufacturers);
+    manufacturers.forEach((m) => {
+      if (m.state) map.set(m.state, (map.get(m.state) ?? 0) + 1);
+    });
     return Array.from(map, ([state, count]) => ({ state, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
@@ -59,8 +62,10 @@ export const DashboardPage: React.FC = () => {
 
   const bySector = useMemo(() => {
     const map = new Map<string, number>();
-    manufacturers.forEach((m) =>
-      map.set(m.sectoral_group, (map.get(m.sectoral_group) ?? 0) + 1),
+    manufacturers.forEach(
+      (m) =>
+        m.sectoral_group &&
+        map.set(m.sectoral_group, (map.get(m.sectoral_group) ?? 0) + 1),
     );
     return Array.from(map, ([sector, count]) => ({ sector, count }))
       .sort((a, b) => b.count - a.count)
@@ -227,7 +232,7 @@ export const DashboardPage: React.FC = () => {
         ) : (
           <div className="divide-y divide-border">
             {recent.map((q) => {
-              const m = manufacturers.find((x) => x.id === q.manufacturerId);
+              const m = manufacturers.find((x) => x.manId === q.manufacturerId);
               return (
                 <div key={q.id} className="py-3 flex items-center gap-4">
                   <div className="w-10 h-10 rounded-md bg-primary/10 grid place-items-center text-primary text-xs font-semibold">

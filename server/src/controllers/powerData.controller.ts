@@ -10,10 +10,10 @@ export class PowerDataController {
       const data = req.body;
 
       // Validate input
-      if (!data.manufacturer_id || !data.power_value) {
+      if (!data.manufacturer_id) {
         res.status(400).json({
           success: false,
-          message: "Manufacturer ID and power value are required",
+          message: "Manufacturer ID is required",
         });
         return;
       }
@@ -78,11 +78,14 @@ export class PowerDataController {
   /**
    * Get power data by manufacturer ID
    */
-  static async findByManufacturerId(req: Request, res: Response): Promise<void> {
+  static async findByManufacturerId(
+    req: Request,
+    res: Response,
+  ): Promise<void> {
     try {
       const { manufacturer_id } = req.params;
 
-      if (!manufacturer_id) {
+      if (!manufacturer_id || Array.isArray(manufacturer_id)) {
         res.status(400).json({
           success: false,
           message: "Manufacturer ID is required",
@@ -90,7 +93,8 @@ export class PowerDataController {
         return;
       }
 
-      const powerDataList = await PowerDataService.findByManufacturerId(Number(manufacturer_id));
+      const powerDataList =
+        await PowerDataService.findByManufacturerId(manufacturer_id);
 
       res.status(200).json({
         success: true,

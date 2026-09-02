@@ -1,7 +1,9 @@
-import { Manufacturer } from '../generated/prisma/client.js';
-import prisma from '../services/prisma.service.js';
+import { randomUUID } from "crypto";
+import { Manufacturer } from "../generated/prisma/client.js";
+import prisma from "../services/prisma.service.js";
 
 export type CreateManufacturerInput = {
+  manId?: string;
   name: string;
   contact_person?: string | null;
   email?: string | null;
@@ -25,10 +27,11 @@ export class ManufacturerModel {
   }
 
   static async create(data: CreateManufacturerInput): Promise<Manufacturer> {
-    console.log('Creating manufacturer with data:', data);
+    console.log("Creating manufacturer with data:", data);
     return prisma.manufacturer.create({
       data: {
         name: data.name,
+        manId: data.manId ?? randomUUID(),
         contact_person: data.contact_person ?? null,
         email: data.email ?? null,
         phone: data.phone ?? null,
@@ -57,13 +60,17 @@ export class ManufacturerModel {
     });
   }
 
+  static async findByManId(manId: string): Promise<Manufacturer | null> {
+    return prisma.manufacturer.findUnique({ where: { manId } });
+  }
+
   static async findAll(): Promise<Manufacturer[]> {
     return prisma.manufacturer.findMany();
   }
 
   static async update(
     id: number,
-    data: Partial<CreateManufacturerInput>
+    data: Partial<CreateManufacturerInput>,
   ): Promise<Manufacturer> {
     console.log(data as Manufacturer);
     return prisma.manufacturer.update({

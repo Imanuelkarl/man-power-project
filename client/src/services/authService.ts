@@ -1,20 +1,10 @@
-import type { User } from "../types/user.types";
+import type { SignupPayload, User } from "../types/user.types";
 import api from "../utils/api";
 
 type AuthResponse = {
-  data: {
-    token: string;
-    user: User;
-  };
-};
-
-type SignupPayload = {
-  name?: string;
-  email: string;
-  password: string;
-  role?: "manufacturer" | "investor"; // Optional role for signup
-  companyName? : string;
-  
+  token: string;
+  user: User;
+  manufacturer?: import("../types/manufacturer.types").Manufacturer;
 };
 
 type LoginPayload = {
@@ -32,7 +22,7 @@ export const login = async ({ email, password }: LoginPayload) => {
       email,
       password,
     });
-    const data = response.data.data;
+    const data = response.data;
     localStorage.setItem("token", data.token);
     console.log("Login response data:", data);
     return data;
@@ -42,40 +32,54 @@ export const login = async ({ email, password }: LoginPayload) => {
   }
 };
 
-export const signup = async ({ name, email, password, role = "manufacturer",companyName}: SignupPayload) => {
-  console.log("Signup payload:", {name, email, password, role,companyName });
+export const signup = async ({
+  name,
+  email,
+  password,
+  role = "manufacturer",
+  companyName,
+  manufacturerId,
+}: SignupPayload) => {
+  console.log("Signup payload:", {
+    name,
+    email,
+    password,
+    role,
+    companyName,
+    manufacturerId,
+  });
   try {
     const response = await api.post<AuthResponse>("/auth/signup", {
       name,
       email,
       password,
       role, // Default role for signup
-      companyName
+      companyName,
+      manufacturerId,
     });
-    const data = response.data.data;
-    
+    const data = response.data;
+
     return data;
   } catch (error) {
     console.error("Signup error:", error);
     throw error;
   }
 };
-export const logout = async ()=>{
-  try{
+export const logout = async () => {
+  try {
     //await api.post("/auth/logout");
-  }catch (e){
+  } catch (e) {
     console.error(e);
   }
   return;
-  
-}
+};
 export const requestPasswordReset = async (email: string) => {
   console.log("Sending reset link");
   return api.post("/auth/reset-password", { email });
 };
 
 export const resetPassword = async (token: string, password: string) => {
-  return api.post(`/auth/update-password`, { token,password });
+  return api.post(`/auth/update-password`, { token, password });
 };
 
 export default {

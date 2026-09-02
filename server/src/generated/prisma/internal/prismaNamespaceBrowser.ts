@@ -82,7 +82,8 @@ export const UserScalarFieldEnum = {
   role: 'role',
   is_active: 'is_active',
   created_at: 'created_at',
-  updated_at: 'updated_at'
+  updated_at: 'updated_at',
+  manufacturerId: 'manufacturerId'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -90,6 +91,7 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const ManufacturerScalarFieldEnum = {
   id: 'id',
+  manId: 'manId',
   name: 'name',
   contact_person: 'contact_person',
   email: 'email',
@@ -125,6 +127,7 @@ export type BranchScalarFieldEnum = (typeof BranchScalarFieldEnum)[keyof typeof 
 
 export const PowerDataScalarFieldEnum = {
   id: 'id',
+  data_id: 'data_id',
   manufacturer_id: 'manufacturer_id',
   period: 'period',
   startTime: 'startTime',

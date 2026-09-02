@@ -49,9 +49,9 @@ export function enrichManufacturers(
         region: regionForState(state),
         lga: officialLga ? lgaKey(state, officialLga) : "",
         ward: "", // no per-company ward data exists yet
-        lat: m.lat,
-        lng: m.lng,
-        sectoralGroup: m.sectoral_group,
+        lat: m.lat ?? 0,
+        lng: m.lng ?? 0,
+        sectoralGroup: m.sectoral_group ?? "",
       };
     });
 }
@@ -80,23 +80,19 @@ export function resolveMembers(
   const manual = new Set(def.manufacturerIds);
 
   const useRadius =
-    !!def.focalPoint &&
-    typeof def.radiusKm === "number" &&
-    def.radiusKm > 0;
+    !!def.focalPoint && typeof def.radiusKm === "number" && def.radiusKm > 0;
 
   const matched = new Set<number>();
 
   for (const m of enriched) {
     let inLga = false;
 
-    
-      for (const lga of def.lgas) {
-        if (existInLGA(lga, m)) {
-          inLga = true;
-          break;
-        }
+    for (const lga of def.lgas) {
+      if (existInLGA(lga, m)) {
+        inLga = true;
+        break;
       }
-    
+    }
 
     if (
       regions.has(m.region) ||

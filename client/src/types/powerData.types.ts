@@ -1,6 +1,6 @@
 export interface PowerData {
-  id: string;
-  manufacturerId: number;
+  id: number;
+  manufacturerId: string;
   period: string; // e.g. "H1 2026"
   startTime: Date;
   endTime: Date;
@@ -10,7 +10,7 @@ export interface PowerData {
   totalEnergyConsumed: number;
   energyGeneratedByGas?: number;
   energyGeneratedByDiesel?: number;
-  energyGeneratedByGenerator?:number;
+  energyGeneratedByGenerator?: number;
   energyGeneratedByOther?: number;
   rawMaterialsCost: number;
   rawMaterialsTransport: number;
@@ -35,4 +35,5 @@ export interface PowerData {
   nigeriaFirstComment: string;
   submittedAt: string;
   submittedBy: string;
+  status?: "draft" | "submitted";
 }

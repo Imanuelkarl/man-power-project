@@ -44,7 +44,7 @@ export function Submissions() {
         );
       })
       .map((m) => {
-        const qre = manufacturers.find((x) => x.id === m.manufacturerId);
+        const qre = manufacturers.find((x) => x.manId === m.manufacturerId);
 
         return { m: qre, q: m };
       });

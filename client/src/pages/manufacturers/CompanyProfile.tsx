@@ -161,13 +161,14 @@ function CompanyProfile() {
         const jitter = () => (Math.random() - 0.5) * 0.08;
         const m: Manufacturer = {
           id: manufacturers.length,
+          manId: `MAN-${manufacturers.length}`,
           ...profile,
           city: loc.city,
           lat: parseFloat(profile.lat) || loc.lat + jitter(),
           lng: parseFloat(profile.lng) || loc.lng + jitter(),
           createdAt: new Date().toISOString(),
         };
-        addManufacturer(m);
+        void addManufacturer(m);
         manufacturerEmail = m.email;
         console.log("adding new manufacturer");
         // link company to user

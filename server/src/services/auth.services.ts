@@ -28,12 +28,12 @@ export type SignupInput = {
   password: string;
   role?: Role;
   companyName?: string;
-  manufacturer_id?: number | null;
+  manufacturerId?: string | null;
 };
 
 export class AuthService {
   static async verifyUser(token: string) {
-    const payload = this.verifyResetToken(token);
+    const payload = await this.verifyResetToken(token);
     console.log(payload);
     const user = await UserModel.findByUserId(payload.userId);
     if (!user) {
@@ -66,8 +66,8 @@ export class AuthService {
     );
   }
 
-  static generateResetToken(userId: number): string {
-    return jwt.sign({ userId }, JWT_SECRET, {
+  static generateResetToken(user: User): string {
+    return jwt.sign({ id: user.id, userId: user.userId }, JWT_SECRET, {
       expiresIn: RESET_TOKEN_EXPIRES_IN,
     });
   }
@@ -90,8 +90,10 @@ export class AuthService {
     } as UserResponse;
   }
 
-  static verifyResetToken(token: string): { userId: string, id:number } {
-    return jwt.verify(token, JWT_SECRET) as { userId: string, id:number};
+  static async verifyResetToken(
+    token: string,
+  ): Promise<{ userId: string; id: number }> {
+    return jwt.verify(token, JWT_SECRET) as { userId: string; id: number };
   }
 
   static async signup(input: SignupInput): Promise<AuthPayload> {
@@ -106,7 +108,9 @@ export class AuthService {
       name: input.name,
       email: input.email,
       password_hash,
+      is_active: false,
       role: input.role ?? Role.manufacturer,
+      manufacturerId: input.manufacturerId ?? null,
     });
     //  const user = {
     //   id:1,
@@ -125,23 +129,30 @@ export class AuthService {
       user.role,
     );
     if (input.role === "manufacturer") {
-      if (!input.companyName) {
-        UserModel.delete(user.id);
-        throw new Error("Company Name is required to create manufacturer");
+      let company = input.manufacturerId
+        ? await ManufacturerModel.findByManId(input.manufacturerId)
+        : null;
+      if (input.manufacturerId && !company) {
+        await UserModel.delete(user.id);
+        throw new Error("Selected manufacturer does not exist");
       }
-      const company = await ManufacturerModel.create({
-        name: input.companyName,
-        email: input.email,
-      });
+      if (!company) {
+        if (!input.companyName) {
+          await UserModel.delete(user.id);
+          throw new Error("Company Name is required to create manufacturer");
+        }
+        company = await ManufacturerModel.create({
+          name: input.companyName,
+          email: input.email,
+        });
+        await UserModel.update(user.id, { manufacturerId: company.manId });
+      }
       return {
         user: this.sanitizeUser(user),
         manufacturer: company,
         token: this.generateToken(user),
       };
     }
-
-   
-    
 
     return {
       user: this.sanitizeUser(user),
@@ -177,17 +188,21 @@ export class AuthService {
   static async resetPassword(
     token: string,
     password: string,
-  ): Promise<User> {
+  ): Promise<UserResponse> {
     console.log(token);
-    const payload = this.verifyResetToken(token);
+    const payload = await this.verifyResetToken(token);
     console.log(payload);
+
     const user = await UserModel.findById(payload.id);
+
     if (!user) {
       throw new Error("Invalid reset token");
     }
 
     const password_hash = await this.hashPassword(password);
-    return UserModel.update(user.id, { password_hash });
+    await UserModel.update(user.id, { password_hash, is_active: true });
+    console.log("Password reset successful for user:", user.email);
+    return this.sanitizeUser(user);
   }
 
   static async ensureAdminUser(): Promise<void> {
@@ -211,10 +226,10 @@ export class AuthService {
     const user = await UserModel.findByEmail(email);
     console.log(email);
     if (!user) {
-      throw new Error("User not found");
+      return "User with this email does not exist";
     }
-    const generateToken = this.generateResetToken(user.id);
-    console.log("The reset password token is",generateToken);
+    const generateToken = this.generateResetToken(user);
+    console.log("The reset password token is", generateToken);
     emailSender.sendPasswordReset(generateToken, email);
     return "Token has been sent to your email";
   }

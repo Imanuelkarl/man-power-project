@@ -1,5 +1,4 @@
 import type { User } from "../types/user.types";
-import type { Success } from "../types/response.types";
 import api from "../utils/api";
 
 export interface UserCreateData {
@@ -17,8 +16,8 @@ export interface UserUpdateData {
 
 const userService = {
     findAll: async () => {
-        const response = await api.get<Success>( "/users");
-        return response.data.data;
+        const response = await api.get<User[]>( "/users");
+        return response.data;
     },
 
     findByUserId: async (userId: string) => {

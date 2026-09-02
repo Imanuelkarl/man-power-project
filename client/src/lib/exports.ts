@@ -6,7 +6,7 @@ import type { PowerData } from "./store";
 import type { Manufacturer } from "../types/manufacturer.types";
 
 function buildRows(manufacturers: Manufacturer[], questionnaires: PowerData[]) {
-  const byId = new Map(manufacturers.map((m) => [m.id, m]));
+  const byId = new Map(manufacturers.map((m) => [m.manId, m]));
   return questionnaires.map((q) => {
     const m = byId.get(q.manufacturerId);
     return {

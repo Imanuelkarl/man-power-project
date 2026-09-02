@@ -43,7 +43,8 @@ export class AuthController {
    */
   static async signup(req: Request, res: Response): Promise<void> {
     try {
-      const { name, email, password, role , companyName } = req.body;
+      const { name, email, password, role, companyName, manufacturerId } =
+        req.body;
 
       // Validate input
       if (!name || !email || !password || !role) {
@@ -55,30 +56,29 @@ export class AuthController {
       }
 
       // Validate role
-      if (!["manufacturer", "investor","admin"].includes(role)) {
+      if (!["manufacturer", "investor", "admin"].includes(role)) {
         res.status(400).json({
           success: false,
           message: 'Role must be either "manufacturer" or "investor"',
         });
         return;
       }
-      if (role==="manufacturer"&&!companyName) {
+      if (role === "manufacturer" && !companyName && !manufacturerId) {
         res.status(400).json({
           success: false,
           message: '"Company Name is required to create manufacturer"',
         });
         return;
       }
-      
-      
 
       // TODO: Implement signup logic
-      const { token, user ,manufacturer } = await AuthService.signup({
+      const { token, user, manufacturer } = await AuthService.signup({
         name: name,
         email: email,
         password: password,
         role: role,
         companyName: companyName,
+        manufacturerId: manufacturerId ?? null,
       });
 
       res.status(201).json({
@@ -87,21 +87,24 @@ export class AuthController {
         data: {
           token,
           user,
-          manufacturer
+          manufacturer,
         },
       });
-    } catch (error:any) {
+    } catch (error: any) {
       console.error("Error during signup:", error);
       res.status(400).json({
         success: false,
-        message:  error.message
+        message: error.message,
       });
     }
   }
   /**
    * Create Reset password request
    */
-  static async requestResetPassword(req: Request, res: Response): Promise<void> {
+  static async requestResetPassword(
+    req: Request,
+    res: Response,
+  ): Promise<void> {
     try {
       const { email } = req.body;
 
@@ -138,21 +141,26 @@ export class AuthController {
 
       // Validate input
       if (!token || !password) {
-        console.error(`Token and new password are required token is ${token} and password is ${password}`);
+        console.error(
+          `Token and new password are required token is ${token} and password is ${password}`,
+        );
         res.status(400).json({
           success: false,
           message: "Token and new password are required",
         });
         return;
       }
-      await AuthService.resetPassword(token,password);
+      const user = await AuthService.resetPassword(token, password);
 
       res.status(200).json({
         success: true,
         message: "Password reset successful",
+        data: {
+          user,
+        },
       });
     } catch (error) {
-      console.error("Password reset failed",error);
+      console.error("Password reset failed", error);
       res.status(500).json({
         success: false,
         message: "Password reset failed",
@@ -175,11 +183,10 @@ export class AuthController {
     }
   }
   static async verifyToken(req: Request, res: Response): Promise<void> {
-    
     try {
-      const token = req.headers.authorization?.split(' ')[1];
+      const token = req.headers.authorization?.split(" ")[1];
       console.log(token);
-      if(!token){
+      if (!token) {
         return;
       }
       const user = await AuthService.verifyUser(token);
@@ -196,11 +203,11 @@ export class AuthController {
       });
     }
   }
-  static async logout(req:Request ,res: Response): Promise<void> {
-    const token = req.headers.authorization?.split(' ')[1];
-    if(!token){
-        return;
-      }
-    return await AuthService.logout(token)
+  static async logout(req: Request, res: Response): Promise<void> {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return;
+    }
+    return await AuthService.logout(token);
   }
 }

@@ -13,12 +13,14 @@ export interface Cluster {
 export function clusterManufacturers(
   manufacturers: Manufacturer[],
   maxDistanceKm = 60,
-  minPoints = 2
+  minPoints = 2,
 ): Cluster[] {
   if (manufacturers.length === 0) return [];
 
   const fc = turf.featureCollection(
-    manufacturers.map((m) => turf.point([m.lng, m.lat], { id: m.id }))
+    manufacturers.map((m) =>
+      turf.point([m.lng ?? 0, m.lat ?? 0], { id: m.id }),
+    ),
   );
   const clustered = turf.clustersDbscan(fc, maxDistanceKm, { minPoints });
 
@@ -35,7 +37,9 @@ export function clusterManufacturers(
   let id = 0;
   for (const members of groups.values()) {
     if (members.length < 2) continue;
-    const points = turf.featureCollection(members.map((m) => turf.point([m.lng, m.lat])));
+    const points = turf.featureCollection(
+      members.map((m) => turf.point([m.lng ?? 0, m.lat ?? 0])),
+    );
     const centroidFeat = turf.centroid(points);
     const centroid = centroidFeat.geometry.coordinates as [number, number];
 
@@ -44,13 +48,20 @@ export function clusterManufacturers(
       const hull = turf.convex(points, { concavity: 2 });
       if (hull) {
         const buffered = turf.buffer(hull, 5, { units: "kilometers" });
-        polygon = ((buffered?.geometry.coordinates?.[0] ?? hull.geometry.coordinates[0]) as [number, number][]);
+        polygon = (buffered?.geometry.coordinates?.[0] ??
+          hull.geometry.coordinates[0]) as [number, number][];
       } else {
-        const circle = turf.circle(centroid, 20, { steps: 32, units: "kilometers" });
+        const circle = turf.circle(centroid, 20, {
+          steps: 32,
+          units: "kilometers",
+        });
         polygon = circle.geometry.coordinates[0] as [number, number][];
       }
     } else {
-      const circle = turf.circle(centroid, 25, { steps: 32, units: "kilometers" });
+      const circle = turf.circle(centroid, 25, {
+        steps: 32,
+        units: "kilometers",
+      });
       polygon = circle.geometry.coordinates[0] as [number, number][];
     }
 

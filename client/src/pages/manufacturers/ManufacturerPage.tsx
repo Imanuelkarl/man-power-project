@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useData } from "../../lib/store";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
@@ -6,12 +6,49 @@ import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { PageHeader } from "../../components/page-header";
 import { formatNaira } from "../../lib/format";
-import { Search, Trash2 } from "lucide-react";
+import { Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function ManufacturersPage() {
-  const { manufacturers, questionnaires, removeManufacturer } = useData();
+  const {
+    manufacturers,
+    questionnaires,
+    removeManufacturer,
+    fetchManufacturers,
+    manufacturersHydrated,
+    loadingManufacturers,
+    addManufacturer,
+  } = useData();
   const [query, setQuery] = useState("");
+  const [showCreate, setShowCreate] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  useEffect(() => {
+    if (!manufacturersHydrated && !loadingManufacturers) {
+      void fetchManufacturers();
+    }
+  }, [fetchManufacturers, loadingManufacturers, manufacturersHydrated]);
+
+  const handleCreate = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setCreating(true);
+    try {
+      const manufacturer = await addManufacturer({
+        name: newName.trim(),
+        email: newEmail.trim(),
+      });
+      toast.success(`${manufacturer.name} was created`);
+      setNewName("");
+      setNewEmail("");
+      setShowCreate(false);
+    } catch {
+      toast.error("Unable to create manufacturer.");
+    } finally {
+      setCreating(false);
+    }
+  };
 
   const rows = useMemo(() => {
     const q = query.toLowerCase();
@@ -20,11 +57,11 @@ export function ManufacturersPage() {
         (m) =>
           !q ||
           m.name.toLowerCase().includes(q) ||
-          m.state.toLowerCase().includes(q) ||
-          m.sectoral_group.toLowerCase().includes(q),
+          m.state?.toLowerCase().includes(q) ||
+          m.sectoral_group?.toLowerCase().includes(q),
       )
       .map((m) => {
-        const ques = questionnaires.find((x) => x.manufacturerId === m.id);
+        const ques = questionnaires.find((x) => x.manufacturerId === m.manId);
         return { m, q: ques };
       });
   }, [manufacturers, questionnaires, query]);
@@ -50,7 +87,58 @@ export function ManufacturersPage() {
           <div className="text-xs text-muted-foreground ml-auto">
             {rows.length} shown
           </div>
+          <Button onClick={() => setShowCreate(true)}>
+            <Plus className="w-4 h-4 mr-2" /> Create manufacturer
+          </Button>
         </div>
+        {showCreate && (
+          <div className="border-b border-border p-4">
+            <form
+              onSubmit={handleCreate}
+              className="flex flex-wrap items-end gap-3"
+            >
+              <div className="space-y-2">
+                <label
+                  htmlFor="manufacturer-name"
+                  className="text-xs font-medium"
+                >
+                  Company name
+                </label>
+                <Input
+                  id="manufacturer-name"
+                  required
+                  value={newName}
+                  onChange={(event) => setNewName(event.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="manufacturer-email"
+                  className="text-xs font-medium"
+                >
+                  Company email
+                </label>
+                <Input
+                  id="manufacturer-email"
+                  type="email"
+                  required
+                  value={newEmail}
+                  onChange={(event) => setNewEmail(event.target.value)}
+                />
+              </div>
+              <Button type="submit" disabled={creating}>
+                {creating ? "Creating..." : "Create"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowCreate(false)}
+              >
+                Cancel
+              </Button>
+            </form>
+          </div>
+        )}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">

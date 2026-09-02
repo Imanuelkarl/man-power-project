@@ -29,6 +29,7 @@
     "sqlite3": "^6.0.1"
   },
   "devDependencies": {
+    "@prisma/orm-postgres": "^8.0.0-rc.8",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",

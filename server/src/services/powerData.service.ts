@@ -38,7 +38,7 @@ export class PowerDataService {
   }
 
   static async findByManufacturerId(
-    manufacturer_id: number,
+    manufacturer_id: string,
   ): Promise<PowerDataResponse[]> {
     const powerDataList =
       await PowerDataModel.findByManufacturerId(manufacturer_id);

@@ -28,7 +28,6 @@ export type AggregatePowerData = {
 
 export type PowerDataAvgAggregateOutputType = {
   id: number | null
-  manufacturer_id: number | null
   capacity_utilization: number | null
   production_value: number | null
   raw_material_cost: number | null
@@ -51,12 +50,10 @@ export type PowerDataAvgAggregateOutputType = {
   energy_gas_cost: number | null
   energy_gen_maintenance_cost: number | null
   energy_other_cost: number | null
-  submitted_by: number | null
 }
 
 export type PowerDataSumAggregateOutputType = {
   id: number | null
-  manufacturer_id: number | null
   capacity_utilization: number | null
   production_value: number | null
   raw_material_cost: number | null
@@ -79,12 +76,12 @@ export type PowerDataSumAggregateOutputType = {
   energy_gas_cost: number | null
   energy_gen_maintenance_cost: number | null
   energy_other_cost: number | null
-  submitted_by: number | null
 }
 
 export type PowerDataMinAggregateOutputType = {
   id: number | null
-  manufacturer_id: number | null
+  data_id: string | null
+  manufacturer_id: string | null
   period: string | null
   startTime: Date | null
   endTime: Date | null
@@ -115,14 +112,15 @@ export type PowerDataMinAggregateOutputType = {
   additional_comments: string | null
   status: $Enums.ResponseStatus | null
   submitted_at: Date | null
-  submitted_by: number | null
+  submitted_by: string | null
   created_at: Date | null
   updated_at: Date | null
 }
 
 export type PowerDataMaxAggregateOutputType = {
   id: number | null
-  manufacturer_id: number | null
+  data_id: string | null
+  manufacturer_id: string | null
   period: string | null
   startTime: Date | null
   endTime: Date | null
@@ -153,13 +151,14 @@ export type PowerDataMaxAggregateOutputType = {
   additional_comments: string | null
   status: $Enums.ResponseStatus | null
   submitted_at: Date | null
-  submitted_by: number | null
+  submitted_by: string | null
   created_at: Date | null
   updated_at: Date | null
 }
 
 export type PowerDataCountAggregateOutputType = {
   id: number
+  data_id: number
   manufacturer_id: number
   period: number
   startTime: number
@@ -200,7 +199,6 @@ export type PowerDataCountAggregateOutputType = {
 
 export type PowerDataAvgAggregateInputType = {
   id?: true
-  manufacturer_id?: true
   capacity_utilization?: true
   production_value?: true
   raw_material_cost?: true
@@ -223,12 +221,10 @@ export type PowerDataAvgAggregateInputType = {
   energy_gas_cost?: true
   energy_gen_maintenance_cost?: true
   energy_other_cost?: true
-  submitted_by?: true
 }
 
 export type PowerDataSumAggregateInputType = {
   id?: true
-  manufacturer_id?: true
   capacity_utilization?: true
   production_value?: true
   raw_material_cost?: true
@@ -251,11 +247,11 @@ export type PowerDataSumAggregateInputType = {
   energy_gas_cost?: true
   energy_gen_maintenance_cost?: true
   energy_other_cost?: true
-  submitted_by?: true
 }
 
 export type PowerDataMinAggregateInputType = {
   id?: true
+  data_id?: true
   manufacturer_id?: true
   period?: true
   startTime?: true
@@ -294,6 +290,7 @@ export type PowerDataMinAggregateInputType = {
 
 export type PowerDataMaxAggregateInputType = {
   id?: true
+  data_id?: true
   manufacturer_id?: true
   period?: true
   startTime?: true
@@ -332,6 +329,7 @@ export type PowerDataMaxAggregateInputType = {
 
 export type PowerDataCountAggregateInputType = {
   id?: true
+  data_id?: true
   manufacturer_id?: true
   period?: true
   startTime?: true
@@ -457,7 +455,8 @@ export type PowerDataGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 
 export type PowerDataGroupByOutputType = {
   id: number
-  manufacturer_id: number
+  data_id: string
+  manufacturer_id: string
   period: string
   startTime: Date | null
   endTime: Date | null
@@ -488,7 +487,7 @@ export type PowerDataGroupByOutputType = {
   additional_comments: string | null
   status: $Enums.ResponseStatus
   submitted_at: Date | null
-  submitted_by: number | null
+  submitted_by: string | null
   created_at: Date
   updated_at: Date
   _count: PowerDataCountAggregateOutputType | null
@@ -518,7 +517,8 @@ export type PowerDataWhereInput = {
   OR?: Prisma.PowerDataWhereInput[]
   NOT?: Prisma.PowerDataWhereInput | Prisma.PowerDataWhereInput[]
   id?: Prisma.IntFilter<"PowerData"> | number
-  manufacturer_id?: Prisma.IntFilter<"PowerData"> | number
+  data_id?: Prisma.StringFilter<"PowerData"> | string
+  manufacturer_id?: Prisma.StringFilter<"PowerData"> | string
   period?: Prisma.StringFilter<"PowerData"> | string
   startTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
   endTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
@@ -549,7 +549,7 @@ export type PowerDataWhereInput = {
   additional_comments?: Prisma.StringNullableFilter<"PowerData"> | string | null
   status?: Prisma.EnumResponseStatusFilter<"PowerData"> | $Enums.ResponseStatus
   submitted_at?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
-  submitted_by?: Prisma.IntNullableFilter<"PowerData"> | number | null
+  submitted_by?: Prisma.StringNullableFilter<"PowerData"> | string | null
   created_at?: Prisma.DateTimeFilter<"PowerData"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"PowerData"> | Date | string
   manufacturer?: Prisma.XOR<Prisma.ManufacturerScalarRelationFilter, Prisma.ManufacturerWhereInput>
@@ -557,6 +557,7 @@ export type PowerDataWhereInput = {
 
 export type PowerDataOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  data_id?: Prisma.SortOrder
   manufacturer_id?: Prisma.SortOrder
   period?: Prisma.SortOrder
   startTime?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -596,10 +597,11 @@ export type PowerDataOrderByWithRelationInput = {
 
 export type PowerDataWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  data_id?: string
   AND?: Prisma.PowerDataWhereInput | Prisma.PowerDataWhereInput[]
   OR?: Prisma.PowerDataWhereInput[]
   NOT?: Prisma.PowerDataWhereInput | Prisma.PowerDataWhereInput[]
-  manufacturer_id?: Prisma.IntFilter<"PowerData"> | number
+  manufacturer_id?: Prisma.StringFilter<"PowerData"> | string
   period?: Prisma.StringFilter<"PowerData"> | string
   startTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
   endTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
@@ -630,14 +632,15 @@ export type PowerDataWhereUniqueInput = Prisma.AtLeast<{
   additional_comments?: Prisma.StringNullableFilter<"PowerData"> | string | null
   status?: Prisma.EnumResponseStatusFilter<"PowerData"> | $Enums.ResponseStatus
   submitted_at?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
-  submitted_by?: Prisma.IntNullableFilter<"PowerData"> | number | null
+  submitted_by?: Prisma.StringNullableFilter<"PowerData"> | string | null
   created_at?: Prisma.DateTimeFilter<"PowerData"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"PowerData"> | Date | string
   manufacturer?: Prisma.XOR<Prisma.ManufacturerScalarRelationFilter, Prisma.ManufacturerWhereInput>
-}, "id">
+}, "id" | "data_id">
 
 export type PowerDataOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  data_id?: Prisma.SortOrder
   manufacturer_id?: Prisma.SortOrder
   period?: Prisma.SortOrder
   startTime?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -684,7 +687,8 @@ export type PowerDataScalarWhereWithAggregatesInput = {
   OR?: Prisma.PowerDataScalarWhereWithAggregatesInput[]
   NOT?: Prisma.PowerDataScalarWhereWithAggregatesInput | Prisma.PowerDataScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"PowerData"> | number
-  manufacturer_id?: Prisma.IntWithAggregatesFilter<"PowerData"> | number
+  data_id?: Prisma.StringWithAggregatesFilter<"PowerData"> | string
+  manufacturer_id?: Prisma.StringWithAggregatesFilter<"PowerData"> | string
   period?: Prisma.StringWithAggregatesFilter<"PowerData"> | string
   startTime?: Prisma.DateTimeNullableWithAggregatesFilter<"PowerData"> | Date | string | null
   endTime?: Prisma.DateTimeNullableWithAggregatesFilter<"PowerData"> | Date | string | null
@@ -715,12 +719,13 @@ export type PowerDataScalarWhereWithAggregatesInput = {
   additional_comments?: Prisma.StringNullableWithAggregatesFilter<"PowerData"> | string | null
   status?: Prisma.EnumResponseStatusWithAggregatesFilter<"PowerData"> | $Enums.ResponseStatus
   submitted_at?: Prisma.DateTimeNullableWithAggregatesFilter<"PowerData"> | Date | string | null
-  submitted_by?: Prisma.IntNullableWithAggregatesFilter<"PowerData"> | number | null
+  submitted_by?: Prisma.StringNullableWithAggregatesFilter<"PowerData"> | string | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"PowerData"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"PowerData"> | Date | string
 }
 
 export type PowerDataCreateInput = {
+  data_id: string
   period?: string
   startTime?: Date | string | null
   endTime?: Date | string | null
@@ -751,7 +756,7 @@ export type PowerDataCreateInput = {
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
   submitted_at?: Date | string | null
-  submitted_by?: number | null
+  submitted_by?: string | null
   created_at?: Date | string
   updated_at?: Date | string
   manufacturer: Prisma.ManufacturerCreateNestedOneWithoutPowerInfoInput
@@ -759,7 +764,8 @@ export type PowerDataCreateInput = {
 
 export type PowerDataUncheckedCreateInput = {
   id?: number
-  manufacturer_id: number
+  data_id: string
+  manufacturer_id: string
   period?: string
   startTime?: Date | string | null
   endTime?: Date | string | null
@@ -790,12 +796,13 @@ export type PowerDataUncheckedCreateInput = {
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
   submitted_at?: Date | string | null
-  submitted_by?: number | null
+  submitted_by?: string | null
   created_at?: Date | string
   updated_at?: Date | string
 }
 
 export type PowerDataUpdateInput = {
+  data_id?: Prisma.StringFieldUpdateOperationsInput | string
   period?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -826,7 +833,7 @@ export type PowerDataUpdateInput = {
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
   submitted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  submitted_by?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submitted_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   manufacturer?: Prisma.ManufacturerUpdateOneRequiredWithoutPowerInfoNestedInput
@@ -834,7 +841,8 @@ export type PowerDataUpdateInput = {
 
 export type PowerDataUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  manufacturer_id?: Prisma.IntFieldUpdateOperationsInput | number
+  data_id?: Prisma.StringFieldUpdateOperationsInput | string
+  manufacturer_id?: Prisma.StringFieldUpdateOperationsInput | string
   period?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -865,14 +873,15 @@ export type PowerDataUncheckedUpdateInput = {
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
   submitted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  submitted_by?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submitted_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PowerDataCreateManyInput = {
   id?: number
-  manufacturer_id: number
+  data_id: string
+  manufacturer_id: string
   period?: string
   startTime?: Date | string | null
   endTime?: Date | string | null
@@ -903,12 +912,13 @@ export type PowerDataCreateManyInput = {
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
   submitted_at?: Date | string | null
-  submitted_by?: number | null
+  submitted_by?: string | null
   created_at?: Date | string
   updated_at?: Date | string
 }
 
 export type PowerDataUpdateManyMutationInput = {
+  data_id?: Prisma.StringFieldUpdateOperationsInput | string
   period?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -939,14 +949,15 @@ export type PowerDataUpdateManyMutationInput = {
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
   submitted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  submitted_by?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submitted_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PowerDataUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  manufacturer_id?: Prisma.IntFieldUpdateOperationsInput | number
+  data_id?: Prisma.StringFieldUpdateOperationsInput | string
+  manufacturer_id?: Prisma.StringFieldUpdateOperationsInput | string
   period?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -977,7 +988,7 @@ export type PowerDataUncheckedUpdateManyInput = {
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
   submitted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  submitted_by?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submitted_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -994,6 +1005,7 @@ export type PowerDataOrderByRelationAggregateInput = {
 
 export type PowerDataCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  data_id?: Prisma.SortOrder
   manufacturer_id?: Prisma.SortOrder
   period?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
@@ -1032,7 +1044,6 @@ export type PowerDataCountOrderByAggregateInput = {
 
 export type PowerDataAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  manufacturer_id?: Prisma.SortOrder
   capacity_utilization?: Prisma.SortOrder
   production_value?: Prisma.SortOrder
   raw_material_cost?: Prisma.SortOrder
@@ -1055,11 +1066,11 @@ export type PowerDataAvgOrderByAggregateInput = {
   energy_gas_cost?: Prisma.SortOrder
   energy_gen_maintenance_cost?: Prisma.SortOrder
   energy_other_cost?: Prisma.SortOrder
-  submitted_by?: Prisma.SortOrder
 }
 
 export type PowerDataMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  data_id?: Prisma.SortOrder
   manufacturer_id?: Prisma.SortOrder
   period?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
@@ -1098,6 +1109,7 @@ export type PowerDataMaxOrderByAggregateInput = {
 
 export type PowerDataMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  data_id?: Prisma.SortOrder
   manufacturer_id?: Prisma.SortOrder
   period?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
@@ -1136,7 +1148,6 @@ export type PowerDataMinOrderByAggregateInput = {
 
 export type PowerDataSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  manufacturer_id?: Prisma.SortOrder
   capacity_utilization?: Prisma.SortOrder
   production_value?: Prisma.SortOrder
   raw_material_cost?: Prisma.SortOrder
@@ -1159,7 +1170,6 @@ export type PowerDataSumOrderByAggregateInput = {
   energy_gas_cost?: Prisma.SortOrder
   energy_gen_maintenance_cost?: Prisma.SortOrder
   energy_other_cost?: Prisma.SortOrder
-  submitted_by?: Prisma.SortOrder
 }
 
 export type PowerDataCreateNestedManyWithoutManufacturerInput = {
@@ -1213,6 +1223,7 @@ export type EnumResponseStatusFieldUpdateOperationsInput = {
 }
 
 export type PowerDataCreateWithoutManufacturerInput = {
+  data_id: string
   period?: string
   startTime?: Date | string | null
   endTime?: Date | string | null
@@ -1243,13 +1254,14 @@ export type PowerDataCreateWithoutManufacturerInput = {
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
   submitted_at?: Date | string | null
-  submitted_by?: number | null
+  submitted_by?: string | null
   created_at?: Date | string
   updated_at?: Date | string
 }
 
 export type PowerDataUncheckedCreateWithoutManufacturerInput = {
   id?: number
+  data_id: string
   period?: string
   startTime?: Date | string | null
   endTime?: Date | string | null
@@ -1280,7 +1292,7 @@ export type PowerDataUncheckedCreateWithoutManufacturerInput = {
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
   submitted_at?: Date | string | null
-  submitted_by?: number | null
+  submitted_by?: string | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1316,7 +1328,8 @@ export type PowerDataScalarWhereInput = {
   OR?: Prisma.PowerDataScalarWhereInput[]
   NOT?: Prisma.PowerDataScalarWhereInput | Prisma.PowerDataScalarWhereInput[]
   id?: Prisma.IntFilter<"PowerData"> | number
-  manufacturer_id?: Prisma.IntFilter<"PowerData"> | number
+  data_id?: Prisma.StringFilter<"PowerData"> | string
+  manufacturer_id?: Prisma.StringFilter<"PowerData"> | string
   period?: Prisma.StringFilter<"PowerData"> | string
   startTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
   endTime?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
@@ -1347,13 +1360,14 @@ export type PowerDataScalarWhereInput = {
   additional_comments?: Prisma.StringNullableFilter<"PowerData"> | string | null
   status?: Prisma.EnumResponseStatusFilter<"PowerData"> | $Enums.ResponseStatus
   submitted_at?: Prisma.DateTimeNullableFilter<"PowerData"> | Date | string | null
-  submitted_by?: Prisma.IntNullableFilter<"PowerData"> | number | null
+  submitted_by?: Prisma.StringNullableFilter<"PowerData"> | string | null
   created_at?: Prisma.DateTimeFilter<"PowerData"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"PowerData"> | Date | string
 }
 
 export type PowerDataCreateManyManufacturerInput = {
   id?: number
+  data_id: string
   period?: string
   startTime?: Date | string | null
   endTime?: Date | string | null
@@ -1384,12 +1398,13 @@ export type PowerDataCreateManyManufacturerInput = {
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
   submitted_at?: Date | string | null
-  submitted_by?: number | null
+  submitted_by?: string | null
   created_at?: Date | string
   updated_at?: Date | string
 }
 
 export type PowerDataUpdateWithoutManufacturerInput = {
+  data_id?: Prisma.StringFieldUpdateOperationsInput | string
   period?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1420,13 +1435,14 @@ export type PowerDataUpdateWithoutManufacturerInput = {
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
   submitted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  submitted_by?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submitted_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PowerDataUncheckedUpdateWithoutManufacturerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  data_id?: Prisma.StringFieldUpdateOperationsInput | string
   period?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1457,13 +1473,14 @@ export type PowerDataUncheckedUpdateWithoutManufacturerInput = {
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
   submitted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  submitted_by?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submitted_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PowerDataUncheckedUpdateManyWithoutManufacturerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  data_id?: Prisma.StringFieldUpdateOperationsInput | string
   period?: Prisma.StringFieldUpdateOperationsInput | string
   startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1494,7 +1511,7 @@ export type PowerDataUncheckedUpdateManyWithoutManufacturerInput = {
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
   submitted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  submitted_by?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submitted_by?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1503,6 +1520,7 @@ export type PowerDataUncheckedUpdateManyWithoutManufacturerInput = {
 
 export type PowerDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  data_id?: boolean
   manufacturer_id?: boolean
   period?: boolean
   startTime?: boolean
@@ -1542,6 +1560,7 @@ export type PowerDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type PowerDataSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  data_id?: boolean
   manufacturer_id?: boolean
   period?: boolean
   startTime?: boolean
@@ -1581,6 +1600,7 @@ export type PowerDataSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
 
 export type PowerDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  data_id?: boolean
   manufacturer_id?: boolean
   period?: boolean
   startTime?: boolean
@@ -1620,6 +1640,7 @@ export type PowerDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 
 export type PowerDataSelectScalar = {
   id?: boolean
+  data_id?: boolean
   manufacturer_id?: boolean
   period?: boolean
   startTime?: boolean
@@ -1656,7 +1677,7 @@ export type PowerDataSelectScalar = {
   updated_at?: boolean
 }
 
-export type PowerDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "manufacturer_id" | "period" | "startTime" | "endTime" | "capacity_utilization" | "production_value" | "raw_material_cost" | "transport_cost" | "local_sourcing_percent" | "unsold_goods_value" | "new_workers_employed" | "total_workers" | "workers_left" | "avg_interest_rate" | "avg_exchange_rate" | "investment_land_buildings" | "investment_plant_machinery" | "investment_furniture" | "investment_motor_vehicles" | "investment_assets_in_progress" | "avg_grid_hours" | "avg_power_outages" | "energy_diesel_cost" | "energy_gas_cost" | "energy_gen_maintenance_cost" | "energy_other_cost" | "energy_other_source" | "nigeria_first_policy_comment" | "additional_comments" | "status" | "submitted_at" | "submitted_by" | "created_at" | "updated_at", ExtArgs["result"]["powerData"]>
+export type PowerDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "data_id" | "manufacturer_id" | "period" | "startTime" | "endTime" | "capacity_utilization" | "production_value" | "raw_material_cost" | "transport_cost" | "local_sourcing_percent" | "unsold_goods_value" | "new_workers_employed" | "total_workers" | "workers_left" | "avg_interest_rate" | "avg_exchange_rate" | "investment_land_buildings" | "investment_plant_machinery" | "investment_furniture" | "investment_motor_vehicles" | "investment_assets_in_progress" | "avg_grid_hours" | "avg_power_outages" | "energy_diesel_cost" | "energy_gas_cost" | "energy_gen_maintenance_cost" | "energy_other_cost" | "energy_other_source" | "nigeria_first_policy_comment" | "additional_comments" | "status" | "submitted_at" | "submitted_by" | "created_at" | "updated_at", ExtArgs["result"]["powerData"]>
 export type PowerDataInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   manufacturer?: boolean | Prisma.ManufacturerDefaultArgs<ExtArgs>
 }
@@ -1674,7 +1695,8 @@ export type $PowerDataPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    manufacturer_id: number
+    data_id: string
+    manufacturer_id: string
     period: string
     startTime: Date | null
     endTime: Date | null
@@ -1705,7 +1727,7 @@ export type $PowerDataPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     additional_comments: string | null
     status: $Enums.ResponseStatus
     submitted_at: Date | null
-    submitted_by: number | null
+    submitted_by: string | null
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["powerData"]>
@@ -2133,7 +2155,8 @@ export interface Prisma__PowerDataClient<T, Null = never, ExtArgs extends runtim
  */
 export interface PowerDataFieldRefs {
   readonly id: Prisma.FieldRef<"PowerData", 'Int'>
-  readonly manufacturer_id: Prisma.FieldRef<"PowerData", 'Int'>
+  readonly data_id: Prisma.FieldRef<"PowerData", 'String'>
+  readonly manufacturer_id: Prisma.FieldRef<"PowerData", 'String'>
   readonly period: Prisma.FieldRef<"PowerData", 'String'>
   readonly startTime: Prisma.FieldRef<"PowerData", 'DateTime'>
   readonly endTime: Prisma.FieldRef<"PowerData", 'DateTime'>
@@ -2164,7 +2187,7 @@ export interface PowerDataFieldRefs {
   readonly additional_comments: Prisma.FieldRef<"PowerData", 'String'>
   readonly status: Prisma.FieldRef<"PowerData", 'ResponseStatus'>
   readonly submitted_at: Prisma.FieldRef<"PowerData", 'DateTime'>
-  readonly submitted_by: Prisma.FieldRef<"PowerData", 'Int'>
+  readonly submitted_by: Prisma.FieldRef<"PowerData", 'String'>
   readonly created_at: Prisma.FieldRef<"PowerData", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"PowerData", 'DateTime'>
 }

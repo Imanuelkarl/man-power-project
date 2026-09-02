@@ -41,6 +41,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   if (loading) {
     return <><Loader isLoading={loading}/></>;
   }
+  console.log("User in AppLayout:", user);
   if (!user) return <Navigate to="/login" />;
 
   const nav: Array<{

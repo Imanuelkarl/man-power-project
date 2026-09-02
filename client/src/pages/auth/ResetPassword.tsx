@@ -19,8 +19,9 @@ export const ForgotPasswordPage = () => {
     try {
       
       const r = await authService.requestPasswordReset(email);
-      if(r.data){
+      if(r.status){
         setSubmitted(true);
+        toast.success("An email has been sent with a password reset link.");
       }
       
     } catch (error) {

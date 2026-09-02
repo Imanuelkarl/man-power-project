@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 
 // Database configuration
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
 
 // Middlewares
 app.use(cors());

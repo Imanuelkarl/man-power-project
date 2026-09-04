@@ -1,37 +1,42 @@
-name: Test SSH Connection
+name: Test SSH with sshpass
 
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch:
 
 jobs:
   test-connection:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Test SSH Connection
-      uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.VPS_HOST }}
-        username: ${{ secrets.VPS_USERNAME }}
-        password: ${{ secrets.VPS_PASSWORD }}
-        port: ${{ secrets.VPS_PORT || 22 }}
-        script: |
+    - name: Install sshpass
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sshpass
+    
+    - name: Connect to VPS
+      run: |
+        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'EOF'
           echo "========================================="
-          echo "✅ SSH Connection Successful!"
+          echo "✅ Successfully connected to VPS!"
           echo "========================================="
+          echo "Hostname: $(hostname)"
+          echo "IP Address: $(hostname -I)"
           echo "Current User: $(whoami)"
-          echo "Current Directory: $(pwd)"
-          echo "System Info: $(uname -a)"
-          echo "Date: $(date)"
+          echo "Home Directory: $HOME"
+          echo "Current Path: $(pwd)"
           echo "========================================="
-          echo "Listing files in home directory:"
-          ls -la ~/
+          echo "System Information:"
+          cat /etc/os-release | grep PRETTY_NAME
+          echo "Kernel: $(uname -r)"
+          echo "Uptime: $(uptime)"
           echo "========================================="
-          echo "Checking disk space:"
-          df -h
+          echo "Directory contents:"
+          ls -la
           echo "========================================="
-          echo "Checking memory:"
-          free -h
+          echo "Node.js version: $(node --version 2>/dev/null || echo 'Not installed')"
+          echo "NPM version: $(npm --version 2>/dev/null || echo 'Not installed')"
+          echo "PM2 version: $(pm2 --version 2>/dev/null || echo 'Not installed')"
           echo "========================================="
+          echo "✅ Connection test completed successfully!"

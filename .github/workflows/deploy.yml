@@ -1,0 +1,168 @@
+name: Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            server/node_modules
+            client/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # ===== SERVER BUILD =====
+      - name: Install Server Dependencies
+        working-directory: ./server
+        run: npm ci --production
+
+      - name: Create Server .env for Production
+        working-directory: ./server
+        run: |
+          echo "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}" > .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "NODE_ENV=production" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" >> .env
+          # Add all your server env vars
+
+      - name: Run Server Build
+        working-directory: ./server
+        run: npm run build
+
+      # ===== CLIENT BUILD =====
+      - name: Install Client Dependencies
+        working-directory: ./client
+        run: npm ci --production
+
+      - name: Create Client .env for Production
+        working-directory: ./client
+        run: |
+          echo "VITE_API_URL=${{ secrets.PROD_VITE_API_URL }}" > .env
+          echo "VITE_APP_ENV=production" >> .env
+          # Add all your client env vars
+
+      - name: Run Client Build
+        working-directory: ./client
+        run: npm run build
+
+      # ===== DATABASE MIGRATIONS =====
+      - name: Run Database Migrations
+        working-directory: ./server
+        run: npm run migrate
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+
+      # ===== DEPLOYMENT METHODS =====
+      
+      # Method 1: Deploy to VPS with SSH and PM2
+      - name: Deploy to VPS
+        if: success()
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /var/www/your-app
+            
+            # Backup current .env files
+            cp server/.env server/.env.backup
+            cp client/.env client/.env.backup
+            
+            # Pull latest changes
+            git pull origin main
+            
+            # Restore .env files
+            cp server/.env.backup server/.env
+            cp client/.env.backup client/.env
+            
+            # Server setup
+            cd server
+            npm ci --production
+            npm run build
+            
+            # Client setup
+            cd ../client
+            npm ci --production
+            npm run build
+            
+            # Restart application with PM2
+            cd ..
+            pm2 restart your-app-name || pm2 start server/dist/index.js --name your-app-name
+            pm2 save
+            
+            echo "✅ Production deployment complete!"
+
+      # Method 2: Deploy to AWS Elastic Beanstalk
+      - name: Deploy to AWS Elastic Beanstalk
+        if: success() && false  # Disabled by default, enable if using AWS
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: your-app-name
+          environment_name: your-app-env
+          version_label: ${{ github.sha }}
+          region: us-east-1
+          deployment_package: deploy.zip
+
+      # Method 3: Deploy Client to Vercel, Server to Railway
+      - name: Deploy Client to Vercel
+        if: success() && false  # Disabled by default
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./client
+
+      - name: Deploy Server to Railway
+        if: success() && false  # Disabled by default
+        uses: railwayup/action-railway@v1
+        with:
+          railway-token: ${{ secrets.RAILWAY_TOKEN }}
+          project-service: server
+
+      # ===== HEALTH CHECK =====
+      - name: Health Check
+        if: success()
+        run: |
+          echo "Waiting for server to start..."
+          sleep 10
+          curl -f http://${{ secrets.SERVER_URL }}/health || exit 1
+          echo "✅ Health check passed!"
+
+      # ===== DEPLOYMENT NOTIFICATION =====
+      - name: Send deployment notification
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ Deployment successful! 🎉"
+          else
+            echo "❌ Deployment failed! Please check the logs."
+            exit 1
+          fi

@@ -1,42 +1,123 @@
-name: Test SSH with sshpass
+name: Deploy Man Power Project
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  test-connection:
+  build:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Install sshpass
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y sshpass
-    
-    - name: Connect to VPS
-      run: |
-        sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'EOF'
-          echo "========================================="
-          echo "✅ Successfully connected to VPS!"
-          echo "========================================="
-          echo "Hostname: $(hostname)"
-          echo "IP Address: $(hostname -I)"
-          echo "Current User: $(whoami)"
-          echo "Home Directory: $HOME"
-          echo "Current Path: $(pwd)"
-          echo "========================================="
-          echo "System Information:"
-          cat /etc/os-release | grep PRETTY_NAME
-          echo "Kernel: $(uname -r)"
-          echo "Uptime: $(uptime)"
-          echo "========================================="
-          echo "Directory contents:"
-          ls -la
-          echo "========================================="
-          echo "Node.js version: $(node --version 2>/dev/null || echo 'Not installed')"
-          echo "NPM version: $(npm --version 2>/dev/null || echo 'Not installed')"
-          echo "PM2 version: $(pm2 --version 2>/dev/null || echo 'Not installed')"
-          echo "========================================="
-          echo "✅ Connection test completed successfully!"
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install and build client
+        working-directory: client
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+        run: |
+          test -n "$VITE_API_BASE_URL" || { echo "Missing VITE_API_BASE_URL repository secret"; exit 1; }
+          npm install
+          npm run build
+
+      - name: Install and build server
+        working-directory: server
+        run: |
+          npm install
+          npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment
+          include-hidden-files: true
+          path: |
+            .
+            !./node_modules/**
+            !./client/node_modules/**
+            !./server/node_modules/**
+            !./.git/**
+            !./client/.env*
+            !./server/.env*
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USERNAME }}
+      VPS_PASS: ${{ secrets.VPS_PASSWORD }}
+      APP_DIR: /var/www/man-power-project
+    steps:
+      - name: Install SSH and rsync tools
+        run: sudo apt-get update && sudo apt-get install -y sshpass rsync
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment
+          path: deploy
+
+      - name: Copy application to VPS
+        working-directory: deploy
+        run: |
+          test -n "$VPS_HOST" || { echo "Missing VPS_HOST repository secret"; exit 1; }
+          test -n "$VPS_USER" || { echo "Missing VPS_USERNAME repository secret"; exit 1; }
+          test -n "$VPS_PASS" || { echo "Missing VPS_PASSWORD repository secret"; exit 1; }
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
+          sshpass -e rsync -az --delete \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='node_modules/' \
+            --exclude='.git/' \
+            ./ "$VPS_USER@$VPS_HOST:$APP_DIR/"
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+
+      - name: Install dependencies, migrate database, and restart API
+        run: |
+          sshpass -e ssh -o BatchMode=yes "$VPS_USER@$VPS_HOST" 'bash -s' << 'ENDSSH'
+            set -euo pipefail
+            cd /var/www/man-power-project/server
+
+            test -f .env || { echo "Missing server/.env on VPS"; exit 1; }
+            grep -q '^DATABASE_URL=' .env || { echo "DATABASE_URL is missing from server/.env"; exit 1; }
+
+            npm install
+            npx prisma migrate deploy
+            npm prune --omit=dev
+
+            command -v pm2 >/dev/null 2>&1 || { echo "PM2 is not installed on VPS"; exit 1; }
+            pm2 describe man-power-api >/dev/null 2>&1 \
+              && pm2 restart man-power-api --update-env \
+              || pm2 start dist/server.js --name man-power-api
+            pm2 save
+          ENDSSH
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+
+      - name: Check deployed API
+        run: |
+          sshpass -e ssh -o BatchMode=yes "$VPS_USER@$VPS_HOST" \
+            'curl --fail --silent --show-error http://127.0.0.1:5050/ >/dev/null'
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}

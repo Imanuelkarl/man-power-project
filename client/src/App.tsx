@@ -13,7 +13,7 @@ import { ManufacturersPage } from "./pages/manufacturers/ManufacturerPage";
 
 import { ClusterMapPage } from "./pages/manufacturers/Clusters";
 import { Submissions } from "./pages/manufacturers/Submissions";
-import NewQuestionnairePage from "./pages/QuestionnairePage";
+import NewQuestionnairePage from "./pages/manufacturers/QuestionnairePage";
 import CompanyProfile from "./pages/manufacturers/CompanyProfile";
 import { ClusterHubPage } from "./pages/ClusterHubPage";
 import { Toaster } from "sonner";

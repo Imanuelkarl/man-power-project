@@ -6,6 +6,7 @@ import manufacturerRouter from "./routes/manufacturer.router.js";
 import powerDataRouter from "./routes/powerData.router.js";
 import EmailSender from "./utils/emailSender.js";
 import userRouter from "./routes/user.router.js";
+import clusterRouter from "./routes/cluster.router.js";
 
 // Initialize dotenv
 dotenv.config();
@@ -24,6 +25,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/manufacturers", manufacturerRouter);
 app.use("/api/users", userRouter);
 app.use("/api/power-data", powerDataRouter);
+app.use("/api/clusters", clusterRouter);
 
 // Routes
 app.get("/", (req: any, res: { json: (arg0: { message: string }) => void }) => {

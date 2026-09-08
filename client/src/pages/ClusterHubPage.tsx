@@ -7,7 +7,6 @@ import { PageHeader } from "../components/page-header";
 import { Plus, Download } from "lucide-react";
 import {
   ClusterCard,
-  ClusterCreateForm,
   ClusterFilterBar,
 } from "../components/cluster/cluster-widgets";
 import { ClusterExportDialog } from "../components/cluster/ClusterExportDialog";
@@ -28,6 +27,7 @@ import type {
 } from "../types/cluster.types";
 import { DEFAULT_CLUSTER_FILTERS } from "../types/cluster.types";
 import { loadGeoJSON } from "../lib/location_finder";
+import ClusterCreateForm from "../components/cluster/cluster-create-form";
 
 type View = "hub" | "map";
 

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Sparkles, BarChart3, Landmark, Zap, PlugZapIcon, Eye } from "lucide-react";
-import { StepNavigator, type StepNavigatorStep } from "./StepNavigator";
+import { StepNavigator, type StepNavigatorStep } from "../StepNavigator";
 import {
   QuestionnaireForm,
   QUESTIONNAIRE_STEPS,
-} from "./manufacturers/QuestionnaireForm";
+} from "./QuestionnaireForm";
 import { useNavigate } from "react-router-dom";
 
 const steps: StepNavigatorStep[] = [

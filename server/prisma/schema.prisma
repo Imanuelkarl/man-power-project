@@ -23,6 +23,28 @@ model User {
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
   manufacturerId String?
+
+  clusters Cluster[]
+}
+
+model Cluster {
+  id          String   @id
+  ownerUserId String
+  name        String
+  description String?
+  geoType     String
+  regions     Json
+  states      Json
+  lgas        Json
+  wards       Json
+  focalPoint  Json?
+  radiusKm    Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner User @relation(fields: [ownerUserId], references: [userId], onDelete: Cascade)
+
+  @@index([ownerUserId])
 }
 
 model Manufacturer {

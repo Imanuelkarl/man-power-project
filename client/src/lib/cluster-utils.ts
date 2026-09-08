@@ -1,14 +1,6 @@
 // lib/cluster-utils.ts
 //
-// Everything needed to turn a saved ClusterDefinition into live stats, plus
-// a temporary "store" for persisting clusters.
-//
-// ON PERSISTENCE: there's no cluster endpoint on the backend yet, so
-// `clusterStore` below reads/writes localStorage and returns Promises, so
-// every call site already looks like it's hitting an API. When the real
-// endpoint exists, swap the bodies of getClusters/saveCluster/deleteCluster
-// for `fetch("/api/clusters", ...)` calls — nothing else in the UI needs to
-// change.
+// Everything needed to turn a saved ClusterDefinition into live stats.
 
 import type { Manufacturer } from "../types/manufacturer.types";
 import type {
@@ -20,6 +12,7 @@ import type {
 import { findOfficialLga, lgaKey, regionForState } from "./nigeria-geo-data";
 import { distanceKm } from "./geo-hull";
 import { existInLGA } from "./location_finder";
+import api from "../utils/api";
 
 // ---------------------------------------------------------------------------
 // Enrichment
@@ -250,44 +243,23 @@ export function buildClusterWithStats(
 }
 
 // ---------------------------------------------------------------------------
-// Temporary persistence (swap for a real API later — see file header)
+// Server persistence. The API scopes results to the authenticated user;
+// administrators receive all clusters.
 // ---------------------------------------------------------------------------
-
-const STORAGE_KEY = "test_clusters_v1";
-
-function readRaw(): ClusterDefinition[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as ClusterDefinition[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeRaw(defs: ClusterDefinition[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(defs));
-}
 
 export const clusterStore = {
   async getClusters(): Promise<ClusterDefinition[]> {
-    // TODO: replace with `await api.get("/clusters")`
-    return readRaw();
+    const response = await api.get<ClusterDefinition[]>("/clusters");
+    return response.data;
   },
 
   async saveCluster(def: ClusterDefinition): Promise<ClusterDefinition> {
-    // TODO: replace with `await api.post("/clusters", def)` /
-    // `await api.put(\`/clusters/${def.id}\`, def)` for updates
-    const all = readRaw();
-    const idx = all.findIndex((c) => c.id === def.id);
-    if (idx >= 0) all[idx] = def;
-    else all.push(def);
-    writeRaw(all);
-    return def;
+    const response = await api.post<ClusterDefinition>("/clusters", def);
+    return response.data;
   },
 
   async deleteCluster(id: string): Promise<void> {
-    // TODO: replace with `await api.delete(\`/clusters/${id}\`)`
-    writeRaw(readRaw().filter((c) => c.id !== id));
+    await api.delete(`/clusters/${encodeURIComponent(id)}`);
   },
 };
 

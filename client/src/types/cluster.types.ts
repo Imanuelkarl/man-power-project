@@ -39,7 +39,7 @@ export interface ClusterDefinition {
   states: string[];
   lgas: string[]; // "State::LGA"
   wards: string[]; // "State::LGA::Ward"
-  manufacturerIds: number[]; // manual additions, mainly used by "custom"
+  manufacturerIds: string[]; // manual additions, mainly used by "custom"
   focalPoint?: ClusterFocalPoint; // used by "radius"
   radiusKm?: number; // used by "radius"
   createdAt: string;
@@ -48,7 +48,7 @@ export interface ClusterDefinition {
 
 /** What you get back after resolving a definition against live data. */
 export interface ClusterWithStats extends ClusterDefinition {
-  manufacturerIds: number[]; // resolved, de-duplicated members
+  manufacturerIds: string[]; // resolved, de-duplicated members
   manufacturerCount: number;
   avgEnergySpendNaira: number; // avg (diesel+gas+generator+other) spend per period
   totalEnergySpendNaira: number;
@@ -80,6 +80,7 @@ export const DEFAULT_CLUSTER_FILTERS: ClusterFilters = {
 /** A manufacturer enriched with the geo levels clusters are built from. */
 export interface EnrichedManufacturer {
   id: number;
+  manId: string;
   company: string;
   state: string;
   region: string;

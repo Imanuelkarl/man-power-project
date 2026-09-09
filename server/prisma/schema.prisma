@@ -116,6 +116,14 @@ model PowerData {
   energy_other_cost           Float?
   energy_other_source         String?
 
+  total_energy_consumed       Float?
+  total_energy_generated      Float?
+
+  gas_energy_generated       Float?
+  diesel_energy_generated    Float?
+  generator_energy_generated Float?
+  other_energy_generated     Float?
+
   // Comments
   nigeria_first_policy_comment String?
   additional_comments          String?

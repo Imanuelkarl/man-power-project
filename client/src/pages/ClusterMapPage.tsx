@@ -45,7 +45,7 @@ interface ClusterMapPageProps {
   cluster: ClusterWithStats | null;
   allClusters: ClusterWithStats[];
   enriched: EnrichedManufacturer[];
-  avgSpendByManufacturer: Map<number, number>;
+  avgSpendByManufacturer: Map<string, number>;
   onBack: () => void;
 }
 
@@ -94,7 +94,7 @@ export const ClusterMapPage: React.FC<ClusterMapPageProps> = ({
   }, [cluster, allClusters]);
 
   const idToLevel = useMemo(() => {
-    const map = new Map<number, string>();
+    const map = new Map<string, string>();
     if (cluster) {
       cluster.manufacturerIds.forEach((id) => map.set(id, cluster.powerLevel));
     } else {
@@ -104,7 +104,7 @@ export const ClusterMapPage: React.FC<ClusterMapPageProps> = ({
   }, [cluster, allClusters]);
 
   const points = useMemo(
-    () => enriched.filter((m) => memberIds.has(m.id)),
+    () => enriched.filter((m) => memberIds.has(m.manId)),
     [enriched, memberIds],
   );
 
@@ -114,7 +114,7 @@ export const ClusterMapPage: React.FC<ClusterMapPageProps> = ({
     const source = cluster ? [cluster] : allClusters;
     return source
       .map((c) => {
-        const members = enriched.filter((m) => c.manufacturerIds.includes(m.id));
+        const members = enriched.filter((m) => c.manufacturerIds.includes(m.manId));
         if (members.length === 0) return null;
         return {
           id: c.id,
@@ -221,7 +221,7 @@ export const ClusterMapPage: React.FC<ClusterMapPageProps> = ({
             {/* GeoJSON is added to the map data layer via effect when loaded. */}
 
             {points.map((m) => {
-              const color = POWER_COLOR[idToLevel.get(m.id) ?? "medium"];
+              const color = POWER_COLOR[idToLevel.get(m.manId) ?? "medium"];
               return (
                 <OverlayView
                   key={m.id}
@@ -262,7 +262,7 @@ export const ClusterMapPage: React.FC<ClusterMapPageProps> = ({
                     </div>
                     <div className="flex items-center gap-1 mt-1 text-xs font-mono">
                       <Zap className="w-3 h-3 text-energy" />
-                      {formatNaira(avgSpendByManufacturer.get(hovered.id) ?? 0)} avg/period
+                      {formatNaira(avgSpendByManufacturer.get(hovered.manId) ?? 0)} avg/period
                     </div>
                   </Card>
                 </div>

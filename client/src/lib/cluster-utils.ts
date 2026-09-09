@@ -37,6 +37,7 @@ export function enrichManufacturers(
       const officialLga = city ? findOfficialLga(state, city) : null;
       return {
         id: m.id,
+        manId: m.manId,
         company: m.name,
         state,
         region: regionForState(state),
@@ -66,16 +67,16 @@ export function resolveMembers(
     | "radiusKm"
   >,
   enriched: EnrichedManufacturer[],
-): number[] {
+): string[] {
   const regions = new Set(def.regions);
   const states = new Set(def.states);
   const wards = new Set(def.wards);
-  const manual = new Set(def.manufacturerIds);
+  const manual = new Set<string>(def.manufacturerIds);
 
   const useRadius =
     !!def.focalPoint && typeof def.radiusKm === "number" && def.radiusKm > 0;
 
-  const matched = new Set<number>();
+  const matched = new Set<string>();
 
   for (const m of enriched) {
     let inLga = false;
@@ -92,16 +93,16 @@ export function resolveMembers(
       states.has(m.state) ||
       inLga ||
       (m.ward && wards.has(m.ward)) ||
-      manual.has(m.id)
+      manual.has(m.manId)
     ) {
-      matched.add(m.id);
+      matched.add(m.manId);
     }
 
     if (
       useRadius &&
       distanceKm(def.focalPoint!, { lat: m.lat, lng: m.lng }) <= def.radiusKm!
     ) {
-      matched.add(m.id);
+      matched.add(m.manId);
     }
   }
 
@@ -114,21 +115,21 @@ export function resolveMembers(
 /** Avg Naira spend per period, per manufacturer. */
 export function computeAvgSpendByManufacturer(
   questionnaires: any[],
-): Map<number, number> {
-  const totals = new Map<number, { sum: number; count: number }>();
+): Map<string, number> {
+  const totals = new Map<string, { sum: number; count: number }>();
   questionnaires.forEach((q) => {
     const spend =
       (q.energyDiesel ?? 0) +
       (q.energyGas ?? 0) +
       (q.energyGenerator ?? 0) +
       (q.energyOther ?? 0);
-    const id = Number(q.manufacturerId);
+    const id = q.manufacturerId;
     const entry = totals.get(id) ?? { sum: 0, count: 0 };
     entry.sum += spend;
     entry.count += 1;
     totals.set(id, entry);
   });
-  const result = new Map<number, number>();
+  const result = new Map<string, number>();
   totals.forEach((v, k) => result.set(k, v.count ? v.sum / v.count : 0));
   return result;
 }
@@ -136,22 +137,23 @@ export function computeAvgSpendByManufacturer(
 /** Avg kWh consumed per period, per manufacturer. */
 export function computeAvgEnergyByManufacturer(
   questionnaires: any[],
-): Map<number, number> {
-  const totals = new Map<number, { sum: number; count: number }>();
+): Map<string, number> {
+  const totals = new Map<string, { sum: number; count: number }>();
   questionnaires.forEach((q) => {
     const consumed =
       q.totalEnergyConsumed ??
       (q.energyGeneratedByGas ?? 0) +
-        (q.energyGeneratedByDiesel ?? 0) +
+       ( q.energyGeneratedByDiesel??0) +
         (q.energyGeneratedByGenerator ?? 0) +
         (q.energyGeneratedByOther ?? 0);
-    const id = Number(q.manufacturerId);
+    const id = q.manufacturerId;
     const entry = totals.get(id) ?? { sum: 0, count: 0 };
     entry.sum += consumed;
     entry.count += 1;
     totals.set(id, entry);
   });
-  const result = new Map<number, number>();
+  console.log("computeAvgEnergyByManufacturer totals", questionnaires, totals);
+  const result = new Map<string, number>();
   totals.forEach((v, k) => result.set(k, v.count ? v.sum / v.count : 0));
   return result;
 }
@@ -202,11 +204,11 @@ export function assignPowerLevels<
 export function buildClusterWithStats(
   def: ClusterDefinition,
   enriched: EnrichedManufacturer[],
-  spendByManufacturer: Map<number, number>,
-  energyByManufacturer: Map<number, number>,
+  spendByManufacturer: Map<string, number>,
+  energyByManufacturer: Map<string, number>,
 ): Omit<ClusterWithStats, "powerLevel"> {
   const memberIds = resolveMembers(def, enriched);
-  const members = enriched.filter((m) => memberIds.includes(m.id));
+  const members = enriched.filter((m) => memberIds.includes(m.manId));
 
   const spends = memberIds.map((id) => spendByManufacturer.get(id) ?? 0);
   const energies = memberIds.map((id) => energyByManufacturer.get(id) ?? 0);

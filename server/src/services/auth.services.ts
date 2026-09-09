@@ -6,6 +6,7 @@ import { UserResponse } from "../types/user.types.js";
 import EmailSender from "../utils/emailSender.js";
 import { ManufacturerModel } from "../models/manufacturer.model.js";
 import { Manufacturer } from "@prisma/browser.js";
+import { AuthError } from "../errors/auth.error.js";
 
 const JWT_SECRET: Secret = process.env.JWT_SECRET ?? "default_jwt_secret";
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN ?? "1h") as NonNullable<
@@ -163,7 +164,7 @@ export class AuthService {
   static async login(email: string, password: string): Promise<AuthPayload> {
     const user = await UserModel.findByEmail(email);
     if (!user) {
-      throw new Error("Invalid credentials");
+      throw new AuthError("Invalid credentials");
     }
 
     const validPassword = await this.verifyPassword(
@@ -171,7 +172,7 @@ export class AuthService {
       user.password_hash,
     );
     if (!validPassword) {
-      throw new Error("Invalid credentials");
+      throw new AuthError("Invalid credentials");
     }
     // emailSender.sendMail({
     //   to: user.email,

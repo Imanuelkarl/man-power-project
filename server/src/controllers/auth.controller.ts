@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.services.js";
+import { AuthError } from "../errors/auth.error.js";
 
 export class AuthController {
   /**
@@ -30,6 +31,15 @@ export class AuthController {
         },
       });
     } catch (error) {
+      if (error instanceof AuthError) {
+        console.error("AuthError during signup:", error.message);
+        res.status(401).json({
+          success: false,
+          message: error.message,
+          errors: [error.message]
+        });
+        return;
+      }
       res.status(500).json({
         success: false,
         message: "Login failed",
@@ -91,6 +101,14 @@ export class AuthController {
         },
       });
     } catch (error: any) {
+      if (error instanceof AuthError) {
+        console.error("AuthError during signup:", error.message);
+        res.status(401).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
       console.error("Error during signup:", error);
       res.status(400).json({
         success: false,
@@ -123,6 +141,14 @@ export class AuthController {
         message: "Password reset request has been sent successfully",
       });
     } catch (error) {
+      if (error instanceof AuthError) {
+        console.error("AuthError during signup:", error.message);
+        res.status(401).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
       console.error(error);
       res.status(500).json({
         success: false,

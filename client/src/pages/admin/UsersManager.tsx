@@ -182,7 +182,7 @@ export function UsersManager() {
               className="absolute inset-0 bg-black/40"
               onClick={() => setShowInvite(false)}
             />
-            <div className="bg-background z-52 p-6 rounded shadow-lg w-[500px]">
+            <div className="relative z-10 w-full max-w-md rounded bg-background p-6 shadow-lg">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-lg font-medium">Invite User</div>
                 <Button variant="ghost" onClick={() => setShowInvite(false)}>
@@ -370,10 +370,8 @@ export function UsersManager() {
                 <tr key={m.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3">
                     <div className="font-medium">{m.name}</div>
-                    {(user?.id ===m.id)&&(
-                      <div className="text-xs text-primary">
-                        (You)
-                      </div>
+                    {user?.id === m.id && (
+                      <div className="text-xs text-primary">(You)</div>
                     )}
                   </td>
                   <td className="px-4 py-3">

@@ -50,6 +50,12 @@ export type PowerDataAvgAggregateOutputType = {
   energy_gas_cost: number | null
   energy_gen_maintenance_cost: number | null
   energy_other_cost: number | null
+  total_energy_consumed: number | null
+  total_energy_generated: number | null
+  gas_energy_generated: number | null
+  diesel_energy_generated: number | null
+  generator_energy_generated: number | null
+  other_energy_generated: number | null
 }
 
 export type PowerDataSumAggregateOutputType = {
@@ -76,6 +82,12 @@ export type PowerDataSumAggregateOutputType = {
   energy_gas_cost: number | null
   energy_gen_maintenance_cost: number | null
   energy_other_cost: number | null
+  total_energy_consumed: number | null
+  total_energy_generated: number | null
+  gas_energy_generated: number | null
+  diesel_energy_generated: number | null
+  generator_energy_generated: number | null
+  other_energy_generated: number | null
 }
 
 export type PowerDataMinAggregateOutputType = {
@@ -108,6 +120,12 @@ export type PowerDataMinAggregateOutputType = {
   energy_gen_maintenance_cost: number | null
   energy_other_cost: number | null
   energy_other_source: string | null
+  total_energy_consumed: number | null
+  total_energy_generated: number | null
+  gas_energy_generated: number | null
+  diesel_energy_generated: number | null
+  generator_energy_generated: number | null
+  other_energy_generated: number | null
   nigeria_first_policy_comment: string | null
   additional_comments: string | null
   status: $Enums.ResponseStatus | null
@@ -147,6 +165,12 @@ export type PowerDataMaxAggregateOutputType = {
   energy_gen_maintenance_cost: number | null
   energy_other_cost: number | null
   energy_other_source: string | null
+  total_energy_consumed: number | null
+  total_energy_generated: number | null
+  gas_energy_generated: number | null
+  diesel_energy_generated: number | null
+  generator_energy_generated: number | null
+  other_energy_generated: number | null
   nigeria_first_policy_comment: string | null
   additional_comments: string | null
   status: $Enums.ResponseStatus | null
@@ -186,6 +210,12 @@ export type PowerDataCountAggregateOutputType = {
   energy_gen_maintenance_cost: number
   energy_other_cost: number
   energy_other_source: number
+  total_energy_consumed: number
+  total_energy_generated: number
+  gas_energy_generated: number
+  diesel_energy_generated: number
+  generator_energy_generated: number
+  other_energy_generated: number
   nigeria_first_policy_comment: number
   additional_comments: number
   status: number
@@ -221,6 +251,12 @@ export type PowerDataAvgAggregateInputType = {
   energy_gas_cost?: true
   energy_gen_maintenance_cost?: true
   energy_other_cost?: true
+  total_energy_consumed?: true
+  total_energy_generated?: true
+  gas_energy_generated?: true
+  diesel_energy_generated?: true
+  generator_energy_generated?: true
+  other_energy_generated?: true
 }
 
 export type PowerDataSumAggregateInputType = {
@@ -247,6 +283,12 @@ export type PowerDataSumAggregateInputType = {
   energy_gas_cost?: true
   energy_gen_maintenance_cost?: true
   energy_other_cost?: true
+  total_energy_consumed?: true
+  total_energy_generated?: true
+  gas_energy_generated?: true
+  diesel_energy_generated?: true
+  generator_energy_generated?: true
+  other_energy_generated?: true
 }
 
 export type PowerDataMinAggregateInputType = {
@@ -279,6 +321,12 @@ export type PowerDataMinAggregateInputType = {
   energy_gen_maintenance_cost?: true
   energy_other_cost?: true
   energy_other_source?: true
+  total_energy_consumed?: true
+  total_energy_generated?: true
+  gas_energy_generated?: true
+  diesel_energy_generated?: true
+  generator_energy_generated?: true
+  other_energy_generated?: true
   nigeria_first_policy_comment?: true
   additional_comments?: true
   status?: true
@@ -318,6 +366,12 @@ export type PowerDataMaxAggregateInputType = {
   energy_gen_maintenance_cost?: true
   energy_other_cost?: true
   energy_other_source?: true
+  total_energy_consumed?: true
+  total_energy_generated?: true
+  gas_energy_generated?: true
+  diesel_energy_generated?: true
+  generator_energy_generated?: true
+  other_energy_generated?: true
   nigeria_first_policy_comment?: true
   additional_comments?: true
   status?: true
@@ -357,6 +411,12 @@ export type PowerDataCountAggregateInputType = {
   energy_gen_maintenance_cost?: true
   energy_other_cost?: true
   energy_other_source?: true
+  total_energy_consumed?: true
+  total_energy_generated?: true
+  gas_energy_generated?: true
+  diesel_energy_generated?: true
+  generator_energy_generated?: true
+  other_energy_generated?: true
   nigeria_first_policy_comment?: true
   additional_comments?: true
   status?: true
@@ -483,6 +543,12 @@ export type PowerDataGroupByOutputType = {
   energy_gen_maintenance_cost: number | null
   energy_other_cost: number | null
   energy_other_source: string | null
+  total_energy_consumed: number | null
+  total_energy_generated: number | null
+  gas_energy_generated: number | null
+  diesel_energy_generated: number | null
+  generator_energy_generated: number | null
+  other_energy_generated: number | null
   nigeria_first_policy_comment: string | null
   additional_comments: string | null
   status: $Enums.ResponseStatus
@@ -545,6 +611,12 @@ export type PowerDataWhereInput = {
   energy_gen_maintenance_cost?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   energy_other_cost?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   energy_other_source?: Prisma.StringNullableFilter<"PowerData"> | string | null
+  total_energy_consumed?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  total_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  gas_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  diesel_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  generator_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  other_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   nigeria_first_policy_comment?: Prisma.StringNullableFilter<"PowerData"> | string | null
   additional_comments?: Prisma.StringNullableFilter<"PowerData"> | string | null
   status?: Prisma.EnumResponseStatusFilter<"PowerData"> | $Enums.ResponseStatus
@@ -585,6 +657,12 @@ export type PowerDataOrderByWithRelationInput = {
   energy_gen_maintenance_cost?: Prisma.SortOrderInput | Prisma.SortOrder
   energy_other_cost?: Prisma.SortOrderInput | Prisma.SortOrder
   energy_other_source?: Prisma.SortOrderInput | Prisma.SortOrder
+  total_energy_consumed?: Prisma.SortOrderInput | Prisma.SortOrder
+  total_energy_generated?: Prisma.SortOrderInput | Prisma.SortOrder
+  gas_energy_generated?: Prisma.SortOrderInput | Prisma.SortOrder
+  diesel_energy_generated?: Prisma.SortOrderInput | Prisma.SortOrder
+  generator_energy_generated?: Prisma.SortOrderInput | Prisma.SortOrder
+  other_energy_generated?: Prisma.SortOrderInput | Prisma.SortOrder
   nigeria_first_policy_comment?: Prisma.SortOrderInput | Prisma.SortOrder
   additional_comments?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -628,6 +706,12 @@ export type PowerDataWhereUniqueInput = Prisma.AtLeast<{
   energy_gen_maintenance_cost?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   energy_other_cost?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   energy_other_source?: Prisma.StringNullableFilter<"PowerData"> | string | null
+  total_energy_consumed?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  total_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  gas_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  diesel_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  generator_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  other_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   nigeria_first_policy_comment?: Prisma.StringNullableFilter<"PowerData"> | string | null
   additional_comments?: Prisma.StringNullableFilter<"PowerData"> | string | null
   status?: Prisma.EnumResponseStatusFilter<"PowerData"> | $Enums.ResponseStatus
@@ -668,6 +752,12 @@ export type PowerDataOrderByWithAggregationInput = {
   energy_gen_maintenance_cost?: Prisma.SortOrderInput | Prisma.SortOrder
   energy_other_cost?: Prisma.SortOrderInput | Prisma.SortOrder
   energy_other_source?: Prisma.SortOrderInput | Prisma.SortOrder
+  total_energy_consumed?: Prisma.SortOrderInput | Prisma.SortOrder
+  total_energy_generated?: Prisma.SortOrderInput | Prisma.SortOrder
+  gas_energy_generated?: Prisma.SortOrderInput | Prisma.SortOrder
+  diesel_energy_generated?: Prisma.SortOrderInput | Prisma.SortOrder
+  generator_energy_generated?: Prisma.SortOrderInput | Prisma.SortOrder
+  other_energy_generated?: Prisma.SortOrderInput | Prisma.SortOrder
   nigeria_first_policy_comment?: Prisma.SortOrderInput | Prisma.SortOrder
   additional_comments?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -715,6 +805,12 @@ export type PowerDataScalarWhereWithAggregatesInput = {
   energy_gen_maintenance_cost?: Prisma.FloatNullableWithAggregatesFilter<"PowerData"> | number | null
   energy_other_cost?: Prisma.FloatNullableWithAggregatesFilter<"PowerData"> | number | null
   energy_other_source?: Prisma.StringNullableWithAggregatesFilter<"PowerData"> | string | null
+  total_energy_consumed?: Prisma.FloatNullableWithAggregatesFilter<"PowerData"> | number | null
+  total_energy_generated?: Prisma.FloatNullableWithAggregatesFilter<"PowerData"> | number | null
+  gas_energy_generated?: Prisma.FloatNullableWithAggregatesFilter<"PowerData"> | number | null
+  diesel_energy_generated?: Prisma.FloatNullableWithAggregatesFilter<"PowerData"> | number | null
+  generator_energy_generated?: Prisma.FloatNullableWithAggregatesFilter<"PowerData"> | number | null
+  other_energy_generated?: Prisma.FloatNullableWithAggregatesFilter<"PowerData"> | number | null
   nigeria_first_policy_comment?: Prisma.StringNullableWithAggregatesFilter<"PowerData"> | string | null
   additional_comments?: Prisma.StringNullableWithAggregatesFilter<"PowerData"> | string | null
   status?: Prisma.EnumResponseStatusWithAggregatesFilter<"PowerData"> | $Enums.ResponseStatus
@@ -752,6 +848,12 @@ export type PowerDataCreateInput = {
   energy_gen_maintenance_cost?: number | null
   energy_other_cost?: number | null
   energy_other_source?: string | null
+  total_energy_consumed?: number | null
+  total_energy_generated?: number | null
+  gas_energy_generated?: number | null
+  diesel_energy_generated?: number | null
+  generator_energy_generated?: number | null
+  other_energy_generated?: number | null
   nigeria_first_policy_comment?: string | null
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
@@ -792,6 +894,12 @@ export type PowerDataUncheckedCreateInput = {
   energy_gen_maintenance_cost?: number | null
   energy_other_cost?: number | null
   energy_other_source?: string | null
+  total_energy_consumed?: number | null
+  total_energy_generated?: number | null
+  gas_energy_generated?: number | null
+  diesel_energy_generated?: number | null
+  generator_energy_generated?: number | null
+  other_energy_generated?: number | null
   nigeria_first_policy_comment?: string | null
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
@@ -829,6 +937,12 @@ export type PowerDataUpdateInput = {
   energy_gen_maintenance_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_energy_consumed?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  total_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gas_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  diesel_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  generator_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  other_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   nigeria_first_policy_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
@@ -869,6 +983,12 @@ export type PowerDataUncheckedUpdateInput = {
   energy_gen_maintenance_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_energy_consumed?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  total_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gas_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  diesel_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  generator_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  other_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   nigeria_first_policy_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
@@ -908,6 +1028,12 @@ export type PowerDataCreateManyInput = {
   energy_gen_maintenance_cost?: number | null
   energy_other_cost?: number | null
   energy_other_source?: string | null
+  total_energy_consumed?: number | null
+  total_energy_generated?: number | null
+  gas_energy_generated?: number | null
+  diesel_energy_generated?: number | null
+  generator_energy_generated?: number | null
+  other_energy_generated?: number | null
   nigeria_first_policy_comment?: string | null
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
@@ -945,6 +1071,12 @@ export type PowerDataUpdateManyMutationInput = {
   energy_gen_maintenance_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_energy_consumed?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  total_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gas_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  diesel_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  generator_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  other_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   nigeria_first_policy_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
@@ -984,6 +1116,12 @@ export type PowerDataUncheckedUpdateManyInput = {
   energy_gen_maintenance_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_energy_consumed?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  total_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gas_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  diesel_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  generator_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  other_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   nigeria_first_policy_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
@@ -1033,6 +1171,12 @@ export type PowerDataCountOrderByAggregateInput = {
   energy_gen_maintenance_cost?: Prisma.SortOrder
   energy_other_cost?: Prisma.SortOrder
   energy_other_source?: Prisma.SortOrder
+  total_energy_consumed?: Prisma.SortOrder
+  total_energy_generated?: Prisma.SortOrder
+  gas_energy_generated?: Prisma.SortOrder
+  diesel_energy_generated?: Prisma.SortOrder
+  generator_energy_generated?: Prisma.SortOrder
+  other_energy_generated?: Prisma.SortOrder
   nigeria_first_policy_comment?: Prisma.SortOrder
   additional_comments?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1066,6 +1210,12 @@ export type PowerDataAvgOrderByAggregateInput = {
   energy_gas_cost?: Prisma.SortOrder
   energy_gen_maintenance_cost?: Prisma.SortOrder
   energy_other_cost?: Prisma.SortOrder
+  total_energy_consumed?: Prisma.SortOrder
+  total_energy_generated?: Prisma.SortOrder
+  gas_energy_generated?: Prisma.SortOrder
+  diesel_energy_generated?: Prisma.SortOrder
+  generator_energy_generated?: Prisma.SortOrder
+  other_energy_generated?: Prisma.SortOrder
 }
 
 export type PowerDataMaxOrderByAggregateInput = {
@@ -1098,6 +1248,12 @@ export type PowerDataMaxOrderByAggregateInput = {
   energy_gen_maintenance_cost?: Prisma.SortOrder
   energy_other_cost?: Prisma.SortOrder
   energy_other_source?: Prisma.SortOrder
+  total_energy_consumed?: Prisma.SortOrder
+  total_energy_generated?: Prisma.SortOrder
+  gas_energy_generated?: Prisma.SortOrder
+  diesel_energy_generated?: Prisma.SortOrder
+  generator_energy_generated?: Prisma.SortOrder
+  other_energy_generated?: Prisma.SortOrder
   nigeria_first_policy_comment?: Prisma.SortOrder
   additional_comments?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1137,6 +1293,12 @@ export type PowerDataMinOrderByAggregateInput = {
   energy_gen_maintenance_cost?: Prisma.SortOrder
   energy_other_cost?: Prisma.SortOrder
   energy_other_source?: Prisma.SortOrder
+  total_energy_consumed?: Prisma.SortOrder
+  total_energy_generated?: Prisma.SortOrder
+  gas_energy_generated?: Prisma.SortOrder
+  diesel_energy_generated?: Prisma.SortOrder
+  generator_energy_generated?: Prisma.SortOrder
+  other_energy_generated?: Prisma.SortOrder
   nigeria_first_policy_comment?: Prisma.SortOrder
   additional_comments?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1170,6 +1332,12 @@ export type PowerDataSumOrderByAggregateInput = {
   energy_gas_cost?: Prisma.SortOrder
   energy_gen_maintenance_cost?: Prisma.SortOrder
   energy_other_cost?: Prisma.SortOrder
+  total_energy_consumed?: Prisma.SortOrder
+  total_energy_generated?: Prisma.SortOrder
+  gas_energy_generated?: Prisma.SortOrder
+  diesel_energy_generated?: Prisma.SortOrder
+  generator_energy_generated?: Prisma.SortOrder
+  other_energy_generated?: Prisma.SortOrder
 }
 
 export type PowerDataCreateNestedManyWithoutManufacturerInput = {
@@ -1250,6 +1418,12 @@ export type PowerDataCreateWithoutManufacturerInput = {
   energy_gen_maintenance_cost?: number | null
   energy_other_cost?: number | null
   energy_other_source?: string | null
+  total_energy_consumed?: number | null
+  total_energy_generated?: number | null
+  gas_energy_generated?: number | null
+  diesel_energy_generated?: number | null
+  generator_energy_generated?: number | null
+  other_energy_generated?: number | null
   nigeria_first_policy_comment?: string | null
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
@@ -1288,6 +1462,12 @@ export type PowerDataUncheckedCreateWithoutManufacturerInput = {
   energy_gen_maintenance_cost?: number | null
   energy_other_cost?: number | null
   energy_other_source?: string | null
+  total_energy_consumed?: number | null
+  total_energy_generated?: number | null
+  gas_energy_generated?: number | null
+  diesel_energy_generated?: number | null
+  generator_energy_generated?: number | null
+  other_energy_generated?: number | null
   nigeria_first_policy_comment?: string | null
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
@@ -1356,6 +1536,12 @@ export type PowerDataScalarWhereInput = {
   energy_gen_maintenance_cost?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   energy_other_cost?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   energy_other_source?: Prisma.StringNullableFilter<"PowerData"> | string | null
+  total_energy_consumed?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  total_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  gas_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  diesel_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  generator_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
+  other_energy_generated?: Prisma.FloatNullableFilter<"PowerData"> | number | null
   nigeria_first_policy_comment?: Prisma.StringNullableFilter<"PowerData"> | string | null
   additional_comments?: Prisma.StringNullableFilter<"PowerData"> | string | null
   status?: Prisma.EnumResponseStatusFilter<"PowerData"> | $Enums.ResponseStatus
@@ -1394,6 +1580,12 @@ export type PowerDataCreateManyManufacturerInput = {
   energy_gen_maintenance_cost?: number | null
   energy_other_cost?: number | null
   energy_other_source?: string | null
+  total_energy_consumed?: number | null
+  total_energy_generated?: number | null
+  gas_energy_generated?: number | null
+  diesel_energy_generated?: number | null
+  generator_energy_generated?: number | null
+  other_energy_generated?: number | null
   nigeria_first_policy_comment?: string | null
   additional_comments?: string | null
   status?: $Enums.ResponseStatus
@@ -1431,6 +1623,12 @@ export type PowerDataUpdateWithoutManufacturerInput = {
   energy_gen_maintenance_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_energy_consumed?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  total_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gas_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  diesel_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  generator_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  other_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   nigeria_first_policy_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
@@ -1469,6 +1667,12 @@ export type PowerDataUncheckedUpdateWithoutManufacturerInput = {
   energy_gen_maintenance_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_energy_consumed?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  total_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gas_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  diesel_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  generator_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  other_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   nigeria_first_policy_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
@@ -1507,6 +1711,12 @@ export type PowerDataUncheckedUpdateManyWithoutManufacturerInput = {
   energy_gen_maintenance_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   energy_other_source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  total_energy_consumed?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  total_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gas_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  diesel_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  generator_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  other_energy_generated?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   nigeria_first_policy_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additional_comments?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResponseStatusFieldUpdateOperationsInput | $Enums.ResponseStatus
@@ -1548,6 +1758,12 @@ export type PowerDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   energy_gen_maintenance_cost?: boolean
   energy_other_cost?: boolean
   energy_other_source?: boolean
+  total_energy_consumed?: boolean
+  total_energy_generated?: boolean
+  gas_energy_generated?: boolean
+  diesel_energy_generated?: boolean
+  generator_energy_generated?: boolean
+  other_energy_generated?: boolean
   nigeria_first_policy_comment?: boolean
   additional_comments?: boolean
   status?: boolean
@@ -1588,6 +1804,12 @@ export type PowerDataSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   energy_gen_maintenance_cost?: boolean
   energy_other_cost?: boolean
   energy_other_source?: boolean
+  total_energy_consumed?: boolean
+  total_energy_generated?: boolean
+  gas_energy_generated?: boolean
+  diesel_energy_generated?: boolean
+  generator_energy_generated?: boolean
+  other_energy_generated?: boolean
   nigeria_first_policy_comment?: boolean
   additional_comments?: boolean
   status?: boolean
@@ -1628,6 +1850,12 @@ export type PowerDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   energy_gen_maintenance_cost?: boolean
   energy_other_cost?: boolean
   energy_other_source?: boolean
+  total_energy_consumed?: boolean
+  total_energy_generated?: boolean
+  gas_energy_generated?: boolean
+  diesel_energy_generated?: boolean
+  generator_energy_generated?: boolean
+  other_energy_generated?: boolean
   nigeria_first_policy_comment?: boolean
   additional_comments?: boolean
   status?: boolean
@@ -1668,6 +1896,12 @@ export type PowerDataSelectScalar = {
   energy_gen_maintenance_cost?: boolean
   energy_other_cost?: boolean
   energy_other_source?: boolean
+  total_energy_consumed?: boolean
+  total_energy_generated?: boolean
+  gas_energy_generated?: boolean
+  diesel_energy_generated?: boolean
+  generator_energy_generated?: boolean
+  other_energy_generated?: boolean
   nigeria_first_policy_comment?: boolean
   additional_comments?: boolean
   status?: boolean
@@ -1677,7 +1911,7 @@ export type PowerDataSelectScalar = {
   updated_at?: boolean
 }
 
-export type PowerDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "data_id" | "manufacturer_id" | "period" | "startTime" | "endTime" | "capacity_utilization" | "production_value" | "raw_material_cost" | "transport_cost" | "local_sourcing_percent" | "unsold_goods_value" | "new_workers_employed" | "total_workers" | "workers_left" | "avg_interest_rate" | "avg_exchange_rate" | "investment_land_buildings" | "investment_plant_machinery" | "investment_furniture" | "investment_motor_vehicles" | "investment_assets_in_progress" | "avg_grid_hours" | "avg_power_outages" | "energy_diesel_cost" | "energy_gas_cost" | "energy_gen_maintenance_cost" | "energy_other_cost" | "energy_other_source" | "nigeria_first_policy_comment" | "additional_comments" | "status" | "submitted_at" | "submitted_by" | "created_at" | "updated_at", ExtArgs["result"]["powerData"]>
+export type PowerDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "data_id" | "manufacturer_id" | "period" | "startTime" | "endTime" | "capacity_utilization" | "production_value" | "raw_material_cost" | "transport_cost" | "local_sourcing_percent" | "unsold_goods_value" | "new_workers_employed" | "total_workers" | "workers_left" | "avg_interest_rate" | "avg_exchange_rate" | "investment_land_buildings" | "investment_plant_machinery" | "investment_furniture" | "investment_motor_vehicles" | "investment_assets_in_progress" | "avg_grid_hours" | "avg_power_outages" | "energy_diesel_cost" | "energy_gas_cost" | "energy_gen_maintenance_cost" | "energy_other_cost" | "energy_other_source" | "total_energy_consumed" | "total_energy_generated" | "gas_energy_generated" | "diesel_energy_generated" | "generator_energy_generated" | "other_energy_generated" | "nigeria_first_policy_comment" | "additional_comments" | "status" | "submitted_at" | "submitted_by" | "created_at" | "updated_at", ExtArgs["result"]["powerData"]>
 export type PowerDataInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   manufacturer?: boolean | Prisma.ManufacturerDefaultArgs<ExtArgs>
 }
@@ -1723,6 +1957,12 @@ export type $PowerDataPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     energy_gen_maintenance_cost: number | null
     energy_other_cost: number | null
     energy_other_source: string | null
+    total_energy_consumed: number | null
+    total_energy_generated: number | null
+    gas_energy_generated: number | null
+    diesel_energy_generated: number | null
+    generator_energy_generated: number | null
+    other_energy_generated: number | null
     nigeria_first_policy_comment: string | null
     additional_comments: string | null
     status: $Enums.ResponseStatus
@@ -2183,6 +2423,12 @@ export interface PowerDataFieldRefs {
   readonly energy_gen_maintenance_cost: Prisma.FieldRef<"PowerData", 'Float'>
   readonly energy_other_cost: Prisma.FieldRef<"PowerData", 'Float'>
   readonly energy_other_source: Prisma.FieldRef<"PowerData", 'String'>
+  readonly total_energy_consumed: Prisma.FieldRef<"PowerData", 'Float'>
+  readonly total_energy_generated: Prisma.FieldRef<"PowerData", 'Float'>
+  readonly gas_energy_generated: Prisma.FieldRef<"PowerData", 'Float'>
+  readonly diesel_energy_generated: Prisma.FieldRef<"PowerData", 'Float'>
+  readonly generator_energy_generated: Prisma.FieldRef<"PowerData", 'Float'>
+  readonly other_energy_generated: Prisma.FieldRef<"PowerData", 'Float'>
   readonly nigeria_first_policy_comment: Prisma.FieldRef<"PowerData", 'String'>
   readonly additional_comments: Prisma.FieldRef<"PowerData", 'String'>
   readonly status: Prisma.FieldRef<"PowerData", 'ResponseStatus'>

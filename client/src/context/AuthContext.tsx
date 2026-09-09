@@ -46,11 +46,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (authenticatedUser.role !== "manufacturer") return authenticatedUser;
 
     try {
-      const manufacturer = await manufacturerService.findByManId(
-        authenticatedUser.manufacturerId
-          ? authenticatedUser.manufacturerId
-          : "",
-      );
+      const manufacturer = authenticatedUser.manufacturerId
+        ? await manufacturerService.findByManId(
+            authenticatedUser.manufacturerId,
+          )
+        : await manufacturerService.findByEmail(authenticatedUser.email);
       useData.setState((state) => ({
         manufacturers: [
           ...state.manufacturers.filter(
@@ -60,6 +60,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         ],
         manufacturersHydrated: true,
       }));
+      await useData
+        .getState()
+        .fetchQuestionnaireForManufacturer(manufacturer.manId);
       return {
         ...authenticatedUser,
         manufacturerId: manufacturer.manId,

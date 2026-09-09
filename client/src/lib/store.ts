@@ -202,13 +202,17 @@ export const useData = create<DataState>()(
         }
       },
       fetchQuestionnaireForManufacturer: async (manufacturerId) => {
-        set({ loadingManufacturers: true });
+        set({ loadingQuestionnaires: true });
         try {
           const questionnaires =
             await powerDataService.getPowerDataByManufacturer(manufacturerId);
-          set({ questionnaires, loadingManufacturers: false });
+          set({
+            questionnaires,
+            loadingQuestionnaires: false,
+            questionnairesHydrated: true,
+          });
         } catch {
-          set({ loadingManufacturers: false });
+          set({ loadingQuestionnaires: false });
         }
         return useData
           .getState()

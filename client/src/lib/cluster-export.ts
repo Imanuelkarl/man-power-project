@@ -21,7 +21,7 @@ export function buildExportRows(
   selectedParameters: string[],
 ): ExportRow[] {
   const rows: ExportRow[] = [];
-  const manufacturerMap = new Map(manufacturers.map((m) => [m.id, m]));
+  const manufacturerMap = new Map(manufacturers.map((m) => [m.manId, m]));
   const questionnaireMap = new Map<string, PowerData[]>();
 
   // Group questionnaires by manufacturerId

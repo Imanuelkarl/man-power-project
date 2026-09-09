@@ -191,7 +191,7 @@ export function UsersManager() {
               </div>
               <form
                 onSubmit={handleInvite}
-                className="grid gap-3 sm:grid-cols-[1fr_1fr_1] sm:items-end"
+                className="grid gap-3 grid-cols-1 sm:items-end"
               >
                 <div className="space-y-2">
                   <Label htmlFor="inv-name">Contact name</Label>
@@ -220,7 +220,8 @@ export function UsersManager() {
                   >
                     <option>--SELECT ROLE--</option>
                     <option value={"manufacturer"}>Manufacturer</option>
-                    {/* <option value={"investor"}>Investor</option> */}
+                    <option value={"admin"}>Manager</option>
+                    <option value={"admin"}>Operations</option>
                     <option value={"admin"}>Admin</option>
                   </Select>
                 </div>

@@ -8,3 +8,4 @@ node_modules
 /.github/workflows/deploy-app.yml
 /.github/workflows/test.yml
 .secrets
+.secrets.example

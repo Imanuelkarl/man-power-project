@@ -9,6 +9,59 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # =================================================================
+      # STEP 1: PROVISION PRODUCTION DATABASE CONTAINER ON VPS
+      # =================================================================
+      - name: Provision Production Database on VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USERNAME }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+        run: |
+          if ! command -v sshpass &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y sshpass openssh-client
+          fi
+
+          echo "Spinning up isolated production database on remote host..."
+          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} "
+            mkdir -p ~/postgres-docker
+            cd ~/postgres-docker
+
+            cat << 'EOF' > docker-compose.yml
+            version: '3.8'
+            services:
+              postgres_db:
+                image: postgres:16-alpine
+                container_name: mp_postgres_db
+                environment:
+                  POSTGRES_USER: ${DB_USER}
+                  POSTGRES_PASSWORD: ${DB_PASSWORD}
+                  POSTGRES_DB: ${DB_NAME}
+                ports:
+                  - '5432:5432'
+                volumes:
+                  - mp_pgdata:/var/lib/postgresql/data
+                restart: always
+            volumes:
+              mp_pgdata:
+            EOF
+
+            DB_USER='${{ secrets.DB_USER }}' DB_PASSWORD='${{ secrets.DB_PASSWORD }}' DB_NAME='${{ secrets.DB_NAME }}' docker compose up -d
+
+            echo 'Waiting for database container to accept network traffic...'
+            until docker exec mp_postgres_db pg_isready -U '${{ secrets.DB_USER }}' -d '${{ secrets.DB_NAME }}'; do
+              sleep 2
+            done
+            echo 'Database environment verified online!'
+          "
+
+      # =================================================================
+      # STEP 2: BUILD CLIENT AND SERVER LOCALLY (TEST RUNNER ENVIRONMENT)
+      # =================================================================
       - name: Install and build client
         working-directory: client
         env:
@@ -21,7 +74,6 @@ jobs:
       - name: Install and build server
         working-directory: server
         env:
-          DATABASE_URL: ${{secrets.DATABASE_URL}}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
@@ -32,22 +84,20 @@ jobs:
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
           PORT: 3000
           APP_NAME: ${{ secrets.APP_NAME }}
-
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           PASSWORD_RESET_EXPIRES: ${{ secrets.PASSWORD_RESET_EXPIRES }}
         run: |
           npm ci
-          echo "DATABASE_URL is ${DATABASE_URL}"
-          echo "DATABASE_URL is ${{secrets.DATABASE_URL}}"
-          echo "DATABASE_URL is ${{secrets.VITE_API_BASE_URL}}"
-          npm run build
+          npx tsc
 
+      # =================================================================
+      # STEP 3: ARTIFACT UPLOAD TO STAGING ENVIRONMENT
+      # =================================================================
       - name: Deploy to Production Server using SCP
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USERNAME }}
           VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
-          # 🌟 Pass all your existing server secrets here
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
@@ -66,7 +116,7 @@ jobs:
             sudo apt-get update && sudo apt-get install -y sshpass openssh-client
           fi
 
-          # 🌟 FIX: Auto-generate the .env file using the local environment block variables
+          # Generate the production context configurations 
           echo "DATABASE_URL=\"$DATABASE_URL\"" >> ./server/.env
           echo "JWT_SECRET=\"$JWT_SECRET\"" >> ./server/.env
           echo "JWT_EXPIRES_IN=\"$JWT_EXPIRES_IN\"" >> ./server/.env
@@ -80,21 +130,20 @@ jobs:
           echo "FRONTEND_URL=\"$FRONTEND_URL\"" >> ./server/.env
           echo "PASSWORD_RESET_EXPIRES=\"$PASSWORD_RESET_EXPIRES\"" >> ./server/.env
 
-          # 1. Clean and create a temporary staging folder in your user space
-          echo "Preparing temporary staging directory..."
+          echo "Preparing staging workspace..."
           sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} "rm -rf ~/staging && mkdir -p ~/staging/client ~/staging/server"
 
-          # 2. Upload files to your safe, unprivileged home directory space
-          echo "Uploading client and server bundles to staging..."
+          echo "Uploading operational packages to VPS..."
           sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no -r ./client/dist ${VPS_USER}@${VPS_HOST}:~/staging/client/
           sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no -r ./server/dist ${VPS_USER}@${VPS_HOST}:~/staging/server/
           sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no ./server/package*.json ${VPS_USER}@${VPS_HOST}:~/staging/server/
-
-          # 3. Upload the production .env file created by your earlier step
-          echo "Uploading generated production .env file..."
+          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no -r ./server/prisma ${VPS_USER}@${VPS_HOST}:~/staging/server/
           sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no ./server/.env ${VPS_USER}@${VPS_HOST}:~/staging/server/
 
-      - name: Migrate Files and Restart Service with Sudo
+      # =================================================================
+      # STEP 4: REMOTE INSTALLATION, COMPILATION MAPPING, AND SERVICE INIT
+      # =================================================================
+      - name: Migrate Files, Clean Reinstall Dependencies, and Run Migrations
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USERNAME }}
@@ -104,29 +153,37 @@ jobs:
             sudo apt-get update && sudo apt-get install -y sshpass openssh-client
           fi
 
-          echo "Migrating files to /var/www/ using sudo -S and restarting PM2..."
+          echo "Migrating build packages to directory, re-installing Node dependencies on host server..."
           sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} "
-            # 🌟 Use 'sudo -S' to read the password from standard input (stdin)
-            
-            # Ensure production directories exist
+            # Set up server paths
             echo '$VPS_PASSWORD' | sudo -S mkdir -p /var/www/man-power-project/client /var/www/man-power-project/server
 
-            # Safely clear old builds and move new ones in
+            # Clear legacy builds
             echo '$VPS_PASSWORD' | sudo -S rm -rf /var/www/man-power-project/client/dist
             echo '$VPS_PASSWORD' | sudo -S rm -rf /var/www/man-power-project/server/dist
+            echo '$VPS_PASSWORD' | sudo -S rm -rf /var/www/man-power-project/server/prisma
             
+            # Map staging items out into target live locations
             echo '$VPS_PASSWORD' | sudo -S mv ~/staging/client/dist /var/www/man-power-project/client/
             echo '$VPS_PASSWORD' | sudo -S mv ~/staging/server/dist /var/www/man-power-project/server/
             echo '$VPS_PASSWORD' | sudo -S mv ~/staging/server/package*.json /var/www/man-power-project/server/
+            echo '$VPS_PASSWORD' | sudo -S mv ~/staging/server/prisma /var/www/man-power-project/server/
             echo '$VPS_PASSWORD' | sudo -S mv ~/staging/server/.env /var/www/man-power-project/server/
 
-            # Clean up the temporary staging space
             rm -rf ~/staging
 
-            # Install production dependencies directly inside the target server root
+            # Complete clean production reinstall natively on the host context
             cd /var/www/man-power-project/server
             echo '$VPS_PASSWORD' | sudo -S npm install --omit=dev
+            
+            # Recompile runtime Prisma client mappings securely for the production VPS architecture
+            echo '$VPS_PASSWORD' | sudo -S npx prisma generate
 
-            # Restart the live PM2 instance using root's PM2 engine
+            # Fire off migrations against your active, ready database
+            echo 'Executing Prisma structural schemas deployment...'
+            echo '$VPS_PASSWORD' | sudo -S npx prisma migrate deploy
+
+            # Re-initialize applications safely
+            echo 'Starting application engine processing loop...'
             echo '$VPS_PASSWORD' | sudo -S pm2 restart all
           "

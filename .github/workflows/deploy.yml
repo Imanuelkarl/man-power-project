@@ -30,7 +30,7 @@ jobs:
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           SMTP_SECURE: ${{ secrets.SMTP_SECURE }}
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
-
+          PORT: 3000
           APP_NAME: ${{ secrets.APP_NAME }}
 
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
@@ -42,7 +42,59 @@ jobs:
           echo "DATABASE_URL is ${{secrets.VITE_API_BASE_URL}}"
           npm run build
 
-      - name: Deploy to Server using SCP
+      - name: Deploy to Production Server using SCP
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USERNAME }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+          # 🌟 Pass all your existing server secrets here
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_SECURE: ${{ secrets.SMTP_SECURE }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          APP_NAME: ${{ secrets.APP_NAME }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          PORT: 3000
+          PASSWORD_RESET_EXPIRES: ${{ secrets.PASSWORD_RESET_EXPIRES }}
+        run: |
+          if ! command -v sshpass &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y sshpass openssh-client
+          fi
+
+          # 🌟 FIX: Auto-generate the .env file using the local environment block variables
+          echo "DATABASE_URL=\"$DATABASE_URL\"" >> ./server/.env
+          echo "JWT_SECRET=\"$JWT_SECRET\"" >> ./server/.env
+          echo "JWT_EXPIRES_IN=\"$JWT_EXPIRES_IN\"" >> ./server/.env
+          echo "SMTP_HOST=\"$SMTP_HOST\"" >> ./server/.env
+          echo "SMTP_USER=\"$SMTP_USER\"" >> ./server/.env
+          echo "SMTP_PORT=\"$SMTP_PORT\"" >> ./server/.env
+          echo "SMTP_PASS=\"$SMTP_PASS\"" >> ./server/.env
+          echo "SMTP_SECURE=\"$SMTP_SECURE\"" >> ./server/.env
+          echo "EMAIL_FROM=\"$EMAIL_FROM\"" >> ./server/.env
+          echo "APP_NAME=\"$APP_NAME\"" >> ./server/.env
+          echo "FRONTEND_URL=\"$FRONTEND_URL\"" >> ./server/.env
+          echo "PASSWORD_RESET_EXPIRES=\"$PASSWORD_RESET_EXPIRES\"" >> ./server/.env
+
+          # 1. Clean and create a temporary staging folder in your user space
+          echo "Preparing temporary staging directory..."
+          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} "rm -rf ~/staging && mkdir -p ~/staging/client ~/staging/server"
+
+          # 2. Upload files to your safe, unprivileged home directory space
+          echo "Uploading client and server bundles to staging..."
+          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no -r ./client/dist ${VPS_USER}@${VPS_HOST}:~/staging/client/
+          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no -r ./server/dist ${VPS_USER}@${VPS_HOST}:~/staging/server/
+          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no ./server/package*.json ${VPS_USER}@${VPS_HOST}:~/staging/server/
+
+          # 3. Upload the production .env file created by your earlier step
+          echo "Uploading generated production .env file..."
+          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no ./server/.env ${VPS_USER}@${VPS_HOST}:~/staging/server/
+
+      - name: Migrate Files and Restart Service with Sudo
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USERNAME }}
@@ -52,25 +104,29 @@ jobs:
             sudo apt-get update && sudo apt-get install -y sshpass openssh-client
           fi
 
-          # 🛠️ Changed target path to use your user's home folder (~/)
-          echo "Creating remote directories in home folder..."
-          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} "mkdir -p ~/deployed/client/dist ~/deployed/server/dist"
+          echo "Migrating files to /var/www/ using sudo -S and restarting PM2..."
+          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} "
+            # 🌟 Use 'sudo -S' to read the password from standard input (stdin)
+            
+            # Ensure production directories exist
+            echo '$VPS_PASSWORD' | sudo -S mkdir -p /var/www/man-power-project/client /var/www/man-power-project/server
 
-          echo "Uploading client files..."
-          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no -r ./client/dist/. ${VPS_USER}@${VPS_HOST}:/var/www/man-power-project/client/dist
+            # Safely clear old builds and move new ones in
+            echo '$VPS_PASSWORD' | sudo -S rm -rf /var/www/man-power-project/client/dist
+            echo '$VPS_PASSWORD' | sudo -S rm -rf /var/www/man-power-project/server/dist
+            
+            echo '$VPS_PASSWORD' | sudo -S mv ~/staging/client/dist /var/www/man-power-project/client/
+            echo '$VPS_PASSWORD' | sudo -S mv ~/staging/server/dist /var/www/man-power-project/server/
+            echo '$VPS_PASSWORD' | sudo -S mv ~/staging/server/package*.json /var/www/man-power-project/server/
+            echo '$VPS_PASSWORD' | sudo -S mv ~/staging/server/.env /var/www/man-power-project/server/
 
-          echo "Uploading server files..."
-          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no -r ./server/dist/. ${VPS_USER}@${VPS_HOST}:/var/www/man-power-project/server/dist
+            # Clean up the temporary staging space
+            rm -rf ~/staging
 
-      - name: Restart server using SSH
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USERNAME }}
-          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
-        run: |
-          if ! command -v sshpass &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y sshpass openssh-client
-          fi
+            # Install production dependencies directly inside the target server root
+            cd /var/www/man-power-project/server
+            echo '$VPS_PASSWORD' | sudo -S npm install --omit=dev
 
-          # 🛠️ Updated target execution path to match the home folder (~/)
-          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} "cd /var/www/man-power-project/server/dist && sudo pm2 restart all"
+            # Restart the live PM2 instance using root's PM2 engine
+            echo '$VPS_PASSWORD' | sudo -S pm2 restart all
+          "

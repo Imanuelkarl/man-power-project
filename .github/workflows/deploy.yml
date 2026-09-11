@@ -1,123 +1,76 @@
-name: Deploy Man Power Project
+name: Deploy Man Power App
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
-
-concurrency:
-  group: production-deploy
-  cancel-in-progress: true
-
-permissions:
-  contents: read
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: package-lock.json
-
+      - uses: actions/checkout@v4
       - name: Install and build client
         working-directory: client
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
         run: |
-          test -n "$VITE_API_BASE_URL" || { echo "Missing VITE_API_BASE_URL repository secret"; exit 1; }
           npm install
           npm run build
 
       - name: Install and build server
         working-directory: server
+        env:
+          DATABASE_URL: ${{secrets.DATABASE_URL}}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_SECURE: ${{ secrets.SMTP_SECURE }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+
+          APP_NAME: ${{ secrets.APP_NAME }}
+
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          PASSWORD_RESET_EXPIRES: ${{ secrets.PASSWORD_RESET_EXPIRES }}
         run: |
-          npm install
+          npm ci
+          echo "DATABASE_URL is ${DATABASE_URL}"
+          echo "DATABASE_URL is ${{secrets.DATABASE_URL}}"
+          echo "DATABASE_URL is ${{secrets.VITE_API_BASE_URL}}"
           npm run build
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: deployment
-          include-hidden-files: true
-          path: |
-            .
-            !./node_modules/**
-            !./client/node_modules/**
-            !./server/node_modules/**
-            !./.git/**
-            !./client/.env*
-            !./server/.env*
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment: production
-    env:
-      VPS_HOST: ${{ secrets.VPS_HOST }}
-      VPS_USER: ${{ secrets.VPS_USERNAME }}
-      VPS_PASS: ${{ secrets.VPS_PASSWORD }}
-      APP_DIR: /var/www/man-power-project
-    steps:
-      - name: Install SSH and rsync tools
-        run: sudo apt-get update && sudo apt-get install -y sshpass rsync
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: deployment
-          path: deploy
-
-      - name: Copy application to VPS
-        working-directory: deploy
-        run: |
-          test -n "$VPS_HOST" || { echo "Missing VPS_HOST repository secret"; exit 1; }
-          test -n "$VPS_USER" || { echo "Missing VPS_USERNAME repository secret"; exit 1; }
-          test -n "$VPS_PASS" || { echo "Missing VPS_PASSWORD repository secret"; exit 1; }
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
-          sshpass -e rsync -az --delete \
-            --exclude='.env' \
-            --exclude='.env.*' \
-            --exclude='node_modules/' \
-            --exclude='.git/' \
-            ./ "$VPS_USER@$VPS_HOST:$APP_DIR/"
+      - name: Deploy to Server using SCP
         env:
-          SSHPASS: ${{ secrets.VPS_PASSWORD }}
-
-      - name: Install dependencies, migrate database, and restart API
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USERNAME }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          sshpass -e ssh -o BatchMode=yes "$VPS_USER@$VPS_HOST" 'bash -s' << 'ENDSSH'
-            set -euo pipefail
-            cd /var/www/man-power-project/server
+          if ! command -v sshpass &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y sshpass openssh-client
+          fi
 
-            test -f .env || { echo "Missing server/.env on VPS"; exit 1; }
-            grep -q '^DATABASE_URL=' .env || { echo "DATABASE_URL is missing from server/.env"; exit 1; }
+          # 🛠️ Changed target path to use your user's home folder (~/)
+          echo "Creating remote directories in home folder..."
+          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} "mkdir -p ~/deployed/client/dist ~/deployed/server/dist"
 
-            npm install
-            npx prisma migrate deploy
-            npm prune --omit=dev
+          echo "Uploading client files..."
+          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no -r ./client/dist/. ${VPS_USER}@${VPS_HOST}:/var/www/man-power-project/client/dist
 
-            command -v pm2 >/dev/null 2>&1 || { echo "PM2 is not installed on VPS"; exit 1; }
-            pm2 describe man-power-api >/dev/null 2>&1 \
-              && pm2 restart man-power-api --update-env \
-              || pm2 start dist/server.js --name man-power-api
-            pm2 save
-          ENDSSH
+          echo "Uploading server files..."
+          sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no -r ./server/dist/. ${VPS_USER}@${VPS_HOST}:/var/www/man-power-project/server/dist
+
+      - name: Restart server using SSH
         env:
-          SSHPASS: ${{ secrets.VPS_PASSWORD }}
-
-      - name: Check deployed API
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USERNAME }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          sshpass -e ssh -o BatchMode=yes "$VPS_USER@$VPS_HOST" \
-            'curl --fail --silent --show-error http://127.0.0.1:5050/ >/dev/null'
-        env:
-          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+          if ! command -v sshpass &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y sshpass openssh-client
+          fi
+
+          # 🛠️ Updated target execution path to match the home folder (~/)
+          sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no ${VPS_USER}@${VPS_HOST} "cd /var/www/man-power-project/server/dist && sudo pm2 restart all"

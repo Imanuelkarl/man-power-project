@@ -13,6 +13,7 @@ import { ManufacturersPage } from "./pages/manufacturers/ManufacturerPage";
 
 import { ClusterMapPage } from "./pages/manufacturers/Clusters";
 import { Submissions } from "./pages/manufacturers/Submissions";
+import { SubmissionDetailPage } from "./pages/manufacturers/SubmissionDetailPage";
 import NewQuestionnairePage from "./pages/manufacturers/QuestionnairePage";
 import CompanyProfile from "./pages/manufacturers/CompanyProfile";
 import { ClusterHubPage } from "./pages/ClusterHubPage";
@@ -32,7 +33,7 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <AppLayout>
-                        <DashBoardSelector/>
+                        <DashBoardSelector />
                       </AppLayout>
                     </ProtectedRoute>
                   }
@@ -42,7 +43,7 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <AppLayout>
-                        <DashBoardSelector/>
+                        <DashBoardSelector />
                       </AppLayout>
                     </ProtectedRoute>
                   }
@@ -72,7 +73,7 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <AppLayout>
-                        <DashBoardSelector/>
+                        <DashBoardSelector />
                       </AppLayout>
                     </ProtectedRoute>
                   }
@@ -115,6 +116,16 @@ function App() {
                     <ProtectedRoute>
                       <AppLayout>
                         <Submissions />
+                      </AppLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/submissions/:id"
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <SubmissionDetailPage />
                       </AppLayout>
                     </ProtectedRoute>
                   }

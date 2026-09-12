@@ -39,7 +39,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   if (!hydrated) return <div className="min-h-screen bg-background" />;
   if (loading) {
-    return <><Loader isLoading={loading}/></>;
+    return (
+      <>
+        <Loader isLoading={loading} />
+      </>
+    );
   }
   console.log("User in AppLayout:", user);
   if (!user) return <Navigate to="/login" />;
@@ -60,7 +64,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       to: "/submissions",
       label: "Submissions",
       icon: FileText,
-      roles: ["manufacturer"],
+      roles: ["admin", "manufacturer"],
     },
     {
       to: "/manufacturers",
@@ -82,9 +86,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     },
     {
       to: "/company",
-      label: "Company Info",
+      label: "Company Forms",
       icon: FactoryIcon,
-      roles: ["manufacturer"],
+      roles: ["admin", "manufacturer"],
     },
     { to: "/users", label: "Users", icon: User, roles: ["admin"] },
     { to: "/admin", label: "Admin", icon: Settings, roles: ["admin"] },
@@ -92,7 +96,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   return (
     <div className="h-screen flex bg-background text-foreground">
-      < Toaster />
+      <Toaster />
       {sidebarOpen && (
         <button
           type="button"
@@ -120,7 +124,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 Manufacturing Intel
               </div>
             </div>
-            <ThemeToggle/>
+            <ThemeToggle />
           </div>
           <button
             type="button"

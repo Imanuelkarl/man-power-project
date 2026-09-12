@@ -13,6 +13,7 @@ import { PageHeader } from "../../components/page-header";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { Link, useSearchParams } from "react-router-dom";
 import Section from "../../components/forms/Section";
 import Field from "../../components/forms/Field";
 import type { Manufacturer } from "../../types/manufacturer.types";
@@ -20,6 +21,9 @@ import type { Manufacturer } from "../../types/manufacturer.types";
 function CompanyProfile() {
   const { user } = useAuth(); //useAuth((s) => s.user)!;
   const { manufacturers, addManufacturer, updateManufacturer } = useData();
+  const [searchParams] = useSearchParams();
+  const selectedManufacturerId = searchParams.get("manufacturerId");
+  const isAdmin = user?.role === "admin";
   const mapRef = useRef<HTMLDivElement | null>(null);
   const [isMapOpen, setIsMapOpen] = useState(false);
 
@@ -28,12 +32,16 @@ function CompanyProfile() {
   }
 
   const existing = useMemo(() => {
+    if (isAdmin && selectedManufacturerId) {
+      const m = manufacturers.find((x) => x.manId === selectedManufacturerId);
+      return { m };
+    }
     if (user.email) {
       const m = manufacturers.find((x) => x.email === user.email);
       return { m };
     }
     return { m: undefined };
-  }, [manufacturers, user.email]);
+  }, [isAdmin, manufacturers, selectedManufacturerId, user.email]);
 
   const [profile, setProfile] = useState({
     name: existing.m?.name ?? "",
@@ -47,6 +55,21 @@ function CompanyProfile() {
     lat: existing.m?.lat?.toString() ?? "",
     lng: existing.m?.lng?.toString() ?? "",
   });
+
+  useEffect(() => {
+    setProfile({
+      name: existing.m?.name ?? "",
+      contact_person: existing.m?.contact_person ?? user.name ?? "",
+      email: existing.m?.email ?? user.email,
+      phone: existing.m?.phone ?? "",
+      branch: existing.m?.branch ?? "",
+      sectoral_group: existing.m?.sectoral_group ?? SECTORAL_GROUPS[0],
+      sub_sector: existing.m?.sub_sector ?? "",
+      state: existing.m?.state ?? NIGERIAN_STATES[0].state,
+      lat: existing.m?.lat?.toString() ?? "",
+      lng: existing.m?.lng?.toString() ?? "",
+    });
+  }, [existing.m, user.email, user.name]);
 
   const googleMapsApiKey =
     import.meta.env.VITE_GOOGLE_MAPS_API_KEY ||
@@ -152,9 +175,12 @@ function CompanyProfile() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      let manufacturerEmail = user.email; //?? existing.m?.id;
-      const manufacturer = findManufacturerByEmail(manufacturerEmail);
+      const manufacturer = existing.m;
       if (!manufacturer) {
+        if (isAdmin) {
+          toast.error("Select a company from the Manufacturers page first.");
+          return;
+        }
         const loc =
           NIGERIAN_STATES.find((s) => s.state === profile.state) ??
           NIGERIAN_STATES[0];
@@ -169,7 +195,6 @@ function CompanyProfile() {
           createdAt: new Date().toISOString(),
         };
         void addManufacturer(m);
-        manufacturerEmail = m.email;
         console.log("adding new manufacturer");
         // link company to user
         user.email = m.email;
@@ -193,179 +218,193 @@ function CompanyProfile() {
       toast.error("Unable to update company's profile.");
     }
   };
-  const findManufacturerByEmail = (email: string) => {
-    const manufacturer = manufacturers.find((m) => m.email === email);
-    return manufacturer;
-  };
-
   return (
     <div className="p-6 lg:p-10 space-y-6 ">
-      <PageHeader title="Company Profile for manufacturers" />
+      <PageHeader
+        title={
+          existing.m
+            ? `Company Profile: ${existing.m.name}`
+            : "Company Profile for manufacturers"
+        }
+      />
 
-      <form onSubmit={handleSubmit} className="space-y-15 ">
-        <Section title="A. Company Profile">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Name of Company">
-              <Input
-                value={profile.name}
-                onChange={(e) =>
-                  setProfile({ ...profile, name: e.target.value })
-                }
-                required
-              />
-            </Field>
-            <Field label="Contact Person">
-              <Input
-                value={profile.contact_person}
-                onChange={(e) =>
-                  setProfile({ ...profile, contact_person: e.target.value })
-                }
-                required
-              />
-            </Field>
-            <Field label="E-mail">
-              <Input
-                type="email"
-                value={profile.email}
-                onChange={(e) =>
-                  setProfile({ ...profile, email: e.target.value })
-                }
-                required
-              />
-            </Field>
-            <Field label="Mobile Telephone Number(s)">
-              <Input
-                value={profile.phone}
-                onChange={(e) =>
-                  setProfile({ ...profile, phone: e.target.value })
-                }
-                required
-              />
-            </Field>
-            <Field label="Branch">
-              <Input
-                value={profile.branch}
-                onChange={(e) =>
-                  setProfile({ ...profile, branch: e.target.value })
-                }
-              />
-            </Field>
-            <Field label="State">
-              <Select
-                value={profile.state}
-                onValueChange={(v) => setProfile({ ...profile, state: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from(new Set(NIGERIAN_STATES.map((s) => s.state))).map(
-                    (s) => (
+      {isAdmin && !selectedManufacturerId ? (
+        <div className="rounded-lg border border-border p-6 space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Select a company from the Manufacturers page to complete its forms.
+          </p>
+          <Button asChild>
+            <Link to="/manufacturers">Go to Manufacturers</Link>
+          </Button>
+        </div>
+      ) : null}
+
+      {(!isAdmin || selectedManufacturerId) && (
+        <form onSubmit={handleSubmit} className="space-y-15 ">
+          <Section title="A. Company Profile">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Name of Company">
+                <Input
+                  value={profile.name}
+                  onChange={(e) =>
+                    setProfile({ ...profile, name: e.target.value })
+                  }
+                  required
+                />
+              </Field>
+              <Field label="Contact Person">
+                <Input
+                  value={profile.contact_person}
+                  onChange={(e) =>
+                    setProfile({ ...profile, contact_person: e.target.value })
+                  }
+                  required
+                />
+              </Field>
+              <Field label="E-mail">
+                <Input
+                  type="email"
+                  value={profile.email}
+                  onChange={(e) =>
+                    setProfile({ ...profile, email: e.target.value })
+                  }
+                  required
+                />
+              </Field>
+              <Field label="Mobile Telephone Number(s)">
+                <Input
+                  value={profile.phone}
+                  onChange={(e) =>
+                    setProfile({ ...profile, phone: e.target.value })
+                  }
+                  required
+                />
+              </Field>
+              <Field label="Branch">
+                <Input
+                  value={profile.branch}
+                  onChange={(e) =>
+                    setProfile({ ...profile, branch: e.target.value })
+                  }
+                />
+              </Field>
+              <Field label="State">
+                <Select
+                  value={profile.state}
+                  onValueChange={(v) => setProfile({ ...profile, state: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from(
+                      new Set(NIGERIAN_STATES.map((s) => s.state)),
+                    ).map((s) => (
                       <SelectItem key={s} value={s}>
                         {s}
                       </SelectItem>
-                    ),
-                  )}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Sectoral Group">
-              <Select
-                value={profile.sectoral_group}
-                onValueChange={(v) =>
-                  setProfile({ ...profile, sectoral_group: v })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SECTORAL_GROUPS.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Sub-sector">
-              <Input
-                value={profile.sub_sector}
-                onChange={(e) =>
-                  setProfile({ ...profile, sub_sector: e.target.value })
-                }
-              />
-            </Field>
-            <Field label="Latitude">
-              <Input
-                value={profile.lat}
-                onChange={(e) =>
-                  setProfile({ ...profile, lat: e.target.value })
-                }
-                placeholder="Use live capture or map selection"
-                required
-              />
-            </Field>
-            <Field label="Longitude">
-              <Input
-                value={profile.lng}
-                onChange={(e) =>
-                  setProfile({ ...profile, lng: e.target.value })
-                }
-                placeholder="Use live capture or map selection"
-                required
-              />
-            </Field>
-            <Field label="Location capture">
-              <div className="flex flex-col gap-2 grid sm:grid-cols-2">
-                <Button type="button" onClick={captureCurrentLocation}>
-                  Capture Company location
-                </Button>
-                <Button type="button" onClick={openMapModal}>
-                  Select location on map
-                </Button>
-              </div>
-            </Field>
-          </div>
-        </Section>
-
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            Data is stored locally for this MVP. Nothing leaves your browser.
-          </p>
-          <Button type="submit" size="lg">
-            <CheckCircle2 className="w-4 h-4 mr-2" /> Save Info
-          </Button>
-        </div>
-
-        {isMapOpen ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-4xl overflow-hidden rounded-2xl bg-background shadow-2xl">
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <h2 className="text-lg font-semibold">
-                  Select a location on the map
-                </h2>
-                <button
-                  type="button"
-                  className="text-sm text-muted-foreground"
-                  onClick={() => setIsMapOpen(false)}
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Sectoral Group">
+                <Select
+                  value={profile.sectoral_group}
+                  onValueChange={(v) =>
+                    setProfile({ ...profile, sectoral_group: v })
+                  }
                 >
-                  Close
-                </button>
-              </div>
-              <div ref={mapRef} className="h-96" />
-              <div className="flex items-center justify-between gap-4 border-t px-4 py-3">
-                <p className="text-sm text-muted-foreground">
-                  Click on the map to set latitude and longitude.
-                </p>
-                <Button type="button" onClick={() => setIsMapOpen(false)}>
-                  Done
-                </Button>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SECTORAL_GROUPS.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Sub-sector">
+                <Input
+                  value={profile.sub_sector}
+                  onChange={(e) =>
+                    setProfile({ ...profile, sub_sector: e.target.value })
+                  }
+                />
+              </Field>
+              <Field label="Latitude">
+                <Input
+                  value={profile.lat}
+                  onChange={(e) =>
+                    setProfile({ ...profile, lat: e.target.value })
+                  }
+                  placeholder="Use live capture or map selection"
+                  required
+                />
+              </Field>
+              <Field label="Longitude">
+                <Input
+                  value={profile.lng}
+                  onChange={(e) =>
+                    setProfile({ ...profile, lng: e.target.value })
+                  }
+                  placeholder="Use live capture or map selection"
+                  required
+                />
+              </Field>
+              <Field label="Location capture">
+                <div className="flex flex-col gap-2 grid sm:grid-cols-2">
+                  <Button type="button" onClick={captureCurrentLocation}>
+                    Capture Company location
+                  </Button>
+                  <Button type="button" onClick={openMapModal}>
+                    Select location on map
+                  </Button>
+                </div>
+              </Field>
+            </div>
+          </Section>
+
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              Data is stored locally for this MVP. Nothing leaves your browser.
+            </p>
+            <Button type="submit" size="lg">
+              <CheckCircle2 className="w-4 h-4 mr-2" /> Save Info
+            </Button>
+          </div>
+
+          {isMapOpen ? (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+              <div className="w-full max-w-4xl overflow-hidden rounded-2xl bg-background shadow-2xl">
+                <div className="flex items-center justify-between border-b px-4 py-3">
+                  <h2 className="text-lg font-semibold">
+                    Select a location on the map
+                  </h2>
+                  <button
+                    type="button"
+                    className="text-sm text-muted-foreground"
+                    onClick={() => setIsMapOpen(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+                <div ref={mapRef} className="h-96" />
+                <div className="flex items-center justify-between gap-4 border-t px-4 py-3">
+                  <p className="text-sm text-muted-foreground">
+                    Click on the map to set latitude and longitude.
+                  </p>
+                  <Button type="button" onClick={() => setIsMapOpen(false)}>
+                    Done
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        ) : null}
-      </form>
+          ) : null}
+        </form>
+      )}
     </div>
   );
 }

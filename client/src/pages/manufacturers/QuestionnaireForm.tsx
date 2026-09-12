@@ -10,6 +10,7 @@ import { useAuth } from "../../context/AuthContext";
 import Navigate from "../../components/navigate";
 import { formatPower } from "../../lib/format";
 import { useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 const num = (v: string) => (v === "" ? 0 : Number(v));
 const currencySymbols: Record<string, string> = {
@@ -66,19 +67,42 @@ export function QuestionnaireForm({
     updateQuestionnaire,
   } = useData();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const selectedManufacturerId = searchParams.get("manufacturerId");
+  const isAdmin = user?.role === "admin";
 
   useEffect(() => {
     void fetchQuestionnaires();
   }, [fetchQuestionnaires]);
 
   const existing = useMemo(() => {
+    if (isAdmin && selectedManufacturerId) {
+      const m = manufacturers.find((x) => x.manId === selectedManufacturerId);
+      const q = id
+        ? questionnaires.find((x) => String(x.id) === id)
+        : questionnaires.find(
+            (x) => x.manufacturerId === m?.manId && x.period === "H1 2026",
+          );
+      return { m, q };
+    }
     if (user?.email) {
       const m = manufacturers.find((x) => x.email === user.email);
-      const q = questionnaires.find((x) => String(x.id) === id);
+      const q = id
+        ? questionnaires.find((x) => String(x.id) === id)
+        : questionnaires.find(
+            (x) => x.manufacturerId === m?.manId && x.period === "H1 2026",
+          );
       return { m, q };
     }
     return { m: undefined, q: undefined };
-  }, [manufacturers, questionnaires, user?.email]);
+  }, [
+    id,
+    isAdmin,
+    manufacturers,
+    questionnaires,
+    selectedManufacturerId,
+    user?.email,
+  ]);
 
   useEffect(() => {
     setStartMonth(getMonthFromDate(startTime));

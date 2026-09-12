@@ -8,6 +8,7 @@ import { PageHeader } from "../../components/page-header";
 import { formatNaira } from "../../lib/format";
 import { Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 export function ManufacturersPage() {
   const {
@@ -193,17 +194,34 @@ export function ManufacturersPage() {
                     {q ? q.totalWorkers.toLocaleString() : "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-destructive"
-                      onClick={() => {
-                        removeManufacturer(m.id);
-                        toast.success(`Removed ${m.name}`);
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button asChild size="sm" variant="outline">
+                        <Link
+                          to={`/company?manufacturerId=${encodeURIComponent(m.manId)}`}
+                        >
+                          Profile
+                        </Link>
+                      </Button>
+                      <Button asChild size="sm" variant="outline">
+                        <Link
+                          to={`/questionnaire?manufacturerId=${encodeURIComponent(m.manId)}`}
+                        >
+                          Questionnaire
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-destructive"
+                        onClick={() => {
+                          removeManufacturer(m.id);
+                          toast.success(`Removed ${m.name}`);
+                        }}
+                        aria-label={`Remove ${m.name}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}

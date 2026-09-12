@@ -1,34 +1,57 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useData } from "../../lib/store";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
-//import { Badge } from "../../components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 import { PageHeader } from "../../components/page-header";
 import { formatNaira } from "../../lib/format";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Eye, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 export function Submissions() {
-  const { manufacturers, getQuestionnaireByEmail, removeQuestionnaire } =
-    useData();
-  const [query, _setQuery] = useState("");
+  const {
+    manufacturers,
+    questionnaires,
+    getQuestionnaireByEmail,
+    removeQuestionnaire,
+    fetchManufacturers,
+    fetchQuestionnaires,
+  } = useData();
+  const [query, setQuery] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const { user } = useAuth();
+
+  useEffect(() => {
+    void fetchManufacturers();
+    void fetchQuestionnaires();
+  }, [fetchManufacturers, fetchQuestionnaires]);
+
   if (!user) {
     return <></>;
   }
-  const questionnaires = getQuestionnaireByEmail(user.email);
-  //const { user} = useAuth();
+  const isAdmin = user.role === "admin";
 
   const rows = useMemo(() => {
-    //const q = query.toLowerCase();
+    const source = isAdmin
+      ? questionnaires
+      : getQuestionnaireByEmail(user.email);
+    const normalizedQuery = query.trim().toLowerCase();
 
-    return getQuestionnaireByEmail(user.email)
+    return source
       .filter((submission) => {
+        const manufacturer = manufacturers.find(
+          (candidate) => candidate.manId === submission.manufacturerId,
+        );
         const submissionTime = new Date(submission.startTime).getTime();
         const fromTime = startDate
           ? new Date(`${startDate}T00:00:00`).getTime()
@@ -38,6 +61,9 @@ export function Submissions() {
           : Infinity;
 
         return (
+          (!normalizedQuery ||
+            manufacturer?.name.toLowerCase().includes(normalizedQuery) ||
+            submission.period.toLowerCase().includes(normalizedQuery)) &&
           !Number.isNaN(submissionTime) &&
           submissionTime >= fromTime &&
           submissionTime <= toTime
@@ -48,7 +74,16 @@ export function Submissions() {
 
         return { m: qre, q: m };
       });
-  }, [manufacturers, questionnaires, query, startDate, endDate]);
+  }, [
+    manufacturers,
+    questionnaires,
+    query,
+    startDate,
+    endDate,
+    isAdmin,
+    getQuestionnaireByEmail,
+    user.email,
+  ]);
   //const manufacturer =
   //const powerData = user.role === "manufacturer"?questionnaires.filter((q) => (q.id ==)
   const sanitizeDate = (
@@ -76,20 +111,22 @@ export function Submissions() {
     <div className="p-6 lg:p-10 space-y-6 max-w-[1400px]">
       <PageHeader
         title="Submissions"
-        subtitle={`${questionnaires.length} companies on file`}
+        subtitle={
+          isAdmin
+            ? "Review and submit data for every manufacturer"
+            : `${questionnaires.length} submissions on file`
+        }
       />
 
       <Card className="p-0 overflow-hidden">
         <div className="p-4 border-b border-border flex items-center gap-3">
-          {/* <div className="relative flex-1 max-w-sm">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative flex-1 max-w-sm">
             <Input
-              placeholder="     Search company, state, sector…"
+              placeholder="Search company or period"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="pl-9"
             />
-          </div> */}
+          </div>
 
           <div className="flex items-center gap-2">
             <label
@@ -124,11 +161,13 @@ export function Submissions() {
           <div className="text-xs text-muted-foreground ml-auto">
             {rows.length} shown
           </div>
-          <div>
-            <Button onClick={() => console.log(true)}>
-              <Link to="/questionnaire">Add</Link>
+          {isAdmin ? (
+            <AdminSubmissionAction manufacturers={manufacturers} />
+          ) : (
+            <Button asChild>
+              <Link to="/questionnaire">Add submission</Link>
             </Button>
-          </div>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -154,14 +193,16 @@ export function Submissions() {
                     colSpan={7}
                     className="text-center py-10 text-muted-foreground"
                   >
-                    No Submissions yet. Generate dummy data from the Admin page.
+                    No submissions match the current filters.
                   </td>
                 </tr>
               )}
               {rows.map(({ q, m }) => (
                 <tr key={q.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3">
-                    <div className="font-medium">{m?.name}</div>
+                    <div className="font-medium">
+                      {m?.name ?? "Unknown company"}
+                    </div>
                     <div className="text-xs text-muted-foreground">
                       {q.submittedBy}
                     </div>
@@ -199,13 +240,25 @@ export function Submissions() {
                     {q ? q.totalWorkers.toLocaleString() : "—"}
                   </td>
 
-                  <td className="flex px-4 py-3">
+                  <td className="flex px-4 py-3 gap-1">
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="icon"
+                      aria-label="View submission details"
+                    >
+                      <Link to={`/submissions/${q.id}`}>
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="text-muted-foreground hover:text-foreground"
                     >
-                      <Link to={`/questionnaire/${q.id}`}>
+                      <Link
+                        to={`/questionnaire/${q.id}?manufacturerId=${encodeURIComponent(q.manufacturerId)}`}
+                      >
                         <Edit className="w-4 h-4" />
                       </Link>
                     </Button>
@@ -227,6 +280,42 @@ export function Submissions() {
           </table>
         </div>
       </Card>
+    </div>
+  );
+}
+
+function AdminSubmissionAction({
+  manufacturers,
+}: {
+  manufacturers: { manId: string; name: string }[];
+}) {
+  const [manufacturerId, setManufacturerId] = useState("");
+  const navigate = useNavigate();
+
+  return (
+    <div className="flex items-center gap-2">
+      <Select value={manufacturerId} onValueChange={setManufacturerId}>
+        <SelectTrigger className="w-[220px]">
+          <SelectValue placeholder="Select manufacturer" />
+        </SelectTrigger>
+        <SelectContent>
+          {manufacturers.map((manufacturer) => (
+            <SelectItem key={manufacturer.manId} value={manufacturer.manId}>
+              {manufacturer.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Button
+        disabled={!manufacturerId}
+        onClick={() =>
+          navigate(
+            `/questionnaire?manufacturerId=${encodeURIComponent(manufacturerId)}`,
+          )
+        }
+      >
+        Add submission
+      </Button>
     </div>
   );
 }

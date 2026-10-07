@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useData, SECTORAL_GROUPS, NIGERIAN_STATES } from "../../lib/store";
+import { useData, SECTORAL_GROUPS, NIGERIAN_STATES, useAuth } from "../../lib/store";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import {
@@ -12,14 +12,13 @@ import {
 import { PageHeader } from "../../components/page-header";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
 import { Link, useSearchParams } from "react-router-dom";
 import Section from "../../components/forms/Section";
 import Field from "../../components/forms/Field";
 import type { Manufacturer } from "../../types/manufacturer.types";
 
 function CompanyProfile() {
-  const { user } = useAuth(); //useAuth((s) => s.user)!;
+  const { user } = useAuth();
   const { manufacturers, addManufacturer, updateManufacturer } = useData();
   const [searchParams] = useSearchParams();
   const selectedManufacturerId = searchParams.get("manufacturerId");

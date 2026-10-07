@@ -1,4 +1,4 @@
-import api from "../utils/api";
+import api from "../lib/api";
 import { type PowerData as PowerDataPayload } from "../types/powerData.types";
 
 export interface PowerDataRecord extends PowerDataPayload {

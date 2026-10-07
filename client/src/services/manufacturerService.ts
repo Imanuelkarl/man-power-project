@@ -3,7 +3,7 @@ import type {
   ManufacturerUpdateData,
 } from "../types/manufacturer.types";
 import type { Success } from "../types/response.types";
-import api from "../utils/api";
+import api from "../lib/api";
 
 export interface ManufacturerCreateData {
   name: string;

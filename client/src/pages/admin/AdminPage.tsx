@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useData, useUsers } from "../../lib/store";
+import { useAuth, useData, useUsers } from "../../lib/store";
 import { generateBatch } from "../../lib/dummy-data";
 import { PageHeader } from "../../components/page-header";
 import { Card } from "../../components/ui/card";
@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { Check, Copy, Sparkles, Trash2} from "lucide-react";
 import { Navigate } from "@tanstack/react-router";
 import { useHydrated } from "../../hooks/use-hydrated";
-import { useAuth } from "../../context/AuthContext";
 
 export 
 function AdminPage() {

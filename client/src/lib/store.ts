@@ -29,6 +29,7 @@ interface AuthState {
     password: string,
   ) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
+  loading: boolean;
   register: (
     name: string,
     email: string,
@@ -41,12 +42,15 @@ export const useAuth = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      loading: false,
       login: async (email, password) => {
+        set({ loading: true });
         try {
           const { user } = await loginUser({ email, password });
-          set({ user });
+          set({ user, loading: false });
           return { ok: true };
         } catch {
+          set({ loading: false });
           return { ok: false, error: "Invalid email or password" };
         }
       },
@@ -121,7 +125,7 @@ interface DataState {
     id: number,
     patch: Partial<Manufacturer>,
   ) => Promise<void>;
-  removeManufacturer: (id: number) => void;
+  removeManufacturer: (id: number) => Promise<void>;
   fetchQuestionnaires: () => Promise<void>;
   fetchQuestionnaireForManufacturer: (
     manufacturerId: string,
@@ -134,7 +138,7 @@ interface DataState {
     patch: Partial<PowerData>,
   ) => Promise<PowerData>;
   upsertQuestionnaire: (q: PowerData) => void;
-  removeQuestionnaire: (id: number) => void;
+  removeQuestionnaire: (id: number) => Promise<void>;
   clearAll: () => void;
   bulkSet: (m: Manufacturer[], q: PowerData[]) => void;
 }
@@ -184,13 +188,19 @@ export const useData = create<DataState>()(
       //       m.id === id ? { ...m, ...patch } : m,
       //     ),
       //   }))},
-      removeManufacturer: (id) =>
+      removeManufacturer: async (id) => {
+        try {
+          await manufacturerService.delete(id);
+        } catch (error) {
+          console.error(error);
+        }
         set((s) => ({
           manufacturers: s.manufacturers.filter((m) => m.id !== id),
           questionnaires: s.questionnaires.filter(
             (q) => q.manufacturerId !== String(id),
           ),
-        })),
+        }));
+      },
       fetchQuestionnaires: async () => {
         set({ loadingQuestionnaires: true });
         try {
@@ -250,10 +260,11 @@ export const useData = create<DataState>()(
         }));
         return questionnaire;
       },
-      removeQuestionnaire: (id) =>
+      removeQuestionnaire: async (id) => {
         set((s) => ({
           questionnaires: s.questionnaires.filter((q) => q.id !== id),
-        })),
+        }));
+      },
       upsertQuestionnaire: (q) =>
         set((s) => {
           const idx = s.questionnaires.findIndex(

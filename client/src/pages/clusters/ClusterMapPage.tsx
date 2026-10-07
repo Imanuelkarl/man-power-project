@@ -10,13 +10,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GoogleMap, OverlayView, Polygon, Circle, useJsApiLoader } from "@react-google-maps/api";
-import { Card } from "../components/ui/card";
-import { Button } from "../components/ui/button";
+import { Card } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import { MapPin, ArrowLeft, Satellite, Map as MapIcon, Zap } from "lucide-react";
-import { formatNaira } from "../lib/format";
-import { PowerLevelBadge } from "../components/cluster/cluster-widgets";
-import { footprintFor } from "../lib/geo-hull";
-import type { ClusterWithStats, EnrichedManufacturer } from "../types/cluster.types";
+import { formatNaira } from "../../lib/format";
+import { PowerLevelBadge } from "../../components/cluster/cluster-widgets";
+import { footprintFor } from "../../lib/geo-hull";
+import type { ClusterWithStats, EnrichedManufacturer } from "../../types/cluster.types";
 import type { GeoJSON as GeoJSONType } from "geojson";
 
 const NIGERIA_CENTER = { lat: 9.082, lng: 8.6753 };

@@ -1,5 +1,5 @@
 import type { SignupPayload, User } from "../types/user.types";
-import api from "../utils/api";
+import api from "../lib/api";
 
 type AuthResponse = {
   token: string;
@@ -18,10 +18,12 @@ export type ResetPasswordPayload = {
 
 export const login = async ({ email, password }: LoginPayload) => {
   try {
+    console.log("Login request data are:", { email, password });
     const response = await api.post<AuthResponse>("/auth/login", {
       email,
       password,
     });
+    
     const data = response.data;
     localStorage.setItem("token", data.token);
     console.log("Login response data:", data);

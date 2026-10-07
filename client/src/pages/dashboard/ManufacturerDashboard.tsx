@@ -1,9 +1,9 @@
 // ManufacturerDashboard.tsx
 import { useMemo } from "react";
-import { useData } from "../lib/store"; // Assuming you have an auth hook
-import { Card } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
+import { useAuth, useData } from "../../lib/store"; // Assuming you have an auth hook
+import { Card } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
 import {
   BarChart,
   Bar,
@@ -28,10 +28,9 @@ import {
   Activity,
   DollarSign,
 } from "lucide-react";
-import { exportCSV, exportExcel, exportPDF } from "../lib/exports";
-import { PageHeader } from "../components/page-header";
-import { formatNaira, formatPower } from "../lib/format";
-import { useAuth } from "../context/AuthContext";
+import { exportCSV, exportExcel, exportPDF } from "../../lib/exports";
+import { PageHeader } from "../../components/page-header";
+import { formatNaira, formatPower } from "../../lib/format";
 
 const COLORS = [
   "oklch(0.68 0.16 150)",

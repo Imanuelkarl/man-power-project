@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { useData, type PowerData } from "../../lib/store";
+import { useAuth, useData, type PowerData } from "../../lib/store";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { Button } from "../../components/ui/button";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
 import Navigate from "../../components/navigate";
 import { formatPower } from "../../lib/format";
 import { useParams } from "react-router-dom";

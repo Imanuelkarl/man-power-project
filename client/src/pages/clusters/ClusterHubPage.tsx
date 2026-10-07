@@ -1,33 +1,33 @@
 // src/pages/ClusterHubPage.tsx (updated)
 
 import { useEffect, useMemo, useState } from "react";
-import { useData } from "../lib/store";
-import { Button } from "../components/ui/button";
-import { PageHeader } from "../components/page-header";
+import { useData } from "../../lib/store";
+import { Button } from "../../components/ui/button";
+import { PageHeader } from "../../components/page-header";
 import { Plus, Download } from "lucide-react";
 import {
   ClusterCard,
   ClusterFilterBar,
-} from "../components/cluster/cluster-widgets";
-import { ClusterExportDialog } from "../components/cluster/ClusterExportDialog";
+} from "../../components/cluster/cluster-widgets";
+import { ClusterExportDialog } from "../../components/cluster/ClusterExportDialog";
 import {
   assignPowerLevels,
   buildClusterWithStats,
-  clusterStore,
   computeAvgEnergyByManufacturer,
   computeAvgSpendByManufacturer,
   enrichManufacturers,
-} from "../lib/cluster-utils";
-import { NIGERIA_REGIONS } from "../lib/nigeria-geo-data";
-import { ClusterMapPage } from "./ClusterMapPage";
+} from "../../lib/cluster-utils";
+import { NIGERIA_REGIONS } from "../../lib/nigeria-geo-data";
+import { ClusterMapPage } from "../clusters/ClusterMapPage";
 import type {
   ClusterDefinition,
   ClusterFilters,
   ClusterWithStats,
-} from "../types/cluster.types";
-import { DEFAULT_CLUSTER_FILTERS } from "../types/cluster.types";
-import { loadGeoJSON } from "../lib/location_finder";
-import ClusterCreateForm from "../components/cluster/cluster-create-form";
+} from "../../types/cluster.types";
+import { DEFAULT_CLUSTER_FILTERS } from "../../types/cluster.types";
+import { loadGeoJSON } from "../../lib/location_finder";
+import ClusterCreateForm from "../../components/cluster/cluster-create-form";
+import clustersService from "../../services/clustersService";
 
 type View = "hub" | "map";
 
@@ -46,7 +46,7 @@ export const ClusterHubPage: React.FC = () => {
 
   useEffect(() => {
     loadGeoJSON();
-    clusterStore.getClusters().then((saved) => {
+    clustersService.getClusters().then((saved) => {
       setDefs(saved);
       setLoaded(true);
     });
@@ -120,13 +120,13 @@ export const ClusterHubPage: React.FC = () => {
   }, [enriched]);
 
   const handleCreate = async (def: ClusterDefinition) => {
-    await clusterStore.saveCluster(def);
+    await clustersService.saveCluster(def);
     setDefs((prev) => [...prev, def]);
     setShowCreateForm(false);
   };
 
   const handleDelete = async (id: string) => {
-    await clusterStore.deleteCluster(id);
+    await clustersService.deleteCluster(id);
     setDefs((prev) => prev.filter((d) => d.id !== id));
   };
   const handleExport = async (id: string) => {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useData } from "../../lib/store";
+import { useAuth, useData } from "../../lib/store";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -15,7 +15,6 @@ import { formatNaira } from "../../lib/format";
 import { Edit, Eye, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 
 export function Submissions() {
   const {

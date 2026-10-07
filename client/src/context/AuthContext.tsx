@@ -12,7 +12,7 @@ import {
   logout as logoutService,
 } from "../services/authService";
 import { navigate } from "../components/navigate";
-import api from "../utils/api";
+import api from "../lib/api";
 import type { User } from "../types/user.types";
 import { clearClientStores } from "../lib/store";
 import { useData } from "../lib/store";

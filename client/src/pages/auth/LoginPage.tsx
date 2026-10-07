@@ -8,10 +8,9 @@ import { Tabs, TabsContent } from "../../components/ui/tabs";
 import { Factory } from "lucide-react";
 import { toast } from "sonner";
 import { useHydrated } from "../../hooks/use-hydrated";
-import { useAuth } from "../../context/AuthContext";
 import { ThemeToggle } from "../../components/ThemeToggle";
-import Navigate, { navigate } from "../../components/navigate";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../lib/store";
 
 const LoginPage: React.FC = () => {
   const { user, login, loading } = useAuth();
@@ -19,14 +18,16 @@ const LoginPage: React.FC = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  if (hydrated && user) return <Navigate to="/" title="Dashboard" />;
+  if (hydrated && user) return <Link to="/" title="Dashboard" />;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      navigate("/");
+      const userData =await login(email, password);
+      console.log("Login Data is",userData)
+      navigate("/dashboard");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Login failed");
     }

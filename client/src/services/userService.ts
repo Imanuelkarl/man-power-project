@@ -1,5 +1,5 @@
 import type { User } from "../types/user.types";
-import api from "../utils/api";
+import api from "../lib/api";
 
 export interface UserCreateData {
   name: string;

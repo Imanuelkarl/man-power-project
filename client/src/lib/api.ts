@@ -19,7 +19,6 @@ api.interceptors.response.use(
   (response) => {
     // 1. Check if the response follows your NestJS global envelope layout
     if (response.data && response.data.success === true) {
-      console.log(response.data.data);
       // If your API returns a paginated list, you may want to return both data and pagination
       // if (response.data.pagination) {
       //   return {

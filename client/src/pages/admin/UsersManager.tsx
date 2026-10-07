@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useData, useUsers } from "../../lib/store";
+import { useAuth, useData, useUsers } from "../../lib/store";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -13,7 +13,6 @@ import { PasswordInput } from "../../components/ui/password-input";
 import authService from "../../services/authService";
 import userService from "../../services/userService";
 import type { User } from "../../types/user.types";
-import { useAuth } from "../../context/AuthContext";
 
 export function UsersManager() {
   const { users, fetchUsers, addUser, removeUser } = useUsers();

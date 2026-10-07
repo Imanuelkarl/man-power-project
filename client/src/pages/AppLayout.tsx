@@ -1,5 +1,5 @@
 // import { createFileRoute, Link, Navigate,  useNavigate } from "@tanstack/react-router";
-import { type Role } from "../lib/store";
+import { useAuth, type Role } from "../lib/store";
 import { Button } from "../components/ui/button";
 import {
   BarChart3,
@@ -10,7 +10,6 @@ import {
   Map,
   MapPin,
   Menu,
-  Settings,
   User,
   Users,
   X,
@@ -20,7 +19,6 @@ import { useHydrated } from "../hooks/use-hydrated";
 import Navigate, { navigate } from "../components/navigate";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { Loader } from "../components/ui/loader";
 import { Toaster } from "sonner";
@@ -91,7 +89,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       roles: ["admin", "manufacturer"],
     },
     { to: "/users", label: "Users", icon: User, roles: ["admin"] },
-    { to: "/admin", label: "Admin", icon: Settings, roles: ["admin"] },
+    // { to: "/admin", label: "Admin", icon: Settings, roles: ["admin"] },
   ];
 
   return (

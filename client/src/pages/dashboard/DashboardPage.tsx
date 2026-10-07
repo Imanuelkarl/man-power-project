@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from "react";
-import { useData } from "../lib/store";
+import { useData } from "../../lib/store";
 //import { clusterManufacturers } from "../lib/clusters";
-import { Card } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
+import { Card } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
 import {
   BarChart,
   Bar,
@@ -26,11 +26,11 @@ import {
   FileText,
   FileSpreadsheet,
 } from "lucide-react";
-import { exportCSV, exportExcel, exportPDF } from "../lib/exports";
-import { PageHeader } from "../components/page-header";
-import { formatNaira, formatPower } from "../lib/format";
-import { findLGA } from "../lib/location_finder";
-import { Skeleton } from "../components/ui/skeleton";
+import { exportCSV, exportExcel, exportPDF } from "../../lib/exports";
+import { PageHeader } from "../../components/page-header";
+import { formatNaira, formatPower } from "../../lib/format";
+import { findLGA } from "../../lib/location_finder";
+import { Skeleton } from "../../components/ui/skeleton";
 
 const COLORS = [
   "oklch(0.68 0.16 150)",

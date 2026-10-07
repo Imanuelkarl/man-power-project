@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { useData } from "../../lib/store";
+import { useAuth, useData } from "../../lib/store";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { PageHeader } from "../../components/page-header";
 import { formatFullNaira } from "../../lib/format";
-import { useAuth } from "../../context/AuthContext";
 
 const moneyFields = new Set([
   "productionValue",

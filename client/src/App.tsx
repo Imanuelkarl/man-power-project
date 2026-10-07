@@ -5,20 +5,20 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AppLayout } from "./pages/AppLayout";
-import { AdminPage } from "./pages/admin/AdminPage";
+//import { AdminPage } from "./pages/admin/AdminPage";
 import { ForgotPasswordPage } from "./pages/auth/ResetPassword";
 import { InvitePage } from "./pages/auth/UpdatePassword";
 import { UsersManager } from "./pages/admin/UsersManager";
 import { ManufacturersPage } from "./pages/manufacturers/ManufacturerPage";
 
-import { ClusterMapPage } from "./pages/manufacturers/Clusters";
+import { ClusterMapPage } from "./pages/clusters/Clusters";
 import { Submissions } from "./pages/manufacturers/Submissions";
 import { SubmissionDetailPage } from "./pages/manufacturers/SubmissionDetailPage";
 import NewQuestionnairePage from "./pages/manufacturers/QuestionnairePage";
 import CompanyProfile from "./pages/manufacturers/CompanyProfile";
-import { ClusterHubPage } from "./pages/ClusterHubPage";
+import { ClusterHubPage } from "./pages/clusters/ClusterHubPage";
 import { Toaster } from "sonner";
-import DashBoardSelector from "./pages/DashBoardSelector";
+import DashBoardSelector from "./pages/dashboard/DashBoardSelector";
 
 function App() {
   return (
@@ -170,7 +170,7 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route
+                {/* <Route
                   path="/admin"
                   element={
                     <ProtectedRoute>
@@ -179,7 +179,7 @@ function App() {
                       </AppLayout>
                     </ProtectedRoute>
                   }
-                />
+                /> */}
                 <Route
                   path="/login"
                   element={

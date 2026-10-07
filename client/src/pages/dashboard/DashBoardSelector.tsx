@@ -1,6 +1,7 @@
-import { useAuth } from "../context/AuthContext";
-import { ManufacturerDashboard } from "./ManufacturerDashboard";
+
+import { ManufacturerDashboard } from "../dashboard/ManufacturerDashboard";
 import { DashboardPage } from "./DashboardPage";
+import { useAuth } from "../../lib/store";
 
 const DashBoardSelector = () => {
   const { user } = useAuth();

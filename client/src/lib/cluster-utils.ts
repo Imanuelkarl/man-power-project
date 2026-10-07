@@ -12,7 +12,6 @@ import type {
 import { findOfficialLga, lgaKey, regionForState } from "./nigeria-geo-data";
 import { distanceKm } from "./geo-hull";
 import { existInLGA } from "./location_finder";
-import api from "../utils/api";
 
 // ---------------------------------------------------------------------------
 // Enrichment
@@ -244,26 +243,6 @@ export function buildClusterWithStats(
   };
 }
 
-// ---------------------------------------------------------------------------
-// Server persistence. The API scopes results to the authenticated user;
-// administrators receive all clusters.
-// ---------------------------------------------------------------------------
-
-export const clusterStore = {
-  async getClusters(): Promise<ClusterDefinition[]> {
-    const response = await api.get<ClusterDefinition[]>("/clusters");
-    return response.data;
-  },
-
-  async saveCluster(def: ClusterDefinition): Promise<ClusterDefinition> {
-    const response = await api.post<ClusterDefinition>("/clusters", def);
-    return response.data;
-  },
-
-  async deleteCluster(id: string): Promise<void> {
-    await api.delete(`/clusters/${encodeURIComponent(id)}`);
-  },
-};
 
 export function newClusterId(): string {
   return `cluster_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;

@@ -7,11 +7,11 @@ import {
   PlugZapIcon,
   Eye,
 } from "lucide-react";
-import { StepNavigator, type StepNavigatorStep } from "../StepNavigator";
+import { StepNavigator, type StepNavigatorStep } from "../../components/StepNavigator";
 import { QuestionnaireForm, QUESTIONNAIRE_STEPS } from "./QuestionnaireForm";
 import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../lib/store";
 
 const steps: StepNavigatorStep[] = [
   {

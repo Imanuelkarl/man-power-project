@@ -8,8 +8,8 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { toast } from "sonner";
 import { Check, Copy, Sparkles, Trash2} from "lucide-react";
-import { Navigate } from "@tanstack/react-router";
 import { useHydrated } from "../../hooks/use-hydrated";
+import { Navigate } from "react-router-dom";
 
 export 
 function AdminPage() {
